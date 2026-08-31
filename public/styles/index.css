@@ -1,0 +1,24 @@
+/* Classes */
+
+.center-icon {
+    font-size: 4rem;
+    margin: 1rem;
+}
+
+/* IDs */
+
+#html {
+    background: linear-gradient(0deg, #ff3d00, #ff6c2e, #ff6c2e);
+}
+
+#html .center-icon {
+    font-size: 5rem;
+}
+
+#css {
+    background: linear-gradient(0deg, #006eff, #2ea1ff, #2ea1ff);
+}
+
+#js {
+    background: linear-gradient(0deg, #d6d400, #fffd21, #fffd21);
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOT DEV - Cadastro</title>
+    
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/cadastro-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" href="./img/folder-icon.png" type="image/png">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="tittle">
+                <a href="index.html">
+                    <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
+                </a>
+            </div>
+            <div id="auth-buttons">
+                <button>
+                    <a>Login</a>
+                </button>
+                <button>
+                    <a>Cadastro</a>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div id="form-box">
+        <form action="" class="white-text">
+            <h1 class="disket-font">CADASTRO</h1>
+            <div class="campo">
+                <label for="nome">Nome de Usuário:</label>
+                <div>
+                    <input id="nome" name="nome" type="text" required placeholder="JoaozinhoLegau123"> <span class="required">*</span>
+                </div>
+            </div>
+            <div class="campo">    
+                <label for="email">E-Mail:</label>
+                <div>
+                    <input id="email" name="email" type="email" required placeholder="joaozinho@email.com"> <span class="required">*</span>
+                </div>
+            </div> 
+            <div class="campo">    
+                <label for="telefone">Telefone:</label> 
+                <div>
+                    <input id="telefone" name="telefone" type="number" placeholder="(99) 12345-6789"> <span class="hidden">*</span>
+                </div>
+            </div> 
+            <div class="campo">    
+                <label for="senha">Senha:</label> 
+                <div>
+                    <input id="senha" name="senha" type="password" required  placeholder="senhaforte321"> <span class="required">*</span>
+                </div>
+            </div> 
+            <div class="campo">    
+                <label for="confirmar-senha">Confirmar Senha:</label> 
+                <div>
+                    <input id="confirmar-senha" name="confirmar-senha" type="password" required placeholder="senhaforte321"> <span class="required">*</span>
+                </div>
+            </div>
+            <div id="form-confirm">
+                <p>Já possui uma conta? <span>Entrar</span></p>
+                <button type="submit" class="main-button disket-font">Cadastrar</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <div class="content-block" id="contato">
+            <h1 class="disket-font">CONTATO:</h1>
+            <p>E-mail: <span>rootdevsuporte@gmail.com</span></p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,72 @@
+#form-box {
+    margin: 2rem;
+    border-radius: 30px;
+    justify-self: center;
+    padding: 2rem;
+    background-color: #333;
+    max-width: 60%;
+}
+
+#form-box h1 {
+    text-align: center;
+    font-size: 3rem;
+    margin: 1rem;
+}
+
+#form-box p, label {
+    font-size: 22px;
+}
+
+#form-box .campo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#form-box input {
+    padding: 0.7rem;
+    border: none;
+    border-radius: 30px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+#form-confirm {
+    text-align: center;
+}
+
+@media screen and (max-width: 320px) {
+    #form-box {
+        padding: 10px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+@media screen and (max-width: 430px) {
+    #form-box {
+        max-width: 95%;
+    }
+
+    nav h1{
+        font-size: 8vw;
+    }
+}
+
+@media screen and (min-width: 430px) {
+    #form-box {
+        max-width: 80%;
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 900px) {
+    #form-box {
+        max-width: 600px;
+        width: 100%;
+    }
+}
+
