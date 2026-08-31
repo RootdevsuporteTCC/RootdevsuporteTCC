@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOT DEV - Login</title>
+    
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/cadastro-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" href="./img/folder-icon.png" type="image/png">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="tittle">
+                <a href="index.html">
+                    <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
+                </a>
+            </div>
+            <div id="auth-buttons">
+                <button>
+                    <a href="login.html">Login</a>
+                </button>
+                <button>
+                    <a href="cadastro.html">Cadastro</a>
+                </button>   
+            </div>
+        </nav>
+    </header>
+
+    <div id="form-box">
+        <form action="" class="white-text">
+            <h1 class="disket-font">LOGIN</h1>
+            <div class="campo">
+                <label for="nome">Nome de Usuário ou E-Mail:</label>
+                <div class="input">
+                    <input id="nome" name="nome" type="text" required placeholder="JoaozinhoLegau123">
+                    <span class="required">*</span> <br> <br>
+                </div>
+            </div>
+            
+            <div class="campo">   
+                <div> 
+                    <label for="senha">Senha:</label> 
+                </div>
+                <div class="input">
+                    <input id="senha" name="senha" type="password" required  placeholder="senhaforte321">
+                    <span class="required">*</span> <br>
+                </div>
+            </div> 
+
+            <div id="form-confirm">
+                <p><span>Esqueceu sua senha?</span></p>
+                <button type="submit" class="main-button disket-font">Entrar</button>
+                <p>Não possui uma conta? <span>Cadastre-se</span></p>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <div class="content-block" id="contato">
+            <h1 class="disket-font">CONTATO:</h1>
+            <p>E-mail: <span>rootdevsuporte@gmail.com</span></p>
+        </div>
+    </footer>
+</body>
+</html>

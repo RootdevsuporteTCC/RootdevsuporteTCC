@@ -38,7 +38,7 @@
     text-align: center;
 }
 
-@media screen and (max-width: 320px) {
+@media screen and (max-width: 475px) {
     #form-box {
         padding: 10px;
         margin-left: 0;
@@ -46,13 +46,25 @@
     }
 }
 
-@media screen and (max-width: 430px) {
+@media screen and (max-width: 428px) {
     #form-box {
         max-width: 95%;
     }
 
     nav h1{
         font-size: 8vw;
+    }
+}
+
+@media screen and (max-width: 688px) {
+    .campo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input {
+        display: flex;
+        flex-wrap: nowrap;
     }
 }
 
