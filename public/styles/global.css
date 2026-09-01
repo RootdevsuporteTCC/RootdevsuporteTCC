@@ -209,6 +209,7 @@ input::placeholder {
 }
 
 
+
 /* faz a responsividade da tela */
 @media screen and (max-width: 428px) {
     #contato {
