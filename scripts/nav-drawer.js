@@ -13,5 +13,8 @@ window.addEventListener("resize", () => {
     if (window.innerWidth > 720) {
         menu.classList.remove("menu-aberto")
         menu.classList.add("menu-fechado")
+
+        menuIcon.classList.remove("fa-xmark")
+        menuIcon.classList.add("fa-bars")
     }
 })
