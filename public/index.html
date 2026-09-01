@@ -23,13 +23,22 @@
             </div>
             <div id="auth-buttons">
                 <a href="login.html">
-                    <button>Login</button>
+                    <button class="button-auth">Login</button>
                 </a> 
                 <a href="cadastro.html">
-                    <button>Cadastro</button>
+                    <button class="button-auth">Cadastro</button>
                 </a> 
             </div>
+            <div id="nav-drawer-container">
+                <div id="nav-drawer">
+                    <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
+                </div>
+            </div>
         </nav>
+        <div id="nav-drawer-menu" class="menu-aberto">
+            <button>Login</button>
+            <button>Cadastro</button>
+        </div>
     </header>
 
 
@@ -69,4 +78,7 @@
         </div>
     </footer>
 </body>
+
+<script src="../scripts/nav-drawer.js"></script>
+
 </html>

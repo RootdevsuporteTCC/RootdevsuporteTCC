@@ -33,7 +33,7 @@ nav h1 {
     font-size: 3.5rem;
 }
 
-nav button {
+nav .button-auth {
     padding: 1rem;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -157,6 +157,7 @@ input::placeholder {
     opacity: 0;
 }
 
+
 /* IDs */
 
 /* estiliza os botoes de login e cadastro na navbar */
@@ -168,6 +169,24 @@ input::placeholder {
     font-size: 1.5rem;
 }
 
+#nav-drawer {
+    display: flex;
+}
+
+#nav-drawer i{
+    cursor: pointer;
+    font-size: 4rem;
+    align-self: center;
+    margin-right: 1.7rem;
+}
+
+#nav-drawer-menu {
+    display: block;
+}
+
+#nav-drawer-menu.menu-aberto {
+    display: none;
+}
 
 /* estiliza a seção de contato no final de cada página */
 #contato {
@@ -182,12 +201,8 @@ input::placeholder {
 
 /* faz a responsividade da tela */
 @media screen and (max-width: 428px) {
-    nav h1{
-        font-size: 8vw;
-    }
-
     #contato {
-        padding: 1vw;
+        padding: 2vw;
     }
 
     #contato h1 {
@@ -197,11 +212,29 @@ input::placeholder {
     #contato p {
         font-size: 6vw;
     }
+
+    #nav-drawer i {
+        font-size: 10vw;
+    }
+}
+
+@media screen and (max-width: 470px) {
+    nav h1{
+        font-size: 10vw;
+    }
+
+    #nav-drawer i {
+        font-size: 12vw;
+    }
 }
 
 @media screen and (max-width: 720px) {
     #auth-buttons {
         display: none;
+    }
+
+    #nav-drawer-container {
+        display: flex;
     }
 }
 
