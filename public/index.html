@@ -23,21 +23,25 @@
             </div>
             <div id="auth-buttons">
                 <a href="login.html">
-                    <button class="button-auth">Login</button>
+                    <button>Login</button>
                 </a> 
                 <a href="cadastro.html">
-                    <button class="button-auth">Cadastro</button>
+                    <button>Cadastro</button>
                 </a> 
             </div>
             <div id="nav-drawer-container">
                 <div id="nav-drawer">
-                    <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
+                    <i class="fa-solid fa-bars" id="menu-icon" onclick="toggleMenu()"></i>
                 </div>
             </div>
         </nav>
-        <div id="nav-drawer-menu" class="menu-aberto">
-            <button>Login</button>
-            <button>Cadastro</button>
+        <div id="nav-drawer-menu" class="menu-fechado">
+            <a href="login.html">
+                <button>Login</button>
+            </a> 
+            <a href="cadastro.html">
+                <button>Cadastro</button>
+            </a> 
         </div>
     </header>
 

@@ -33,7 +33,7 @@ nav h1 {
     font-size: 3.5rem;
 }
 
-nav .button-auth {
+nav button {
     padding: 1rem;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -157,6 +157,9 @@ input::placeholder {
     opacity: 0;
 }
 
+.menu-fechado {
+    display: none;
+}
 
 /* IDs */
 
@@ -169,6 +172,10 @@ input::placeholder {
     font-size: 1.5rem;
 }
 
+#nav-drawer-container {
+    display: none;
+}
+
 #nav-drawer {
     display: flex;
 }
@@ -178,14 +185,6 @@ input::placeholder {
     font-size: 4rem;
     align-self: center;
     margin-right: 1.7rem;
-}
-
-#nav-drawer-menu {
-    display: block;
-}
-
-#nav-drawer-menu.menu-aberto {
-    display: none;
 }
 
 /* estiliza a seção de contato no final de cada página */
@@ -235,6 +234,10 @@ input::placeholder {
 
     #nav-drawer-container {
         display: flex;
+    }
+
+    .menu-aberto {
+        display: block;
     }
 }
 
