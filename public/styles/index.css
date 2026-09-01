@@ -8,7 +8,7 @@
 
 /* IDs */
 
-/* definem as cores e outras estilizações específicas de cada aba de conteúdo da pagina principal */
+/* define as cores e outras estilizações específicas de cada aba de conteúdo da pagina principal */
 
 #html {
     background: linear-gradient(0deg, #ff3d00, #ff6c2e, #ff6c2e);
@@ -27,8 +27,8 @@
 }
 
 /* garante que o titulo longo do js não quebre a página numa resolução pequena */
-@media screen and (max-width: 460px) {
+@media screen and (max-width: 545px) {
     #js h1 {
-        font-size: 2rem;
+        font-size: 9vw;
     }
 }

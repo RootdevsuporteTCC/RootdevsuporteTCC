@@ -1,5 +1,10 @@
 /* estilizações da caixa do formulario, tanto do login quanto cadastro e recuperação de senha */
 
+form {
+    display: grid;
+    gap: 1.5rem;
+}
+
 #form-box {
     margin: 2rem;
     border-radius: 30px;
@@ -53,6 +58,10 @@
 @media screen and (max-width: 428px) {
     #form-box {
         max-width: 95%;
+    }
+
+    #form-box label {
+        font-size: 6vw;
     }
 
     #form-box h1 {
