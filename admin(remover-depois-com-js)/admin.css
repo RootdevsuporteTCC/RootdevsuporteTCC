@@ -1,0 +1,81 @@
+/* estilização total da pagina do ADM bizzarro */
+
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+    gap: 2.5rem;
+}
+
+/* estilo principal do card */
+.admin-card {
+    background-color: #333333;
+    color: white;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 900px;
+    border-radius: 15px;
+    padding: 2rem 3rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    gap: 2rem;
+}
+
+/* os icones na esquerda */
+.card-icon {
+    font-size: 4.5rem;
+    color: white;
+    min-width: 80px;
+    display: flex;
+    justify-content: center;
+}
+
+/* estilo do card bacana */
+.card-title {
+    flex: 1;
+    text-align: center;
+}
+
+.card-title h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+}
+
+/* estilo do textinho da descrição do sei la oq */
+.card-desc {
+    flex: 1.2;
+    font-size: 1.1rem;
+    color: #cccccc;
+}
+
+.card-desc p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* estilo dos botões legais */
+.card-action {
+    min-width: 140px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.card-action button {
+    background-color: #9b00e8;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 1.5rem 1.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 700px) {
+    .admin-card {
+        padding: 7vw;
+    }
+}

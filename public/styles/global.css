@@ -142,7 +142,7 @@ input::placeholder {
     opacity: 0;
 }
 
-/* IDs Malucos */
+/* IDs */
 
 #auth-buttons {
     background-color: #8710A5;
@@ -161,9 +161,17 @@ input::placeholder {
     margin-top: 1rem;
 }
 
-@media screen and (max-width: 776px) {
-    .tittle i {
-        display: none;
+/* @media para fazer a responsividade da tela */
+
+@media screen and (max-width: 428px) {
+    nav h1{
+        font-size: 8vw;
+    }
+}
+
+@media screen and (max-width: 460px) {
+    #js h1 {
+        font-size: 2rem;
     }
 }
 
@@ -173,8 +181,8 @@ input::placeholder {
     }
 }
 
-@media screen and (max-width: 460px) {
-    #js h1 {
-        font-size: 2rem;
+@media screen and (max-width: 776px) {
+    .tittle i {
+        display: none;
     }
 }
