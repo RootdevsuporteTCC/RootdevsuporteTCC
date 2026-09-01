@@ -74,6 +74,8 @@
     cursor: pointer;
 }
 
+/* faz com que os cards não quebrem dependendo da resolução */
+
 @media screen and (max-width: 700px) {
     .admin-card {
         padding: 7vw;

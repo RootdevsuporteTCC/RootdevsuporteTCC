@@ -18,6 +18,8 @@ body {
     padding: 0;
 }
 
+/* estilização da navbar no cabeçalho */
+
 nav {
     display: flex;
     color: white;
@@ -44,27 +46,33 @@ nav button {
     background-color: #BA5AD6;
 }
 
+
+/* efeito de clique nos botões e na tag span */
+button:not(:disabled):active, span:active {
+    opacity: 0.8;
+}
+
+/* define a fonte dos textos do site como arial */
+label, p {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* remove a estilização padrão da tag 'a' */
 a {
     color: white;
     text-decoration: none;
 }
 
-button:not(:disabled):active, span:active {
-    opacity: 0.8;
-}
-
-label, p {
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-p {
-    font-size: 1.4rem;
-}
-
+/* faz todo texto span ficar com uma estilização padrão do site */
 span {
     color: #b213db;
     text-decoration: underline;
     cursor: pointer;
+}
+
+/* outras estilizações simples */
+p {
+    font-size: 1.4rem;
 }
 
 input {
@@ -78,6 +86,7 @@ input::placeholder {
 
 /* Classes */
 
+/* estiliza o botão principal */
 .main-button {
     font-size: 1.2rem;
     background-color: #8e07af;
@@ -92,30 +101,7 @@ input::placeholder {
     cursor: pointer;
 }
 
-.tittle {
-    align-self: center;
-    margin: 1rem;
-}
-
-.required {
-    color: red;
-    text-decoration: none;
-    font-weight: bold;
-    cursor: default;
-}
-
-.disket-font {
-    font-family: Disket Mono;
-}
-
-.white-text {
-    color: white;
-}
-
-.black-text {
-    color: black;
-}
-
+/* estiliza o bloco dos conteúdos (mas não altera a cor) */
 .content-block {
     text-align: center;
     justify-self: center;
@@ -137,6 +123,35 @@ input::placeholder {
     color: white;
 }
 
+/* alinha o titulo da navbar */
+.tittle {
+    align-self: center;
+    margin: 1rem;
+}
+
+/* faz os asteriscos dos formulários ficarem vermelhos sem a estilização do span */
+.required {
+    color: red;
+    text-decoration: none;
+    cursor: default;
+}
+
+/* qualquer texto com essa classe fica com a fonte Disket */
+.disket-font {
+    font-family: Disket Mono;
+}
+
+/* qualquer campo com essa classe tem seus textos brancos */
+.white-text {
+    color: white;
+}
+
+/* qualquer campo com essa classe tem seus textos pretos */
+.black-text {
+    color: black;
+}
+
+/* faz as classes .hidden não aparecerem mas ainda possuem suas posições */
 .hidden {
     text-decoration: none;
     opacity: 0;
@@ -144,6 +159,7 @@ input::placeholder {
 
 /* IDs */
 
+/* estiliza os botoes de login e cadastro na navbar */
 #auth-buttons {
     background-color: #8710A5;
     border-radius: 30px;
@@ -152,6 +168,8 @@ input::placeholder {
     font-size: 1.5rem;
 }
 
+
+/* estiliza a seção de contato no final de cada página */
 #contato {
     margin-top: 4rem;
     margin-bottom: 4rem;
@@ -161,17 +179,11 @@ input::placeholder {
     margin-top: 1rem;
 }
 
-/* @media para fazer a responsividade da tela */
 
+/* faz a responsividade da tela */
 @media screen and (max-width: 428px) {
     nav h1{
         font-size: 8vw;
-    }
-}
-
-@media screen and (max-width: 460px) {
-    #js h1 {
-        font-size: 2rem;
     }
 }
 
