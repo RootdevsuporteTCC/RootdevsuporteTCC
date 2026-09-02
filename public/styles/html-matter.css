@@ -1,58 +1,140 @@
 /* Estilização especifica para o HTML dá matéria de HTML */
 
-/* Dividido por Hierarquia */
-
-aside{
+/* layout Principal para alinhar sidebar e conteúdo */
+#content-layout {
     display: flex;
-    justify-content: left;
+    min-height: calc(100vh - 80px);
+}
+
+/* sidebar bacana */
+aside {
+    display: flex;
     background-color: #f16529;
-    flex-wrap: wrap;
+    flex-direction: column;
+    width: 320px;
+    padding-top: 1.5rem;
+}
+
+#toggle-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#matter-title {
+    font-size: 3.5rem;
+    margin: 0;
+}
+
+#open-arrow {
+    color: white;
+    font-size: 3.5rem;
+    cursor: pointer;
+}
+
+#topics ul {
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    list-style: none;
+    padding: 1rem 1.5rem;
+    background-color: #E44D26;
+    margin-top: 2px;
+    color: white;
+    font-size: 1.2rem;
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+}
+
+/* o main (conteúdo + comentários) */
+#main-content-area {
+    flex: 1; /*  faz a área principal ocupar todo o resto da tela, sem isso fica cortado no meio */
+    display: flex;
     flex-direction: column;
 }
 
-    #toggle-menu{
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    #matter-title{
-        font-size: 4rem;
-        margin: 0;
-    }
-
-    li{
-        list-style: none;
-        padding: 1rem 2rem 1rem 2rem;
-        background-color: #E44D26;
-        margin-top: 1rem;
-    }
-
-    #open-arrow{
-        color: white;
-        font-size: 4rem;
-    }
-
-    #topics{
-        color: white;
-    }    
-
-main{
-
+main {
+    padding: 3rem 4rem;
+    flex: 1;
 }
 
-section{
-
+.title-center {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 3rem;
+    letter-spacing: 2px;
 }
 
-    #user-commentary{
-    
-    }
+main p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
 
-    #user-name{
+/* blocos de código escuro */
+.code-block {
+    background-color: #3b3b3b;
+    color: white;
+    font-family: 'Disket Mono', monospace;
+    padding: 2rem;
+    border-radius: 30px;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    font-size: 1.1rem;
+    white-space: pre-wrap;
+}
 
-    }
+/* seção de comentários */
+#comments-section {
+    background-color: #E44D26;
+    padding: 3rem 4rem;
+    color: white;
+}
 
-    #commentary{
+#comments-section h1 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    letter-spacing: 2px;
+}
 
-    }
+#user-commentary {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* perfil do user com emoticon de texto :3 */
+#user-profile {
+    width: 100px;
+    height: 100px;
+    min-width: 100px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#comment-text-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+#user-name h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    letter-spacing: 1px;
+}
+
+#commentary p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 1.2rem;
+}
