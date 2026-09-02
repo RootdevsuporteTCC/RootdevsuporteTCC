@@ -124,7 +124,7 @@ input::placeholder {
 }
 
 /* alinha o titulo da navbar */
-.tittle {
+.title {
     align-self: center;
     margin: 1rem;
 }
@@ -254,7 +254,7 @@ input::placeholder {
 }
 
 @media screen and (max-width: 776px) {
-    .tittle i {
+    .title i {
         display: none;
     }
 }

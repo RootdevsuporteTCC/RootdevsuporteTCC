@@ -1,0 +1,58 @@
+/* Estilização especifica para o HTML dá matéria de HTML */
+
+/* Dividido por Hierarquia */
+
+aside{
+    display: flex;
+    justify-content: left;
+    background-color: #f16529;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+    #toggle-menu{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    #matter-title{
+        font-size: 4rem;
+        margin: 0;
+    }
+
+    li{
+        list-style: none;
+        padding: 1rem 2rem 1rem 2rem;
+        background-color: #E44D26;
+        margin-top: 1rem;
+    }
+
+    #open-arrow{
+        color: white;
+        font-size: 4rem;
+    }
+
+    #topics{
+        color: white;
+    }    
+
+main{
+
+}
+
+section{
+
+}
+
+    #user-commentary{
+    
+    }
+
+    #user-name{
+
+    }
+
+    #commentary{
+
+    }

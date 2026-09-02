@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROOT DEV - Recuperação de senha</title>
+    <title>ROOT DEV - Início</title>
 
     <link rel="stylesheet" href="./styles/global.css">
-    <link rel="stylesheet" href="./styles/cadastro-login.css">
+    <link rel="stylesheet" href="./styles/html-matter.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="icon" href="./img/folder-icon.png" type="image/png">
 </head>
 <body>
+
     <header>
         <nav>
             <div class="title">
@@ -44,32 +45,44 @@
         </div>
     </header>
 
-    <div id="form-box">
-        <form action="" class="white-text">
-            <h1 class="disket-font">RECUPERAR SENHA</h1>
-            <div class="campo">
-                <label for="email-tel">E-Mail ou telefone cadastrado:</label><br>
-                <div class="input">
-                    <input id="email-tel" name="email-tel" type="text" required placeholder="  /  jao@email.com">
+    <aside>
+        <div id="toggle-menu">
+            <h1 id="matter-title" class="disket-font white-text">HTML</h1><i class="fa-solid fa-chevron-right" id="open-arrow" onclick=""></i>
+        </div>
+        <div id="topics">
+            <ul>
+                <li>*topicos*</li>
+                <li>*topicos*</li>
+                <li>*topicos*</li>
+                <li>*topicos*</li>
+                <li>*topicos*</li>
+                <li>*topicos*</li>
+            </ul>
+        </div>
+    </aside>
+
+    <div id="main">
+        <main>
+        
+            <h1 class="disket-font">COMO CENTRALIZAR UMA DIV</h1>
+
+        </main>
+
+        <section>
+            <h1 class="disket-font">COMENTARIOS:</h1>
+
+            <div id="user-commentary">
+                <div id="user-profile"></div>
+                <div id="user-name"><h2 class="disket-font"></h2></div>
+                <div id="commentary">
+                <p>Lorem Lorem Lorem...</p>
                 </div>
             </div>
-            
-            <div id="form-confirm">
-                <button type="submit" class="main-button disket-font">Verificar</button>
-                <p>Lembrou sua senha? <a href="login.html"><span>Entrar</span></a></p>
-            </div>
-        </form>
+        </section>
     </div>
 
-    <footer>
-        <div class="content-block" id="contato">
-            <h1 class="disket-font">CONTATO:</h1>
-            <p>E-mail: <span onclick="emailToClipboard()">rootdevsuporte@gmail.com</span></p>
-        </div>
-    </footer>
 </body>
 
 <script src="../scripts/nav-drawer.js"></script>
-<script src="../scripts/email-to-clipboard.js"></script>
 
 </html>
