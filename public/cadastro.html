@@ -15,8 +15,8 @@
 <body>
     <header>
         <nav>
-            <div class="tittle">
-                <a href="index.html">
+            <div class="title">
+                <a href="/">
                     <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
                 </a>
             </div>
@@ -45,7 +45,7 @@
     </header>
 
     <div id="form-box">
-        <form action="" class="white-text">
+        <form action="/usuarios" method="POST" class="white-text" id="formCadastro">
             <h1 class="disket-font">CADASTRO</h1>
             <div class="campo">
                 <label for="nome">Nome de Usuário:</label>
@@ -53,30 +53,42 @@
                     <input id="nome" name="nome" type="text" required placeholder="JoaozinhoLegau123"> <span class="required">*</span>
                 </div>
             </div>
+
             <div class="campo">    
                 <label for="email">E-Mail:</label>
                 <div>
                     <input id="email" name="email" type="email" required placeholder="joaozinho@email.com"> <span class="required">*</span>
                 </div>
             </div> 
+
             <div class="campo">    
-                <label for="telefone">Telefone:</label> 
+                <label for="telefone">Telefone (opcional):</label> 
                 <div>
-                    <input id="telefone" name="telefone" type="number" placeholder="(99) 12345-6789"> <span class="hidden">*</span>
+                    <input id="telefone" name="telefone" type="tel" placeholder="(99) 12345-6789"> <span class="hidden">*</span>
                 </div>
             </div> 
+
             <div class="campo">    
                 <label for="senha">Senha:</label> 
                 <div>
                     <input id="senha" name="senha" type="password" required  placeholder="senhaforte321"> <span class="required">*</span>
                 </div>
             </div> 
+
             <div class="campo">    
                 <label for="confirmar-senha">Confirmar Senha:</label> 
                 <div>
                     <input id="confirmar-senha" name="confirmar-senha" type="password" required placeholder="senhaforte321"> <span class="required">*</span>
                 </div>
             </div>
+
+            <div class="campo">    
+                <label for="avatar">Digite um Avatar:</label> 
+                <div>
+                    <input id="avatar" name="avatar" type="text" placeholder=":D"> <span class="hidden">*</span>
+                </div>
+            </div>
+
             <div id="form-confirm">
                 <p>Já possui uma conta? <a href="login.html"><span>Entrar</span></a></p>
                 <button type="submit" class="main-button disket-font">Cadastrar</button>
@@ -92,7 +104,8 @@
     </footer>
 </body>
 
-<script src="../scripts/nav-drawer.js"></script>
-<script src="../scripts/email-to-clipboard.js"></script>
+<script src="./scripts/nav-drawer.js"></script>
+<script src="./scripts/email-to-clipboard.js"></script>
+<script src="./scripts/verificar-cadastro.js"></script>
 
 </html>

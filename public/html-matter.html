@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- O título da aba do navegador também pode vir do JSON -->
+    <title id="page-title">{{titulo_da_pagina}}</title>
+
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/html-matter.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" href="./img/folder-icon.png" type="image/png">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="title">
+                <a href="/">
+                    <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
+                </a>
+            </div>
+            <div id="auth-buttons">
+                <a href="login.html">
+                    <button>Login</button>
+                </a> 
+                <a href="cadastro.html">
+                    <button>Cadastro</button>
+                </a> 
+            </div>
+            <div id="nav-drawer-container">
+                <div id="nav-drawer">
+                    <i class="fa-solid fa-bars" id="menu-icon" onclick="toggleMenu()"></i>
+                </div>
+            </div>
+        </nav>
+        <div id="nav-drawer-menu" class="menu-fechado">
+            <a href="login.html">
+                <button>Login</button>
+            </a> 
+            <a href="cadastro.html">
+                <button>Cadastro</button>
+            </a> 
+        </div>
+    </header>
+
+    <div id="content-layout">
+        
+        <aside>
+            <div id="toggle-menu">
+                <!-- aqui vai ficar o nome da matéria -->
+                <h1 id="matter-title" class="disket-font white-text">{{nome_da_materia}}</h1>
+                <i class="fa-solid fa-chevron-right" id="open-arrow"></i>
+            </div>
+            <div id="topics">
+                <!-- o JS vai averiguar o JSON e colocar os <li> dentro desta UL -->
+                <ul id="topics-list">
+                    <!-- é assim que o JS deve colocar os <li> pelo JSON: -->
+                    <!-- <li>{{nome_do_topico_1}}</li> -->
+                    <!-- <li>{{nome_do_topico_2}}</li> -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- aqui é onde agrupa o conteúdo da matéria e os comentários lá embaixo -->
+        <div id="main-content-area">
+            
+            <main id="lesson-content">
+                <!-- titulo da aula -->
+                <h1 id="lesson-title" class="disket-font title-center">{{titulo_da_aula}}</h1>
+                
+                <!-- textos explicativos -->
+                <p id="lesson-explanation">{{texto_explicativo}}</p>
+                
+                <!-- label e código -->
+                <p id="lesson-code-label-1">{{label_codigo_1}}</p>
+                <div id="lesson-code-block-1" class="code-block">{{codigo_1}}</div>
+            </main>
+
+            <section id="comments-section">
+                <h1 class="disket-font">COMENTARIOS:</h1>
+
+                <!-- Container onde o JS vai injetar a lista de comentários do JSON -->
+                <div id="comments-container">
+                    
+                    <!-- molde de como o JS vai construir cada comentário lido no JSON:
+                    <div class="user-commentary">
+                        <div class="user-profile">{{icone_do_usuario}}</div>
+                        <div class="comment-text-wrapper">
+                            <div class="user-name"><h2 class="disket-font">{{nome_do_usuario}}</h2></div>
+                            <div class="commentary">
+                                <p>{{texto_do_comentario}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+</body>
+
+<script src="../scripts/nav-drawer.js"></script>
+<script src="./scripts/carregar-aula.js"></script>
+
+</html>
