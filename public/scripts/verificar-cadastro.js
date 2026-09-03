@@ -9,8 +9,6 @@ form.addEventListener("submit", (event) => {
     const avatar = document.getElementById("avatar").value
 
     if (senha !== confirmarSenha) {
-        alert(senha)
-        alert(confirmarSenha)
         event.preventDefault()
         alert("As senhas devem ser iguais")
     }

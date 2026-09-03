@@ -45,6 +45,17 @@ form {
     text-align: center;
 }
 
+input#avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 100px;
+    font-size: 1.3rem;
+}
+
+input#avatar::placeholder {
+    font-size: 1.3rem;
+}
+
 /* @media para fazer a responsividade da tela */
 
 @media screen and (max-width: 475px) {
@@ -96,4 +107,3 @@ form {
         width: 100%;
     }
 }
-

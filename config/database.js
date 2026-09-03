@@ -14,7 +14,7 @@ conexao.connect((erro) => {
         return
     }
 
-    console.log('Banco conectado com sucesse!')
+    console.log('Banco conectado com sucesso!')
 })
 
 module.exports = conexao

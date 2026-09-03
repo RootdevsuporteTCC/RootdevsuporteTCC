@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- O título da aba do navegador também pode vir do JSON -->
-    <title id="page-title">{{titulo_da_pagina}}</title>
+    <!-- O título provisório enquanto o JS não carrega o nome da aula -->
+    <title id="page-title">HTML</title>
 
     <link rel="stylesheet" href="./styles/global.css">
     <link rel="stylesheet" href="./styles/html-matter.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="icon" href="./img/folder-icon.png" type="image/png">
+    
+    <!-- Biblioteca Marked.js para converter MD em HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
@@ -50,16 +53,13 @@
         
         <aside>
             <div id="toggle-menu">
-                <!-- aqui vai ficar o nome da matéria -->
-                <h1 id="matter-title" class="disket-font white-text">{{nome_da_materia}}</h1>
+                <!-- Nome da matéria fixo para este arquivo de HTML -->
+                <h1 id="matter-title" class="disket-font white-text">HTML</h1>
                 <i class="fa-solid fa-chevron-right" id="open-arrow"></i>
             </div>
             <div id="topics">
-                <!-- o JS vai averiguar o JSON e colocar os <li> dentro desta UL -->
                 <ul id="topics-list">
-                    <!-- é assim que o JS deve colocar os <li> pelo JSON: -->
-                    <!-- <li>{{nome_do_topico_1}}</li> -->
-                    <!-- <li>{{nome_do_topico_2}}</li> -->
+                    <!-- tópicos da sidebar -->
                 </ul>
             </div>
         </aside>
@@ -67,45 +67,28 @@
         <!-- aqui é onde agrupa o conteúdo da matéria e os comentários lá embaixo -->
         <div id="main-content-area">
             
-            <main id="lesson-content">
-                <!-- titulo da aula -->
-                <h1 id="lesson-title" class="disket-font title-center">{{titulo_da_aula}}</h1>
-                
-                <!-- textos explicativos -->
-                <p id="lesson-explanation">{{texto_explicativo}}</p>
-                
-                <!-- label e código -->
-                <p id="lesson-code-label-1">{{label_codigo_1}}</p>
-                <div id="lesson-code-block-1" class="code-block">{{codigo_1}}</div>
-            </main>
+            <!-- Agora o main atua apenas como container para o Markdown renderizado -->
+            <main id="lesson-content"></main>
 
             <section id="comments-section">
                 <h1 class="disket-font">COMENTARIOS:</h1>
 
-                <!-- Container onde o JS vai injetar a lista de comentários do JSON -->
                 <div id="comments-container">
-                    
-                    <!-- molde de como o JS vai construir cada comentário lido no JSON:
-                    <div class="user-commentary">
-                        <div class="user-profile">{{icone_do_usuario}}</div>
-                        <div class="comment-text-wrapper">
-                            <div class="user-name"><h2 class="disket-font">{{nome_do_usuario}}</h2></div>
-                            <div class="commentary">
-                                <p>{{texto_do_comentario}}</p>
-                            </div>
-                        </div>
-                    </div>
-                    -->
-
+                    <!-- Comentários -->
                 </div>
             </section>
         </div>
 
     </div>
-
+    <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
 </body>
 
 <script src="../scripts/nav-drawer.js"></script>
 <script src="./scripts/carregar-aula.js"></script>
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pigmilcom/a11y/dist/a11y.cdn.js" data-position="bottom-right" data-lang="pt" ></script>
 
 </html>

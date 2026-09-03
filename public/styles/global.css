@@ -52,9 +52,21 @@ button:not(:disabled):active, span:active {
     opacity: 0.8;
 }
 
+button {
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.1);
+}
+
 /* define a fonte dos textos do site como arial */
 label, p {
     font-family: Arial, Helvetica, sans-serif;
+}
+
+li:hover {
+    text-decoration: underline;
 }
 
 /* remove a estilização padrão da tag 'a' */
@@ -68,6 +80,11 @@ span {
     color: #b213db;
     text-decoration: underline;
     cursor: pointer;
+}
+
+/* faz com que os spans com a classe hidden fiquem imperceptiveis (é necessário o espaço que o span cria para deixar a página simétrica mas não pode aparecer em algumas ocasiões) */
+span.hidden:active {
+    opacity: 0;
 }
 
 /* outras estilizações simples */
@@ -151,12 +168,19 @@ input::placeholder {
     color: black;
 }
 
+/* qualquer campo com essa classe tem seus textos em negrito */
+.bold-text {
+    font-weight: bold;
+}
+
 /* faz as classes .hidden não aparecerem mas ainda possuem suas posições */
 .hidden {
     text-decoration: none;
     opacity: 0;
+    cursor: default;
 }
 
+/* quando o menu hamburguer tiver essa classe ele some */
 .menu-fechado {
     display: none;
 }
@@ -207,7 +231,6 @@ input::placeholder {
 #contato p {
     margin-top: 1rem;
 }
-
 
 
 /* faz a responsividade da tela */

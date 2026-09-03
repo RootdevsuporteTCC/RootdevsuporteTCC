@@ -39,7 +39,8 @@ aside {
     margin: 0;
 }
 
-li {
+/* Corrigido para estilizar APENAS a lista da sidebar e não bugar listas dentro do markdown */
+#topics li {
     list-style: none;
     padding: 1rem 1.5rem;
     background-color: #E44D26;
@@ -75,17 +76,21 @@ main p {
     margin-bottom: 1rem;
 }
 
-/* blocos de código escuro */
-.code-block {
+/* blocos de código escuro gerados automaticamente pelo Markdown */
+main pre {
     background-color: #3b3b3b;
-    color: white;
-    font-family: 'Disket Mono', monospace;
     padding: 2rem;
     border-radius: 30px;
     margin-bottom: 2rem;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+main pre code {
+    color: white;
+    font-family: 'Disket Mono', monospace;
     line-height: 1.5;
     font-size: 1.1rem;
-    white-space: pre-wrap;
 }
 
 /* seção de comentários */

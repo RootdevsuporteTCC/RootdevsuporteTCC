@@ -1,8 +1,0 @@
-{
-  "titulo_da_pagina": "Aula - Flexbox",
-  "nome_da_materia": "HTML",
-  "titulo_da_aula": "COMO CENTRALIZAR UMA DIV",
-  "texto_explicativo": "1. Centralização Total: Usando Flexbox (Mais Recomendado). Este é o método mais flexível e fácil para centralizar uma div tanto horizontalmente quanto verticalmente.",
-  "label_codigo_1": "No HTML:",
-  "codigo_1": "<div class=\"pai\">\n    <div class=\"filha\">Conteúdo</div>\n</div>"
-}
