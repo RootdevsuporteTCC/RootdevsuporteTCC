@@ -19,4 +19,4 @@ Contém os elementos de interação essenciais para a criação da conta do usu�
 **Área de Contato / Rodapé (`<footer>`)**
 
 * **Suporte da Empresa:** Logo abaixo da estrutura de cadastro, a página exibe o e-mail de contato da empresa, garantindo que o usuário tenha um canal de comunicação fácil caso enfrente problemas durante o registro.
-![alt text](image-5.png)
+![alt text](./Image/image-5.png)

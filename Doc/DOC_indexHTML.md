@@ -1,7 +1,7 @@
 ## Documentação da Página Inicial (`index.html`)
 
 O arquivo `index.html` atua como a página de entrada do site. Sua estrutura está organizada em duas partes principais: as configurações de cabeçalho e os elementos visuais.
-![alt text](image-1.png)
+![alt text](./Image/image-1.png)
 ---
 
 ### **2. Estrutura Visual (`<body>`)**
@@ -18,4 +18,4 @@ Contém os elementos com os quais o usuário irá interagir, divididos entre o m
 **Conteúdo Principal (`<main>`)**
 
 * **Trilhas de Aprendizado:** O corpo central da página utiliza contêineres (`<div>`) para destacar, de forma organizada, todos os tópicos e cursos que os usuários poderão aprender na plataforma.
-![alt text](image-4.png)
+![alt text](./Image/image-4.png)

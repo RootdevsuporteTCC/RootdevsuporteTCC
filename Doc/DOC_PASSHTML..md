@@ -14,7 +14,7 @@ Contém os elementos dinâmicos de interface com os quais o usuário interage du
 * **Nova Credencial:** Campos de segurança onde o usuário deverá inserir a **Nova Senha** e, em seguida, **Confirmar a Nova Senha**.
 * **Ações Principais:** Botões de submissão que guiam cada etapa (ex: "Enviar Código", "Validar Código" e "Redefinir Senha").
 
-![alt text](image.png)
+![alt text](./Image/image.png)
 ---
 
 ### **2. Fluxo de Interação do Usuário (User Flow)**
