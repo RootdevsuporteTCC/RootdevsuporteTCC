@@ -47,7 +47,12 @@ nav button, #nav-drawer-menu button {
 }
 
 footer {
-    background: linear-gradient(to right, #880fa7, #77268b);
+    background: linear-gradient(to right, #b639d5, #711588); /* Mantém o fundo atual */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 3rem;
+    flex-wrap: wrap;
 }
 
 /* efeito de clique nos botões e na tag span */
@@ -235,8 +240,12 @@ input::placeholder {
     left: 32px;
 }
 
-#main-footer{
-
+#main-footer {
+    display: flex;
+    justify-content: flex-end;
+    text-align: center;
+    gap: 4.5rem;
+    font-size: 32px;
 }
 
 #begin-footer{
