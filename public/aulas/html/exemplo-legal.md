@@ -1,8 +1,10 @@
-# Titulo Legal e bonito
+# Titulo qualquer
 
-Gabriel Estanislau ama a Raika for4. Hussein quer triangulos anais e Cadeira loves filha da joice!!!
+texto de exemplo texto de exemplo texto de exemplo
+texto de exemplo <strong>texto de exemplo forte</strong> texto de exemplo
 
-```html
-emerson olhos resenha averiguada.exe
-    blah blah blah
-kkkj emerson olhos
+```
+código de exemplo
+    código de exemplo código de exemplo
+código de exemplo
+```

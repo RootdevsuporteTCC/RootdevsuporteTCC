@@ -51,7 +51,7 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 3rem;
+    padding: 1rem 10rem;
     flex-wrap: wrap;
 }
 
@@ -260,10 +260,8 @@ input::placeholder {
     display: flex;  
     margin: 0;
     color: white;
-    padding: 1rem;
     font-size: 3.5rem;
     text-align: center;
-    left: 32px;
 }
 
 #main-footer {
@@ -273,18 +271,7 @@ input::placeholder {
     gap: 4.5rem;
     font-size: 32px;
     flex-wrap: wrap;
-}
-
-#begin-footer{
-
-}
-
-#github-footer{
-
-}
-
-#contato-footer{
-    
+    color: white;
 }
 
 /* estiliza a seção de contato no final de cada página */
@@ -344,5 +331,22 @@ input::placeholder {
 @media screen and (max-width: 776px) {
     .title i {
         display: none;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    footer {
+        padding: 1rem 1.5rem; /* Reduz drasticamente o padding lateral */
+        flex-direction: column; /* Empilha o logotipo e as listas */
+        gap: 2rem;
+    }
+
+    #main-footer {
+        gap: 1.5rem; /* Reduz o espaçamento entre as listas de links */
+        justify-content: center;
+    }
+    
+    #footer-logo {
+        font-size: 2.5rem; /* Diminui a fonte do logo no mobile */
     }
 }

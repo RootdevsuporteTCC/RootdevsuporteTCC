@@ -2,7 +2,7 @@
 // Sempre que criar um novo arquivo .md, basta adicionar uma nova linha nesta lista!
 const listaDeAulas = [
     { arquivo: 'aula-flexbox.md', titulo: 'Como centralizar uma div' },
-    { arquivo: 'exemplo-legal.md', titulo: 'peido' }
+    { arquivo: 'exemplo-legal.md', titulo: 'Aula de exemplo' }
 ];
 
 // 2. Função que preenche o menu lateral (sidebar)
