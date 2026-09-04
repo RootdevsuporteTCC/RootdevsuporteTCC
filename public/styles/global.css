@@ -46,6 +46,9 @@ nav button, #nav-drawer-menu button {
     background-color: #BA5AD6;
 }
 
+footer {
+    background: linear-gradient(to right, #880fa7, #77268b);
+}
 
 /* efeito de clique nos botões e na tag span */
 button:not(:disabled):active, span:active {
@@ -61,7 +64,7 @@ button:hover {
 }
 
 /* define a fonte dos textos do site como arial */
-label, p {
+label, p, li {
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -220,6 +223,16 @@ input::placeholder {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem;
+}
+
+#footer-logo{
+    display: flex;  
+    margin: 0;
+    color: white;
+    padding: 1rem;
+    font-size: 3.5rem;
+    text-align: center;
+    left: 32px;
 }
 
 /* estiliza a seção de contato no final de cada página */
