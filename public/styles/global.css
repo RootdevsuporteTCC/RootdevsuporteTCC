@@ -64,7 +64,7 @@ button {
     transition: 0.2s;
 }
 
-button:hover {
+button:hover, .whatsapp:hover {
     transform: scale(1.1);
 }
 
@@ -193,6 +193,32 @@ input::placeholder {
     display: none;
 }
 
+/* estilização do botão whatsapp */
+.whatsapp {
+    position: fixed;
+    background-color: #00ee5b;
+    width: 3.3rem;
+    height: 3.3rem;
+    border-radius: 100px;
+    bottom: 1rem;
+    left: 1rem;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+/* estilização do botão de acessibilidade */
+.a11y-widget-btn {
+    background: white;
+    opacity: 1;
+}
+
+.span-contato {
+    color: aqua;
+}
+
 /* IDs */
 
 /* estiliza os botoes de login e cadastro na navbar */
@@ -246,6 +272,7 @@ input::placeholder {
     text-align: center;
     gap: 4.5rem;
     font-size: 32px;
+    flex-wrap: wrap;
 }
 
 #begin-footer{
