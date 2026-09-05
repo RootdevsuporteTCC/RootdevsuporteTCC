@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOT DEV - Login</title>
+    
+    <link rel="stylesheet" href="../styles/global.css">
+    <link rel="stylesheet" href="../styles/cadastro-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" href="./img/folder-icon.png" type="image/png">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="title">
+                <a href="/">
+                    <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
+                </a>
+            </div>
+            <div id="auth-buttons">
+                <a href="../login.html">
+                    <button>Login</button>
+                </a> 
+                <a href="../cadastro.html">
+                    <button>Cadastro</button>
+                </a> 
+            </div>
+            <div id="nav-drawer-container">
+                <div id="nav-drawer">
+                    <i class="fa-solid fa-bars" id="menu-icon" onclick="toggleMenu()"></i>
+                </div>
+            </div>
+        </nav>
+        <div id="nav-drawer-menu" class="menu-fechado">
+            <a href="../login.html">
+                <button>Login</button>
+            </a> 
+            <a href="../cadastro.html">
+                <button>Cadastro</button>
+            </a> 
+        </div>
+    </header>
+
+    <div id="form-box">
+        <form action="/adm" method="post" class="white-text">
+            <h1 class="disket-font">ADMIN LOGIN</h1>
+            <div class="campo">
+                <label for="email">E-Mail:</label>
+                <div class="input">
+                    <input id="email" name="email" type="email" required placeholder="jao@email.com">
+                    <span class="required">*</span>
+                </div>
+            </div>
+            <div class="campo">   
+                <label for="senha">Senha:</label> 
+                <div class="input">
+                    <input id="senha" name="senha" type="password" required  placeholder="senhaforte321">
+                    <span class="required">*</span>
+                </div>
+            </div> 
+
+            <div id="form-confirm">
+                <p><a href="../password-recover.html"><span>Esqueceu sua senha?</span></a></p>
+                <button type="submit" class="main-button disket-font">Entrar</button>
+                <p>Não possui uma conta? <a href="../cadastro.html"><span>Cadastre-se</span></a></p>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <div class="content-block" id="contato">
+            <h1 class="disket-font">CONTATO:</h1>
+            <p>E-mail: <span onclick="emailToClipboard()">rootdevsuporte@gmail.com</span></p>
+        </div>
+    </footer>
+    <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+</body>
+
+<script src="../scripts/nav-drawer.js"></script>
+<script src="../scripts/email-to-clipboard.js"></script>
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pigmilcom/a11y/dist/a11y.cdn.js" data-position="bottom-right" data-lang="pt" ></script>
+
+</html>
