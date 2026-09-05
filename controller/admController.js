@@ -19,18 +19,17 @@ async function loginAdm(req, res) {
             // se usuario não existir
             if (!user) {
                 return res.status(401).json({
-                    erro: "Email ou senha incorretos1"
+                    erro: "Email ou senha incorretos"
                 })
             }
 
             try {
                 const senhaCorreta = await bcrypt.compare(senha, user.user_pass)
                 
-                
                 if (!senhaCorreta) {
                     // se a senha não coincidir
                     return res.status(401).json({
-                        erro: "Email ou senha incorretos2"
+                        erro: "Email ou senha incorretos"
                     })
                 }
             
@@ -42,9 +41,7 @@ async function loginAdm(req, res) {
                 }
 
                 // se passar por todas as verificações
-                return res.status(200).json({
-                    mensagem: "Login feito com sucesso"
-                })
+                return res.redirect('/adm/painel')
             } catch (erro) {
                 console.log(erro)
                 
@@ -53,9 +50,102 @@ async function loginAdm(req, res) {
                 });
             }
         })
-    } 
+} 
+
+function mostrarPainel(req, res) {
+    const html = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>ROOT DEV - Admin</title>
+            <link rel="stylesheet" href="../styles/admin.css">
+            <link rel="stylesheet" href="../styles/global.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        </head>
+        <body>
+            <header>
+                <nav>
+                    <div class="title">
+                        <a href="/">
+                            <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
+                        </a>
+                    </div>
+                    <div id="auth-buttons">
+                        <a href="login.html">
+                            <button>Login</button>
+                        </a> 
+                        <a href="cadastro.html">
+                            <button>Cadastro</button>
+                        </a> 
+                    </div>
+                    <div id="nav-drawer-container">
+                        <div id="nav-drawer">
+                            <i class="fa-solid fa-bars" id="menu-icon" onclick="toggleMenu()"></i>
+                        </div>
+                    </div>
+                </nav>
+                <div id="nav-drawer-menu" class="menu-fechado">
+                    <a href="login.html">
+                        <button>Login</button>
+                    </a> 
+                    <a href="cadastro.html">
+                        <button>Cadastro</button>
+                    </a> 
+                </div>
+            </header>
+
+            <main class="admin-container">
+                <div class="admin-card">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div class="card-title">
+                        <h2 class="disket-font">BANCO<br>DE<br>DADOS</h2>
+                    </div>
+                    <div class="card-desc">
+                        <p>Mostra relatórios e consultas no banco.</p>
+                    </div>
+                    <div class="card-action">
+                        <button class="disket-font">ACESSAR</button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-comment-dots"></i>
+                    </div>
+                    <div class="card-title">
+                        <h2 class="disket-font">COMENTÁRIOS</h2>
+                    </div>
+                    <div class="card-desc">
+                        <p>Mostrar comentários dos usuários.</p>
+                    </div>
+                    <div class="card-action">
+                        <button class="disket-font">ACESSAR</button>
+                    </div>
+                </div>
+            </main>
+            <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+        </body>
+
+        <script src="../scripts/nav-drawer.js"></script>
+
+        <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@pigmilcom/a11y/dist/a11y.cdn.js" data-position="bottom-right" data-lang="pt" ></script>
+
+        </html>
+    `
+
+    res.send(html)
+}
     
 
 module.exports = {
-    loginAdm
+    loginAdm,
+    mostrarPainel
 }
