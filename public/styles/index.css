@@ -15,9 +15,14 @@ ul {
 }
 
 #introducao {
-    margin: 2rem;
+    margin: 4rem auto;
+    padding: 2.5rem;
+    max-width: 800px; /* faz com que as frases não possam ficar muito longas em telas grandes */
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* sombra bem legal para dar profundidade */
+    border-left: 6px solid #8e07af; /* detalhe roxo na esquerda */
 }
-
 
 /* define as cores e outras estilizações específicas de cada aba de conteúdo da pagina principal */
 
