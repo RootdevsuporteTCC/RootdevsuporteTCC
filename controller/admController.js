@@ -53,7 +53,8 @@ async function loginAdm(req, res) {
 } 
 
 function mostrarPainel(req, res) {
-    const html = `
+
+    const htmlPainel = `
         <!DOCTYPE html>
         <html lang="pt-BR">
         <head>
@@ -61,9 +62,11 @@ function mostrarPainel(req, res) {
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>ROOT DEV - Admin</title>
-            <link rel="stylesheet" href="../styles/admin.css">
+            <link rel="stylesheet" href="../admin/admin.css">
             <link rel="stylesheet" href="../styles/global.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+            <link rel="icon" href="../img/folder-icon.png" type="image/png">
         </head>
         <body>
             <header>
@@ -74,10 +77,10 @@ function mostrarPainel(req, res) {
                         </a>
                     </div>
                     <div id="auth-buttons">
-                        <a href="login.html">
+                        <a href="../login.html">
                             <button>Login</button>
                         </a> 
-                        <a href="cadastro.html">
+                        <a href="../cadastro.html">
                             <button>Cadastro</button>
                         </a> 
                     </div>
@@ -88,50 +91,56 @@ function mostrarPainel(req, res) {
                     </div>
                 </nav>
                 <div id="nav-drawer-menu" class="menu-fechado">
-                    <a href="login.html">
+                    <a href="../login.html">
                         <button>Login</button>
                     </a> 
-                    <a href="cadastro.html">
+                    <a href="../cadastro.html">
                         <button>Cadastro</button>
                     </a> 
                 </div>
             </header>
 
             <main class="admin-container">
-                <div class="admin-card">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-database"></i>
+                <section class="admin-container" id="admInicio">
+                    <div class="admin-card">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div class="card-title">
+                            <h2 class="disket-font">BANCO<br>DE<br>DADOS</h2>
+                        </div>
+                        <div class="card-desc">
+                            <p>Mostra relatórios e consultas no banco.</p>
+                        </div>
+                        <div class="card-action">
+                            <button class="disket-font" onclick="mostrarDados()">ACESSAR</button>
+                        </div>
                     </div>
-                    <div class="card-title">
-                        <h2 class="disket-font">BANCO<br>DE<br>DADOS</h2>
-                    </div>
-                    <div class="card-desc">
-                        <p>Mostra relatórios e consultas no banco.</p>
-                    </div>
-                    <div class="card-action">
-                        <button class="disket-font">ACESSAR</button>
-                    </div>
-                </div>
 
-                <div class="admin-card">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-comment-dots"></i>
+                    <div class="admin-card">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </div>
+                        <div class="card-title">
+                            <h2 class="disket-font">COMENTÁRIOS</h2>
+                        </div>
+                        <div class="card-desc">
+                            <p>Mostrar comentários dos usuários.</p>
+                        </div>
+                        <div class="card-action">
+                            <button class="disket-font">ACESSAR</button>
+                        </div>
                     </div>
-                    <div class="card-title">
-                        <h2 class="disket-font">COMENTÁRIOS</h2>
-                    </div>
-                    <div class="card-desc">
-                        <p>Mostrar comentários dos usuários.</p>
-                    </div>
-                    <div class="card-action">
-                        <button class="disket-font">ACESSAR</button>
-                    </div>
-                </div>
+                </section>
             </main>
             <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
                 <i class="fa-brands fa-whatsapp"></i>
             </a>
         </body>
+
+        <script>
+            ${jsCodigo}
+        </script>
 
         <script src="../scripts/nav-drawer.js"></script>
 
@@ -141,9 +150,18 @@ function mostrarPainel(req, res) {
         </html>
     `
 
-    res.send(html)
+    res.send(htmlPainel)
 }
-    
+
+const jsCodigo = (
+    function mostrarDados() {
+        document.getElementById("admInicio")
+    }
+    /*
+    function mostrarInicio() {
+        document
+    }*/
+)
 
 module.exports = {
     loginAdm,
