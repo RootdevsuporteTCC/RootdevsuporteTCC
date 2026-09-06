@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt")
+const path = require('path')
 const userModel = require("../model/userModel")
 
 async function loginAdm(req, res) {
@@ -11,16 +12,12 @@ async function loginAdm(req, res) {
             if (erro) {
                 console.log(erro);
 
-                return res.status(500).json({
-                    erro: "Erro ao buscar usuário"
-                });
+                return res.status(500).send("Erro ao buscar usuário")
             }
 
             // se usuario não existir
             if (!user) {
-                return res.status(401).json({
-                    erro: "Email ou senha incorretos"
-                })
+                return res.status(401).send("Email ou senha incorretos")
             }
 
             try {
@@ -28,26 +25,27 @@ async function loginAdm(req, res) {
                 
                 if (!senhaCorreta) {
                     // se a senha não coincidir
-                    return res.status(401).json({
-                        erro: "Email ou senha incorretos"
-                    })
+                    return res.status(401).send("Email ou senha incorretos")
                 }
             
                 if (user.user_tipo !== 'admin') {
                     // se não for admin
-                    return res.status(403).json({
-                        erro: "Você não é um administrador"
-                    })
+                    return res.status(403).send("Você não é um administrador")
                 }
 
                 // se passar por todas as verificações
+
+                req.session.usuario = {
+                    id: user.user_id,
+                    nome: user.user_name,
+                    tipo: user.user_tipo
+                }
+
                 return res.redirect('/adm/painel')
             } catch (erro) {
                 console.log(erro)
                 
-                return res.status(500).json({
-                    erro: "Erro ao verificar senha"
-                });
+                return res.status(500).send("Erro ao verificar senha")
             }
         })
 } 
@@ -138,9 +136,7 @@ function mostrarPainel(req, res) {
             </a>
         </body>
 
-        <script>
-            ${jsCodigo}
-        </script>
+        <script src="/adm/admin.js"></script>
 
         <script src="../scripts/nav-drawer.js"></script>
 
@@ -153,17 +149,12 @@ function mostrarPainel(req, res) {
     res.send(htmlPainel)
 }
 
-const jsCodigo = (
-    function mostrarDados() {
-        document.getElementById("admInicio")
-    }
-    /*
-    function mostrarInicio() {
-        document
-    }*/
-)
+function enviarAdminJs(req, res) {
+    res.sendFile(path.join(__dirname, "../private/admin/admin.js"))
+}
 
 module.exports = {
     loginAdm,
-    mostrarPainel
+    mostrarPainel,
+    enviarAdminJs
 }
