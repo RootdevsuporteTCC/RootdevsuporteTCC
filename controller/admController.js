@@ -167,12 +167,25 @@ function buscarUsuarios(req, res) {
 
         return res.status(200).json(usuarios);
     });
+}
 
+function excluirUsuario(req, res) {
+    const id = req.params.id
+
+    userModel.excluirUsuario(id, (erro, resultado) => {
+        if (erro) {
+            console.log(erro)
+            return res.status(500).json({ erro: "Erro ao excluir usuário"})
+        }
+
+        return res.status(200).json({ mensagem: "Usuário excluido com sucesso"})
+    })
 }
 
 module.exports = {
     loginAdm,
     mostrarPainel,
     enviarAdminJs,
-    buscarUsuarios
+    buscarUsuarios,
+    excluirUsuario
 }

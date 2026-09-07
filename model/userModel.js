@@ -26,6 +26,22 @@ async function criarUsuario(user, callback) {
     }
 }
 
+function excluirUsuario(id, callback) {
+    const sql = `
+        DELETE FROM tb_usuarios
+        WHERE user_id = ?
+    `
+
+    conexao.query(sql, [id], (erro, resultado) => {
+        if (erro) {
+            return callback(erro)
+        }
+
+        return callback(null, resultado)
+    })
+}
+
+
 function buscarPorEmail(email, callback) {
     
     const sql = `
@@ -60,6 +76,7 @@ function buscarTodosUsuarios(callback) {
 
 module.exports = {
     criarUsuario,
+    excluirUsuario,
     buscarPorEmail,
     buscarTodosUsuarios
 }
