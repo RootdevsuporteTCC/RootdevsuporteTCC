@@ -7,5 +7,6 @@ const verificarAdmin = require('../middleware/verificarAdmin')
 router.post('/', admController.loginAdm)
 router.get('/painel', verificarAdmin, admController.mostrarPainel)
 router.get("/admin.js", verificarAdmin, admController.enviarAdminJs)
+router.get("/usuarios", verificarAdmin, admController.buscarUsuarios)
 
 module.exports = router

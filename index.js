@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(session({
     secret: "chave-legal-do-root-dev",  // chave usada para proteger o cookie da sessão
-    resave: false,                      // o express-session evita ficar salvando a sessão sem necessidade
+    resave: false,                      // evita ficar salvando a sessão sem necessidade
     saveUninitialized: false            // faz com que o express so salve a sessão se ela conter alguma informação
 }))
 

@@ -1,5 +1,4 @@
 function verificarAdmin(req, res, next) {
-    console.log(req.session.usuario)
     if (!req.session.usuario) {
         return res.status(401).send("Você precisa fazer login.")
     }

@@ -98,8 +98,10 @@ function mostrarPainel(req, res) {
                 </div>
             </header>
 
-            <main class="admin-container">
-                <section class="admin-container" id="admInicio">
+            <button onclick="toggleInicio()" id="botao-voltar" class="remove"><i class="fa-solid fa-chevron-left" id="open-arrow"></i></button>
+
+            <main class="admin-container" id="main-container">
+                <section class="admin-container" id="adm-inicio">
                     <div class="admin-card">
                         <div class="card-icon">
                             <i class="fa-solid fa-database"></i>
@@ -111,7 +113,7 @@ function mostrarPainel(req, res) {
                             <p>Mostra relatórios e consultas no banco.</p>
                         </div>
                         <div class="card-action">
-                            <button class="disket-font" onclick="mostrarDados()">ACESSAR</button>
+                            <button class="disket-font" onclick="mostrarUsuarios()">ACESSAR</button>
                         </div>
                     </div>
 
@@ -130,6 +132,8 @@ function mostrarPainel(req, res) {
                         </div>
                     </div>
                 </section>
+
+                <section id="tabela-consulta"></section>
             </main>
             <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
                 <i class="fa-brands fa-whatsapp"></i>
@@ -153,8 +157,22 @@ function enviarAdminJs(req, res) {
     res.sendFile(path.join(__dirname, "../private/admin/admin.js"))
 }
 
+function buscarUsuarios(req, res) {
+    userModel.buscarTodosUsuarios((erro, usuarios) => {
+        if (erro) {
+            console.log(erro);
+
+            return res.status(500).send("Erro ao buscar usuários");
+        }
+
+        return res.status(200).json(usuarios);
+    });
+
+}
+
 module.exports = {
     loginAdm,
     mostrarPainel,
-    enviarAdminJs
+    enviarAdminJs,
+    buscarUsuarios
 }

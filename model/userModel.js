@@ -42,10 +42,24 @@ function buscarPorEmail(email, callback) {
     })
 }
 
+function buscarTodosUsuarios(callback) {
+    const sql = `
+        SELECT user_id, user_name, user_email, user_telefone, user_tipo, user_avatar
+        FROM tb_usuarios
+    `;
 
+    conexao.query(sql, (erro, usuarios) => {
+        if (erro) {
+            return callback(erro)
+        }
 
+        callback(null, usuarios)
+        
+    })
+}
 
 module.exports = {
     criarUsuario,
-    buscarPorEmail
+    buscarPorEmail,
+    buscarTodosUsuarios
 }
