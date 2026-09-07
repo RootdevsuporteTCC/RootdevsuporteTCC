@@ -62,6 +62,7 @@ function mostrarPainel(req, res) {
             <title>ROOT DEV - Admin</title>
             <link rel="stylesheet" href="../admin/admin.css">
             <link rel="stylesheet" href="../styles/global.css">
+            <link rel="stylesheet" href="../styles/cadastro-login.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
             <link rel="icon" href="../img/folder-icon.png" type="image/png">
@@ -134,6 +135,7 @@ function mostrarPainel(req, res) {
                 </section>
 
                 <section id="tabela-consulta"></section>
+                <section id="form-edicao"></section>
             </main>
             <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
                 <i class="fa-brands fa-whatsapp"></i>
@@ -169,8 +171,27 @@ function buscarUsuarios(req, res) {
     });
 }
 
+function buscarUsuarioPorId(req, res) {
+    const id = req.params.id
+    userModel.buscarPorId(id, (erro, usuario) => {
+        if (erro) {
+            console.log(erro)
+            return res.status(500).json({ erro: "Erro ao buscar usuário" })
+        }
+
+        if (!usuario) {
+            return res.status(404).json({ erro: "Usuário não encontrado" })
+        }
+
+        return res.status(200).json(usuario)
+    })
+}
+
 function excluirUsuario(req, res) {
     const id = req.params.id
+    if (Number(id) === req.session.usuario.id) {
+        return res.status(400).json({ erro: "Você não pode excluir sua própria conta" })
+    }
 
     userModel.excluirUsuario(id, (erro, resultado) => {
         if (erro) {
@@ -182,10 +203,35 @@ function excluirUsuario(req, res) {
     })
 }
 
+function atualizarUsuario(req, res) {
+    const id = req.params.id
+
+    const usuario = {
+        nome: req.body.nome,
+        email: req.body.email,
+        telefone: req.body.telefone,
+        tipo: req.body.tipo,
+        avatar: req.body.avatar
+    }
+
+    userModel.atualizarUsuario(id, usuario, (erro, resultado) => {
+        if (erro) {
+            console.log(erro)
+        
+            return res.status(500).json({ erro: "Erro ao atualizar usuário" })
+        }
+
+        return res.status(200).json({ mensagem: "Usuário atualizado com sucesso" })
+    })
+}
+
+
 module.exports = {
     loginAdm,
     mostrarPainel,
     enviarAdminJs,
     buscarUsuarios,
-    excluirUsuario
+    buscarUsuarioPorId,
+    excluirUsuario,
+    atualizarUsuario
 }

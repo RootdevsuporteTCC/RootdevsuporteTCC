@@ -8,6 +8,8 @@ router.post('/', admController.loginAdm)
 router.get('/painel', verificarAdmin, admController.mostrarPainel)
 router.get("/admin.js", verificarAdmin, admController.enviarAdminJs)
 router.get("/usuarios", verificarAdmin, admController.buscarUsuarios)
+router.get("/usuarios/:id", verificarAdmin, admController.buscarUsuarioPorId)
 router.delete("/usuarios/:id", verificarAdmin, admController.excluirUsuario)
+router.put("/usuarios/:id", verificarAdmin, admController.atualizarUsuario)
 
 module.exports = router

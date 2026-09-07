@@ -41,6 +41,52 @@ function excluirUsuario(id, callback) {
     })
 }
 
+function atualizarUsuario(id, usuario, callback) {
+
+    const sql = `
+        UPDATE tb_usuarios
+        SET
+            user_name = ?,
+            user_email = ?,
+            user_telefone = ?,
+            user_tipo = ?,
+            user_avatar = ?
+        WHERE user_id = ?
+    `
+
+    conexao.query(
+        sql, [
+            usuario.nome,
+            usuario.email,
+            usuario.telefone,
+            usuario.tipo,
+            usuario.avatar,
+            id
+        ], (erro, resultado) => {
+            if (erro) {
+                return callback(erro)
+            }
+
+            return callback(null, resultado)
+        }
+    )
+}
+
+function buscarPorId(id, callback) {
+    const sql = `
+        SELECT user_id, user_name, user_email, user_telefone, user_tipo, user_avatar
+        FROM tb_usuarios
+        WHERE user_id = ?
+    `
+
+    conexao.query(sql, [id], (erro, usuarios) => {
+        if (erro) {
+            return callback(erro)
+        }
+
+        return callback(null, usuarios[0])
+    })
+}
 
 function buscarPorEmail(email, callback) {
     
@@ -77,6 +123,8 @@ function buscarTodosUsuarios(callback) {
 module.exports = {
     criarUsuario,
     excluirUsuario,
+    atualizarUsuario,
+    buscarPorId,
     buscarPorEmail,
     buscarTodosUsuarios
 }
