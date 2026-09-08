@@ -50,109 +50,8 @@ async function loginAdm(req, res) {
         })
 } 
 
-function mostrarPainel(req, res) {
-
-    const htmlPainel = `
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>ROOT DEV - Admin</title>
-            <link rel="stylesheet" href="../admin/admin.css">
-            <link rel="stylesheet" href="../styles/global.css">
-            <link rel="stylesheet" href="../styles/cadastro-login.css">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-            <link rel="icon" href="../img/folder-icon.png" type="image/png">
-        </head>
-        <body>
-            <header>
-                <nav>
-                    <div class="title">
-                        <a href="/">
-                            <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
-                        </a>
-                    </div>
-                    <div id="auth-buttons">
-                        <a href="../login.html">
-                            <button>Login</button>
-                        </a> 
-                        <a href="../cadastro.html">
-                            <button>Cadastro</button>
-                        </a> 
-                    </div>
-                    <div id="nav-drawer-container">
-                        <div id="nav-drawer">
-                            <i class="fa-solid fa-bars" id="menu-icon" onclick="toggleMenu()"></i>
-                        </div>
-                    </div>
-                </nav>
-                <div id="nav-drawer-menu" class="menu-fechado">
-                    <a href="../login.html">
-                        <button>Login</button>
-                    </a> 
-                    <a href="../cadastro.html">
-                        <button>Cadastro</button>
-                    </a> 
-                </div>
-            </header>
-
-            <button onclick="toggleInicio()" id="botao-voltar" class="remove"><i class="fa-solid fa-chevron-left" id="open-arrow"></i></button>
-
-            <main class="admin-container" id="main-container">
-                <section class="admin-container" id="adm-inicio">
-                    <div class="admin-card">
-                        <div class="card-icon">
-                            <i class="fa-solid fa-database"></i>
-                        </div>
-                        <div class="card-title">
-                            <h2 class="disket-font">BANCO<br>DE<br>DADOS</h2>
-                        </div>
-                        <div class="card-desc">
-                            <p>Mostra relatórios e consultas no banco.</p>
-                        </div>
-                        <div class="card-action">
-                            <button class="disket-font" onclick="mostrarUsuarios()">ACESSAR</button>
-                        </div>
-                    </div>
-
-                    <div class="admin-card">
-                        <div class="card-icon">
-                            <i class="fa-solid fa-comment-dots"></i>
-                        </div>
-                        <div class="card-title">
-                            <h2 class="disket-font">COMENTÁRIOS</h2>
-                        </div>
-                        <div class="card-desc">
-                            <p>Mostrar comentários dos usuários.</p>
-                        </div>
-                        <div class="card-action">
-                            <button class="disket-font">ACESSAR</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="tabela-consulta"></section>
-                <section id="form-edicao"></section>
-            </main>
-            <a href="https://wa.me/5511999999999" class="whatsapp" target="_blank">
-                <i class="fa-brands fa-whatsapp"></i>
-            </a>
-        </body>
-
-        <script src="/adm/admin.js"></script>
-
-        <script src="../scripts/nav-drawer.js"></script>
-
-        <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@pigmilcom/a11y/dist/a11y.cdn.js" data-position="bottom-right" data-lang="pt" ></script>
-
-        </html>
-    `
-
-    res.send(htmlPainel)
+function enviarPainel(req, res) {
+    res.sendFile(path.join(__dirname, "../private/admin/admin.html"))
 }
 
 function enviarAdminJs(req, res) {
@@ -228,7 +127,7 @@ function atualizarUsuario(req, res) {
 
 module.exports = {
     loginAdm,
-    mostrarPainel,
+    enviarPainel,
     enviarAdminJs,
     buscarUsuarios,
     buscarUsuarioPorId,

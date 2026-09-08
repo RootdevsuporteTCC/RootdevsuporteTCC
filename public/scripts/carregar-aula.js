@@ -1,9 +1,22 @@
-// 1. Crie a lista com as suas aulas aqui.
-// Sempre que criar um novo arquivo .md, basta adicionar uma nova linha nesta lista!
-const listaDeAulas = [
-    { arquivo: 'aula-flexbox.md', titulo: 'Como centralizar uma div' },
-    { arquivo: 'exemplo-legal.md', titulo: 'Aula de exemplo' }
-];
+// 1. Organizando as aulas por matéria! 
+// Adicione suas aulas na lista correta (HTML, CSS ou JAVASCRIPT).
+const aulasPorMateria = {
+    'HTML': [
+        { arquivo: 'aula-flexbox.md', titulo: 'Como centralizar uma div' },
+        { arquivo: 'exemplo-legal.md', titulo: 'Aula de exemplo' }
+    ],
+    'CSS': [
+        { arquivo: 'aula-classes.md', titulo: 'Introdução a Classes' },
+        { arquivo: 'aula-jonas.md', titulo: 'Jonas Arruda' }
+    ],
+    'JAVASCRIPT': [
+        // colocar as pasta do JavaScript doidão aqui no futuro
+    ]
+};
+
+// Descobre qual é a matéria atual baseando-se no título lá da Sidebar
+const materiaAtual = document.getElementById('matter-title').innerText.toUpperCase();
+const listaDeAulas = aulasPorMateria[materiaAtual] || [];
 
 // 2. Função que preenche o menu lateral (sidebar)
 function carregarMenuLateral() {
@@ -21,9 +34,14 @@ function carregarMenuLateral() {
     });
 }
 
-// 3. Função que busca o arquivo .md e joga na tela (mesma lógica que você já tinha)
+// 3. Função que busca o arquivo .md e joga na tela
 function carregarAulaConteudo(nomeArquivo) {
-    fetch(`./aulas/html/${nomeArquivo}`)
+    // Transforma o nome da matéria em minúsculo para achar a pasta (HTML vira html)
+    const pastaMateria = materiaAtual.toLowerCase();
+
+    // Como o JS é executado dentro do HTML que está na pasta /matters/, 
+    // a raiz do diretório daqui pra frente é ./aulas/{pastaMateria}/
+    fetch(`./aulas/${pastaMateria}/${nomeArquivo}`)
       .then(resposta => resposta.text())
       .then(textoMd => {
           const htmlGerado = marked.parse(textoMd);
@@ -34,8 +52,7 @@ function carregarAulaConteudo(nomeArquivo) {
           const tituloAula = lessonContent.querySelector('h1');
           if (tituloAula) {
               tituloAula.classList.add('disket-font', 'title-center'); 
-              const nomeMateria = document.getElementById('matter-title').innerText;
-              document.getElementById('page-title').innerText = tituloAula.innerText + " - " + nomeMateria;
+              document.getElementById('page-title').innerText = tituloAula.innerText + " - " + materiaAtual;
           }
       })
       .catch(erro => {

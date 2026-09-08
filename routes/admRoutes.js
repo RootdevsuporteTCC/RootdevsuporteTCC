@@ -5,7 +5,7 @@ const admController = require('../controller/admController')
 const verificarAdmin = require('../middleware/verificarAdmin')
 
 router.post('/', admController.loginAdm)
-router.get('/painel', verificarAdmin, admController.mostrarPainel)
+router.get('/painel', verificarAdmin, admController.enviarPainel)
 router.get("/admin.js", verificarAdmin, admController.enviarAdminJs)
 router.get("/usuarios", verificarAdmin, admController.buscarUsuarios)
 router.get("/usuarios/:id", verificarAdmin, admController.buscarUsuarioPorId)

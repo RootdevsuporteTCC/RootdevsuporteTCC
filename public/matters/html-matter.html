@@ -7,11 +7,12 @@
     <!-- O título provisório enquanto o JS não carrega o nome da aula -->
     <title id="page-title">HTML</title>
 
-    <link rel="stylesheet" href="./styles/global.css">
-    <link rel="stylesheet" href="./styles/html-matter.css">
+    <!-- O '../' faz ele voltar para a pasta public e procurar a pasta styles e img -->
+    <link rel="stylesheet" href="../styles/global.css">
+    <link rel="stylesheet" href="./matters.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="icon" href="./img/folder-icon.png" type="image/png">
+    <link rel="icon" href="../img/folder-icon.png" type="image/png">
     
     <!-- Biblioteca Marked.js para converter MD em HTML -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -21,15 +22,15 @@
     <header>
         <nav>
             <div class="title">
-                <a href="/">
+                <a href="../index.html">
                     <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
                 </a>
             </div>
             <div id="auth-buttons">
-                <a href="login.html">
+                <a href="../login.html">
                     <button>Login</button>
                 </a> 
-                <a href="cadastro.html">
+                <a href="../cadastro.html">
                     <button>Cadastro</button>
                 </a> 
             </div>
@@ -40,10 +41,10 @@
             </div>
         </nav>
         <div id="nav-drawer-menu" class="menu-fechado">
-            <a href="login.html">
+            <a href="../login.html">
                 <button>Login</button>
             </a> 
-            <a href="cadastro.html">
+            <a href="../cadastro.html">
                 <button>Cadastro</button>
             </a> 
         </div>
@@ -85,8 +86,9 @@
     </a>
 </body>
 
+<!-- Scripts importados voltando um diretório -->
 <script src="../scripts/nav-drawer.js"></script>
-<script src="./scripts/carregar-aula.js"></script>
+<script src="../scripts/carregar-aula.js"></script>
 
 <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@pigmilcom/a11y/dist/a11y.cdn.js" data-position="bottom-right" data-lang="pt" ></script>
