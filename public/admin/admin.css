@@ -47,7 +47,6 @@ tbody td:hover, tbody th:hover {
 }
 
 
-
 .admin-container {
     display: flex;
     flex-direction: column;
@@ -122,6 +121,30 @@ tbody td:hover, tbody th:hover {
     cursor: pointer;
 }
 
+
+.form-pesquisa form {
+    justify-self: center;
+    display: block;
+    margin: 1rem;
+}
+
+.form-pesquisa input {
+    text-align: start;
+    padding: 0.5rem;
+    margin-right: 1rem;
+    width: 20rem;
+}
+
+.form-pesquisa button {
+    padding: 0.5rem;
+    margin-right: 1rem;
+    background-color: #8e07af;
+    border: none;
+    border-radius: 10px;
+    color: white;
+}
+
+
 .remove {
     display: none;
 }
@@ -129,7 +152,7 @@ tbody td:hover, tbody th:hover {
 #botao-voltar {
     background-color: #e1e1e1;
     border: none;
-    color: #9b00e8;
+    color: #690682;
     font-size: 3rem;
     cursor: pointer;
     align-self: start;
@@ -142,11 +165,21 @@ tbody td:hover, tbody th:hover {
     .admin-card {
         padding: 7vw;
     }
+
+    .form-pesquisa form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-pesquisa input, .form-pesquisa button {
+        width: 40vw;
+    }
 }
 
 @media screen and (max-width: 1300px) {
     h1 {
-        font-size: 3vw;
+        font-size: 5vw;
     }
 
     table, table button {

@@ -59,7 +59,9 @@ function enviarAdminJs(req, res) {
 }
 
 function buscarUsuarios(req, res) {
-    userModel.buscarTodosUsuarios((erro, usuarios) => {
+    const pesquisa = req.query.pesquisa || ''
+
+    userModel.buscarTodosUsuarios(pesquisa, (erro, usuarios) => {
         if (erro) {
             console.log(erro);
 

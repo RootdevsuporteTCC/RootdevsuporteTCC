@@ -104,13 +104,33 @@ function buscarPorEmail(email, callback) {
     })
 }
 
-function buscarTodosUsuarios(callback) {
-    const sql = `
+function buscarTodosUsuarios(pesquisa, callback) {
+    let sql = `
         SELECT user_id, user_name, user_email, user_telefone, user_tipo, user_avatar
         FROM tb_usuarios
     `;
 
-    conexao.query(sql, (erro, usuarios) => {
+    let valores = []
+
+    if (pesquisa) {
+        sql += `
+            WHERE user_name LIKE ?
+            OR user_email LIKE ?
+            OR user_tipo LIKE ?
+            OR CAST(user_id AS CHAR) LIKE ?
+        `
+
+        const termo = `%${pesquisa}%`
+
+        valores = [
+            termo,
+            termo,
+            termo,
+            termo
+        ]
+    }
+
+    conexao.query(sql, valores, (erro, usuarios) => {
         if (erro) {
             return callback(erro)
         }
