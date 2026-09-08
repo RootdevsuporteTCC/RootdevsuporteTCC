@@ -47,12 +47,13 @@ nav button, #nav-drawer-menu button {
 }
 
 footer {
-    background: linear-gradient(to right, #b639d5, #711588); /* Mantém o fundo atual */
+    background: linear-gradient(to right, #b639d5, #711588);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 10rem;
+    padding: 2rem clamp(1rem, 8vw, 10rem); 
     flex-wrap: wrap;
+    gap: 2rem;
 }
 
 /* efeito de clique nos botões e na tag span */
@@ -256,25 +257,33 @@ input::placeholder {
     padding: 0.5rem;
 }
 
-#footer-logo{
+#footer-logo {
     display: flex;  
     margin: 0;
     color: white;
-    font-size: 3rem;
     text-align: center;
+    font-size: clamp(1.8rem, 4vw, 3rem); 
 }
 
 #main-footer {
     display: flex;
     justify-content: flex-end;
     text-align: center;
-    gap: 4.5rem;
-    font-size: 32px;
+    gap: clamp(1.5rem, 4vw, 4.5rem);
     flex-wrap: wrap;
     color: white;
 }
 
-/* estiliza a seção de contato no final de cada página */
+#main-footer h2 {
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    margin-bottom: 0.5rem;
+}
+
+#main-footer ul, 
+#main-footer p {
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+}
+
 #contato {
     margin-top: 4rem;
     margin-bottom: 4rem;
@@ -283,7 +292,6 @@ input::placeholder {
 #contato p {
     margin-top: 1rem;
 }
-
 
 /* faz a responsividade da tela */
 @media screen and (max-width: 428px) {
@@ -334,9 +342,23 @@ input::placeholder {
     }
 }
 
+@media screen and (max-width: 1100px) {
+    footer {
+        padding: 3rem 2rem;
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    #main-footer {
+        width: 100%;
+        justify-content: space-evenly;
+        gap: 1.5rem;
+    }
+}
+
 @media screen and (max-width: 768px) {
     footer {
-        padding: 2.5rem 1.5rem; /* Aumenta um pouco o respiro superior e inferior */
+        padding: 2.5rem 1.5rem;
         flex-direction: column; /* Empilha o logotipo e o bloco de links */
         align-items: center; 
         gap: 2.5rem; /* Espaço entre o logo e os links */

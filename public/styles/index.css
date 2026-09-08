@@ -48,3 +48,21 @@ ul {
         font-size: 9vw;
     }
 }
+
+/* ajuste de responsividade para a tela inicial (mobile) */
+@media screen and (max-width: 768px) {
+    #introducao {
+        margin: 2rem 1rem;
+        padding: 1.5rem;
+        border-left: 4px solid #8e07af; /* deixa a bordinha roxa (la ele) um pouco mais fina */
+    }
+
+    /* reduz um pouquinho o tamanho dos textos pra ficar melhor no celular */
+    #introducao p {
+        font-size: 1.1rem; 
+    }
+
+    #introducao ul {
+        font-size: 1.1rem;
+    }
+}
