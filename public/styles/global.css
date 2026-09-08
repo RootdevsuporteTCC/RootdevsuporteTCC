@@ -61,7 +61,7 @@ button:not(:disabled):active, span:active {
     opacity: 0.8;
 }
 
-button {
+button, nav {
     transition: 0.2s;
 }
 
@@ -293,6 +293,51 @@ input::placeholder {
     margin-top: 1rem;
 }
 
+
+#avatar-usuario p {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#avatar-usuario p:hover {
+    transform: scale(1.1);
+}
+
+#menu-avatar-usuario {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#user-painel {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+}
+
+#user-painel div {
+    justify-items: center;
+}
+
+p.avatar {
+    margin: 1rem;
+    display: flex;
+    border-radius: 100px;
+    cursor: default;
+    height: 4rem;
+    width: 4rem;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    color: black;
+    padding: 1rem;
+}
+
+header #sair {
+    background-color: rgb(255, 86, 86);
+}
+
 /* faz a responsividade da tela */
 @media screen and (max-width: 428px) {
     #contato {
@@ -309,6 +354,10 @@ input::placeholder {
 
     #nav-drawer i {
         font-size: 10vw;
+    }
+
+    #menu-avatar-usuario {
+        flex-direction: column;
     }
 }
 

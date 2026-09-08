@@ -38,7 +38,8 @@ async function loginAdm(req, res) {
                 req.session.usuario = {
                     id: user.user_id,
                     nome: user.user_name,
-                    tipo: user.user_tipo
+                    tipo: user.user_tipo,
+                    avatar: user.user_avatar
                 }
 
                 return res.redirect('/adm/painel')

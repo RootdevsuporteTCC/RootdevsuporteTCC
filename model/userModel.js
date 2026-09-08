@@ -18,7 +18,7 @@ async function criarUsuario(user, callback) {
             user.email,
             user.telefone,
             senhaHash,
-            user.avatar
+            (user.avatar || ":D")
         ], callback)
     
     } catch (erro) {
@@ -140,11 +140,29 @@ function buscarTodosUsuarios(pesquisa, callback) {
     })
 }
 
+function buscarPorLogin(login, callback) {
+    const sql = `
+        SELECT *
+        FROM tb_usuarios
+        WHERE user_email = ?
+        OR user_name = ?
+    `
+
+    conexao.query(sql, [login, login], (erro, usuarios) => {
+        if (erro) {
+            return callback(erro)
+        }
+
+        return callback(null, usuarios[0])
+    })
+}
+
 module.exports = {
     criarUsuario,
     excluirUsuario,
     atualizarUsuario,
     buscarPorId,
     buscarPorEmail,
-    buscarTodosUsuarios
+    buscarTodosUsuarios,
+    buscarPorLogin
 }

@@ -12,4 +12,9 @@ form.addEventListener("submit", (event) => {
         event.preventDefault()
         alert("As senhas devem ser iguais")
     }
+
+    if (nome.includes("@")) {
+        event.preventDefault()
+        alert("O nome de usuário não pode conter @")
+    }
 })
