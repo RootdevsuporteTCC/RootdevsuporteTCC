@@ -321,13 +321,13 @@ input::placeholder {
 }
 
 p.avatar {
-    font-size: 2rem;
-    margin: 1rem;
+    font-size: 1.5rem;
+    margin: 0.5rem 1rem 0.5rem 1rem;
     display: flex;
     border-radius: 100px;
     cursor: default;
-    height: 4rem;
-    width: 4rem;
+    height: 3rem;
+    width: 3rem;
     align-items: center;
     justify-content: center;
     background-color: white;
