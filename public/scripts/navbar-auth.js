@@ -2,7 +2,6 @@ async function verificarLogin() {
     try {
         const resposta = await fetch('/usuarios/sessao')
         const dados = await resposta.json()
-        console.log(dados)
 
         if (!dados.logado) {
             return

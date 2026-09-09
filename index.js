@@ -4,6 +4,7 @@ const session = require('express-session')
 
 const userRoutes = require('./routes/userRoutes')
 const admRoutes = require('./routes/admRoutes')
+const conteudoRoutes = require('./routes/conteudoRoutes')
 
 const app = express()
 const port = 8000
@@ -24,6 +25,7 @@ app.use(session({
 // Rotas
 app.use('/usuarios', userRoutes)
 app.use('/adm', admRoutes)
+app.use('/conteudo', conteudoRoutes)
 
 
 // Página inicial

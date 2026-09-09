@@ -321,6 +321,7 @@ input::placeholder {
 }
 
 p.avatar {
+    font-size: 2rem;
     margin: 1rem;
     display: flex;
     border-radius: 100px;
