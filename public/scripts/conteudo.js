@@ -31,10 +31,13 @@ const aulasPorMateria = {
     javascript: []
 }
 
+
 const parametros = new URLSearchParams(window.location.search)
 
 const categoria = parametros.get("categoria")
 const topicoAtual = parametros.get("topico")
+
+
 
 function carregarMenuEsquerdo() {
     const aulas = aulasPorMateria[categoria]
@@ -56,3 +59,32 @@ function carregarMenuEsquerdo() {
         form.topicsList.appendChild(li)
     });
 }
+
+
+async function carregarConteudo() {
+    try {
+        const resposta = await fetch(`/conteudo/${encodeURIComponent(categoria)}/${encodeURIComponent(topicoAtual)}`)
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro)
+        }
+
+        const html = marked.parse(dados.conteudo)
+
+        form.lessonContent.innerHTML = html
+
+        carregarTitulo()
+
+        carregarComentarios(dados.comentarios)
+    } catch (erro) {
+        console.log("Erro ao carregar conteudo:", erro)
+
+        form.lessonContent.innerHTML = `
+            <p>Erro ao carregar o conteúdo.</p>
+        `
+
+        form.commentsContainer.innerHTML = ""
+    }
+}
+
