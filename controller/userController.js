@@ -2,56 +2,54 @@ const bcrypt = require("bcrypt")
 const userModel = require('../model/userModel')
 
 function criarUsuario(req, res) {
-    cadastro = {
-        nome: req.body.nome,
-        email: req.body.email,
-        telefone: req.body.telefone,
-        senha: req.body.senha,
-        confirmarSenha: req.body.confirmarSenha,
-        avatar: req.body.avatar
-    }
+    /*
+    const nome = req.body.nome.trim()
+    const email = req.body.email.trim()
+    const telefone = req.body.telefone
+    const senha = req.body.senha
+    const confirmarSenha = req.body.confirmarSenha
+    const avatar = req.body.avatar
 
-    if (!cadastro.nome || !cadastro.email || !cadastro.senha || !cadastro.confirmarSenha) {
+    if (!nome || !email || !senha || !confirmarSenha) {
         alert("Você precisa preencher as informações obrigatórias")
         return
     }
 
-    //verificações nome
-    if (cadastro.nome.length > 80) {
-        alert("Nome de usuário não pode conter mais de 80 caracteres")
+    //verificações nome: até 80 caracteres, não contém '@' nem espaços
+    if (nome.length > 80 || nome.length < 3) {
+        alert("Nome de usuário precisa ter mais que 3 e menos que 80 caracteres")
         return
     }
-    if (cadastro.nome.includes('@')) {
+    if (nome.includes('@')) {
         alert("O nome não pode conter '@'")
         return
     }
-    if (cadastro.nome.includes(' ')) {
+    if (nome.includes(' ')) {
         alert("O nome de usuário não pode conter espaços")
         return
     }
 
-    //verificações email
+    //verificações email: até 255 caracteres, passa por regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-    if (cadastro.email.length > 255) {
+    if (email.length > 255) {
         alert("O e-mail não pode ter mais de 255 caracteres")
         return
     }
-    if (!emailRegex.test(cadastro.email)) {
+    if (!emailRegex.test(email)) {
         alert("Insira um e-mail válido")
         return
     }
 
+    //verificações telefone: remove qualquer caractere que não for número
+    telefoneNovo = telefone.replace(/\d/g, "")
+
+    //verificações senha: de 6 até 64 caracteres, tem pelo menos um numero e um caractere especial
 
 
+    //verificações avatar: até 10 caracteres
 
-    //nome: até 80 caracteres, não contém '@' nem espaços
-    //email: até 255 caracteres, passa por regex
-    //telefone: remove '(', ')', ' ', '-'; depois passa por regex
-    //senha: de 6 até 64 caracteres, tem pelo menos um numero e um caractere especial
-    //avatar: até 10 caracteres
-
-
+    */
     userModel.criarUsuario(req.body, (erro) => {
         if (erro) {
             console.log(erro)
@@ -106,7 +104,7 @@ function logoutUsuario(req, res) {
             console.log(erro)
             return res.status(500).send("Erro ao fazer logout")
         }
-        res.clearCookie("Connect.sid")
+        res.clearCookie("connect.sid")
         return res.redirect("/")
     })
 }

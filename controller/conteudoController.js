@@ -7,19 +7,22 @@ function buscarConteudo(req, res) {
     const categoria = req.params.categoria
     const topico = req.params.topico
 
-    //regex que permite apenas caracteres como 'a' a 'z', 'A' a 'Z', '0' a '9', '_' e '-'
-    const nomeValido = /^[a-zA-Z0-9_-]+$/ 
-
     if (
-        !categoria ||
-        !topico || 
-        !nomeValido.test(categoria) ||
-        !nomeValido.test(topico)
+        categoria !== "html" &&
+        categoria !== "css" &&
+        categoria !== "javascript"
     ) {
-        return res.status(400).json({ erro: "Categoria ou tópico inválido" })
+        return res.status(400).json({ erro: "Categoria inválida" })
     }
 
-    const caminhoArquivo = path.join(__dirname, "../content/aulas", categoria, `${topico}.md`)
+    //regex que permite apenas letras, numeros, hifen e underline
+    const nomeValido = /^[a-zA-Z0-9_-]+$/ 
+
+    if (!topico || !nomeValido.test(topico)) {
+        return res.status(400).json({ erro: "Tópico inválido" })
+    }
+
+    const caminhoArquivo = path.join(__dirname, "../content", categoria, `${topico}.md`)
 
     fs.readFile(caminhoArquivo, "utf8", (erro, conteudo) => {
         if (erro) {

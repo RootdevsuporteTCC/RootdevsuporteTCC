@@ -1,4 +1,23 @@
-/* Estilização especifica para o HTML dá matéria de HTML */
+/* cores conforme a matéria */
+body {
+    --cor-lateral: #f16529;
+    --cor-destaque: #e44d26;
+    --cor-texto-tema: #ffffff;
+}
+
+/* Cores da categoria CSS */
+body[data-categoria="css"] {
+    --cor-lateral: #2ea1ff;
+    --cor-destaque: #006eff;
+    --cor-texto-tema: #ffffff;
+}
+
+/* Cores da categoria JavaScript */
+body[data-categoria="javascript"] {
+    --cor-lateral: #fffd21;
+    --cor-destaque: #d6d400;
+    --cor-texto-tema: #242424;
+}
 
 /* layout Principal para alinhar sidebar e conteúdo */
 #content-layout {
@@ -9,10 +28,11 @@
 /* sidebar bacana */
 aside {
     display: flex;
-    background-color: #f16529;
+    background-color: var(--cor-lateral);
     flex-direction: column;
     width: 320px;
     padding-top: 1.5rem;
+    flex-shrink: 0;
 }
 
 #toggle-menu {
@@ -29,9 +49,17 @@ aside {
 }
 
 #arrow {
-    color: white;
+    color: var(--cor-texto-tema);
     font-size: 3.5rem;
     cursor: pointer;
+}
+
+#matter-title {
+    color: var(--cor-texto-tema);
+}
+
+aside.fechado #arrow {
+    color: white;
 }
 
 #topics ul {
@@ -43,9 +71,9 @@ aside {
 #topics li {
     list-style: none;
     padding: 1rem 1.5rem;
-    background-color: #E44D26;
+    background-color: var(--cor-destaque);
     margin-top: 2px;
-    color: white;
+    color: var(--cor-texto-tema);
     font-size: 1.2rem;
     font-family: Arial, Helvetica, sans-serif;
     cursor: pointer;
@@ -94,9 +122,9 @@ main pre code {
 
 /* seção de comentários */
 #comments-section {
-    background-color: #E44D26;
+    background-color: var(--cor-destaque);
     padding: 3rem 4rem;
-    color: white;
+    color: var(--cor-texto-tema);
 }
 
 #comments-section h1 {
@@ -171,4 +199,146 @@ aside.fechado #toggle-menu {
 /* Otimiza a área de clique */
 #toggle-menu {
     cursor: pointer;
+}
+
+/* responsividade e flexibilidade para diferentes tamanhos de tela (malditos usuarios do mobile!) */
+
+@media screen and (max-width: 1024px) {
+    #comments-section {
+        padding: 2.5rem 3rem;
+    }
+    
+    aside.fechado {
+        margin: 1.5rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #content-layout {
+        position: relative; 
+        flex-direction: column;
+    }
+
+    aside {
+        position: absolute;
+        z-index: 100;
+        width: 100%;
+        max-width: 320px;
+        min-height: 100%;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.4);
+    }
+
+    aside.fechado {
+        position: absolute;
+        margin: 1rem;
+        height: auto;
+        box-shadow: none;
+    }
+
+    #main-content-area {
+        padding: 0;
+        padding-top: 5.5rem;
+        box-sizing: border-box;
+    }
+
+    #lesson-content {
+        padding: 0 1rem 1rem 1rem;
+    }
+
+    .title-center {
+        font-size: 2.2rem;
+        margin-bottom: 2rem;
+    }
+
+    main p {
+        font-size: 1.1rem;
+    }
+
+    main pre {
+        padding: 1.2rem;
+        border-radius: 15px;
+    }
+
+    main pre code {
+        font-size: 0.95rem;
+    }
+
+    #comments-section {
+        padding: 2rem 1.5rem;
+    }
+
+    #comments-section h1 {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    #user-commentary {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    #user-profile {
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+        font-size: 1.8rem;
+    }
+
+    #user-name h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    aside {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #matter-title {
+        font-size: 2.5rem;
+    }
+
+    #arrow {
+        font-size: 2.5rem;
+    }
+
+    #topics li {
+        font-size: 1.1rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .title-center {
+        font-size: 1.8rem;
+    }
+
+    #main-content-area {
+        padding: 0;
+        padding-top: 5rem;
+    }
+
+    #lesson-content {
+        padding: 0 0.8rem 1rem 0.8rem;
+    }
+
+    #comments-section {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* adaptações para o texto javascript não quebrar o site */
+body[data-categoria="javascript"] #matter-title {
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
+body[data-categoria="javascript"] #arrow {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+body[data-categoria="javascript"] #toggle-menu {
+    gap: 0.5rem;
 }
