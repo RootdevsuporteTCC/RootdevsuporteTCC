@@ -28,7 +28,7 @@ aside {
     margin: 0;
 }
 
-#open-arrow {
+#arrow {
     color: white;
     font-size: 3.5rem;
     cursor: pointer;
@@ -141,4 +141,34 @@ main pre code {
     margin: 0;
     line-height: 1.5;
     font-size: 1.2rem;
+}
+
+/* Estado fechado do menu lateral */
+aside.fechado {
+    position: absolute; /* Remove o elemento do fluxo, permitindo que o main preencha o espaço */
+    z-index: 10; /* Garante que o botão preto flutue acima do conteúdo e continue clicável */
+    width: 60px;
+    background-color: transparent; 
+    padding-top: 0; 
+    margin: 2rem;
+}
+
+aside.fechado #matter-title,
+aside.fechado #topics {
+    display: none; 
+}
+
+aside.fechado #toggle-menu {
+    background-color: #1a1a1a; /* Move a cor laranja apenas para o quadrado */
+    justify-content: center; 
+    align-items: center;
+    padding: 0;
+    height: 60px; /* Define a altura para formar o quadrado */
+    margin-bottom: 0;
+    border-radius: 1rem;
+}
+
+/* Otimiza a área de clique */
+#toggle-menu {
+    cursor: pointer;
 }

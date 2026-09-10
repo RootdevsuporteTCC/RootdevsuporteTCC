@@ -56,6 +56,12 @@ footer {
     gap: 2rem;
 }
 
+footer ul {
+    list-style: none;
+    font-size: 1.5rem;
+    padding: 0;
+}
+
 /* efeito de clique nos botões e na tag span */
 button:not(:disabled):active, span:active {
     opacity: 0.8;

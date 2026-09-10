@@ -1,9 +1,25 @@
 const form = {
-    matterTitle: document.getElementById("matter-tittle"),
+    matterTitle: document.getElementById("matter-title"), // corrigido de matter-tittle
     topicsList: document.getElementById("topics-list"),
     lessonContent: document.getElementById("lesson-content"),
     commentsContainer: document.getElementById("comments-container"),
 }
+
+// Renomeado de toggleMenu para btnMenuLateral para evitar conflito
+const btnMenuLateral = document.getElementById('toggle-menu');
+const aside = document.querySelector('aside');
+const arrow = document.getElementById('arrow');
+
+// Adicione o evento de clique na nova variável
+btnMenuLateral.addEventListener('click', () => {
+    aside.classList.toggle('fechado');
+    
+    if (aside.classList.contains('fechado')) {
+        arrow.className = 'fa-solid fa-chevron-left';
+    } else {
+        arrow.className = 'fa-solid fa-chevron-right';
+    }
+});
 
 const aulasPorMateria = {
     html: [

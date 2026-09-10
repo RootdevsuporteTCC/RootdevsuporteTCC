@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOT DEV - Cadastro</title>
+    
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/cadastro-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" href="./img/folder-icon.png" type="image/png">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="title">
+                <a href="/">
+                    <h1><i class="fa-solid fa-folder"></i>/ROOT_DEV</h1>
+                </a>
+            </div>
+            <div id="auth-buttons">
+                <a href="login.html">
+                    <button>Login</button>
+                </a> 
+                <a href="cadastro.html">
+                    <button>Cadastro</button>
+                </a> 
+            </div>
+            <div id="nav-drawer-container">
+                <div id="nav-drawer">
+                    <i class="fa-solid fa-bars" id="menu-icon" onclick="toggleMenu()"></i>
+                </div>
+            </div>
+        </nav>
+        <div id="nav-drawer-menu" class="menu-fechado">
+            <a href="login.html">
+                <button>Login</button>
+            </a> 
+            <a href="cadastro.html">
+                <button>Cadastro</button>
+            </a> 
+        </div>
+    </header>
+
+    <div id="form-box"> <!--alterar o action do form para puxar os dados do usuário-->
+        <form action="/usuarios/cadastro" method="POST" class="white-text" id="formCadastro">
+            <h1 class="disket-font">Perfil</h1>
+            <div class="campo">
+                <!--alterar o value do input para puxar os dados do usuário-->
+                <label for="nome">Nome de Usuário:</label>
+                <div>
+                    <input id="nome" name="nome" type="text" required placeholder="Seu Nome">
+                </div>
+            </div>
+
+            <div class="campo">    
+                <label for="email">E-Mail:</label>
+                <div>
+                    <input id="email" name="email" type="email" required placeholder="SeuEmail@email.com">
+                </div>
+            </div> 
+
+            <div class="campo">    
+                <label for="telefone">Telefone (opcional):</label> 
+                <div>
+                    <input id="telefone" name="telefone" type="tel" placeholder="Seu telefone"> 
+                </div>
+            </div> 
+
+            <div class="campo">    
+                <label for="avatar">Digite um Avatar:</label> 
+                <div>
+                    <input id="avatar" name="avatar" type="text" placeholder=":D" maxlength="10">
+                </div>
+            </div>
+
+            <div id="form-confirm">
+                <button type="submit" class="main-button disket-font"><a href="/index.html">ALTERAR</a></button>
+            </div>
+        </form>
+    </div>
+
+ <footer>
+        <div id="footer-logo">
+            <h1 id="footer-title" class="disket-font"><i class="fa-solid fa-folder"></i><br>ROOT<br>DEV</h1>
+        </div>
+        <div id="main-footer">
+            <div>
+                <h2 class="disket-font">Início</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="cadastro.html">Cadastro</a></li>
+                    <li><a href="./admin/loginAdm.html">Painel ADM</a></li>
+                </ul>
+            </div>
+        
+            <div>
+                <h2 class="disket-font">GitHub</h2>
+                <ul>
+                    <li><a href="https://github.com/RootdevsuporteTCC/RootdevsuporteTCC">Repositório</a></li>
+                    <li><a href="https://github.com/RootdevsuporteTCC/RootdevsuporteTCC/pulls">Pull Requests</a></li>
+                    <li><a href="https://github.com/RootdevsuporteTCC/RootdevsuporteTCC/graphs/contributors">Contribuidores</a></li>
+                    <li><a href="https://github.com/RootdevsuporteTCC/RootdevsuporteTCC/graphs/commit-activity">Commits</a></li>
+                    <li><a href="https://github.com/RootdevsuporteTCC/RootdevsuporteTCC/issues">Issues</a></li>
+                </ul>
+            </div>
+        
+            <div>
+                <h2 class="disket-font">CONTATO</h2>
+                <p class="white-text"><i class="fa-solid fa-envelope"></i> : <span class="span-contato" onclick="emailToClipboard()">rootdevsuporte@gmail.com</span></p>
+                <p class="white-text"><i class="fa-brands fa-whatsapp"></i> : <a href="https://wa.me/5511999999999"><span class="span-contato">+55 (11) 99999-9999</span></a></p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/5511999999999" class="whatsapp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+</body>
+
+    <script src="./scripts/nav-drawer.js"></script>
+    <script src="./scripts/email-to-clipboard.js"></script>
+    <script src="./scripts/navbar-auth.js"></script>
+    
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pigmilcom/a11y/dist/a11y.cdn.js" data-position="bottom-right" data-lang="pt" ></script>
+
+</html>

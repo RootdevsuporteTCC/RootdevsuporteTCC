@@ -2,12 +2,62 @@ const bcrypt = require("bcrypt")
 const userModel = require('../model/userModel')
 
 function criarUsuario(req, res) {
+    cadastro = {
+        nome: req.body.nome,
+        email: req.body.email,
+        telefone: req.body.telefone,
+        senha: req.body.senha,
+        confirmarSenha: req.body.confirmarSenha,
+        avatar: req.body.avatar
+    }
+
+    if (!cadastro.nome || !cadastro.email || !cadastro.senha || !cadastro.confirmarSenha) {
+        alert("Você precisa preencher as informações obrigatórias")
+        return
+    }
+
+    //verificações nome
+    if (cadastro.nome.length > 80) {
+        alert("Nome de usuário não pode conter mais de 80 caracteres")
+        return
+    }
+    if (cadastro.nome.includes('@')) {
+        alert("O nome não pode conter '@'")
+        return
+    }
+    if (cadastro.nome.includes(' ')) {
+        alert("O nome de usuário não pode conter espaços")
+        return
+    }
+
+    //verificações email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (cadastro.email.length > 255) {
+        alert("O e-mail não pode ter mais de 255 caracteres")
+        return
+    }
+    if (!emailRegex.test(cadastro.email)) {
+        alert("Insira um e-mail válido")
+        return
+    }
+
+
+
+
+    //nome: até 80 caracteres, não contém '@' nem espaços
+    //email: até 255 caracteres, passa por regex
+    //telefone: remove '(', ')', ' ', '-'; depois passa por regex
+    //senha: de 6 até 64 caracteres, tem pelo menos um numero e um caractere especial
+    //avatar: até 10 caracteres
+
+
     userModel.criarUsuario(req.body, (erro) => {
         if (erro) {
             console.log(erro)
             return res.send('Erro ao cadastrar usuário.')
         }
-        res.redirect('/')
+        res.redirect('/login.html')
     })
 }
 
