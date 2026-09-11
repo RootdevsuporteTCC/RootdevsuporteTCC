@@ -1,3 +1,8 @@
+---
+categoria: css
+topico: aula-classes
+---
+
 # COMO USAR CLASSES NO CSS
 
 Classes são identificadores reutilizáveis. Diferente de um ID, que deve ser único para um único elemento, você pode aplicar a mesma classe em vários elementos diferentes para dar a eles o mesmo visual de uma só vez.

@@ -1,7 +1,6 @@
 ---
 categoria: html
 topico: estrutura-basica
-titulo: Estrutura básica do HTML
 ---
 
 # Estrutura básica do HTML
@@ -9,7 +8,7 @@ titulo: Estrutura básica do HTML
 HTML é uma linguagem de marcação usada para organizar
 o conteúdo de uma página, como títulos, parágrafos e links.
 
-## Exemplo de uma página
+Exemplo de uma página:
 
 ```html
 <!DOCTYPE html>
@@ -25,7 +24,7 @@ o conteúdo de uma página, como títulos, parágrafos e links.
 </html>
 ```
 
-## Entendendo as partes
+Entendendo as partes:
 
 - `<!DOCTYPE html>` indica que o documento utiliza HTML moderno.
 - `<html>` é o elemento principal do documento.

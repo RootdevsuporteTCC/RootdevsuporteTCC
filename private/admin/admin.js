@@ -181,8 +181,9 @@ async function editarUsuario(id) {
 
                     <div class="campo">
                         <label for="edit-avatar">Digite um Avatar:</label> 
-                        <div>
-                            <input id="edit-avatar" name="avatar" type="text" value="${usuario.user_avatar}" placeholder=":D" maxlength="10"> <span class="hidden">*</span>
+                        <div class="avatar-edicao">
+                            <input id="edit-avatar" name="avatar" type="text" value="${usuario.user_avatar}" placeholder=":D" maxlength="10">
+                            <p class="avatar" id="avatar-previa">:D</p>
                         </div>
                     </div>
 
@@ -215,7 +216,7 @@ async function salvarEdicao(event, id) {
         email: email,
         telefone: telefone,
         tipo: tipo,
-        avatar: avatar
+        avatar: (avatar || ":D")
     }
 
     try {

@@ -90,6 +90,10 @@ main {
     flex: 1;
 }
 
+main#lesson-content {
+    margin: 2rem;
+}
+
 .title-center {
     text-align: center;
     font-size: 3rem;
@@ -169,6 +173,32 @@ main pre code {
     margin: 0;
     line-height: 1.5;
     font-size: 1.2rem;
+}
+
+#comments-container .user-commentary {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+#comments-container .avatar {
+    margin: 0;
+}
+
+#comments-container .comment-text-wrapper {
+    flex: 1;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+#comments-container .user-name {
+    margin: 0 0 0.5rem;
+    font-size: 1.8rem;
+}
+
+#comments-container .commentary {
+    margin: 0;
+    white-space: pre-wrap;
 }
 
 /* Estado fechado do menu lateral */
@@ -325,6 +355,18 @@ aside.fechado #toggle-menu {
 
     #comments-section {
         padding: 1.5rem 1rem;
+    }
+
+    #comments-container .user-commentary {
+        gap: 0.75rem;
+    }
+
+    #comments-container .user-name {
+        font-size: 1.5rem;
+    }
+
+    #comments-container .commentary {
+        font-size: 1rem;
     }
 }
 

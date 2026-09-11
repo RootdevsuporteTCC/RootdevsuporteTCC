@@ -1,3 +1,8 @@
+---
+categoria: html
+topico: aula-flexbox
+---
+
 # COMO CENTRALIZAR UMA DIV
 
 Centralização Total: Usando Flexbox (Mais Recomendado). Este é o método mais flexível e fácil para centralizar uma div tanto horizontalmente quanto verticalmente.

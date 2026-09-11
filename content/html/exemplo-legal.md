@@ -1,3 +1,8 @@
+---
+categoria: html
+topico: exemplo-legal
+---
+
 # Titulo qualquer
 
 texto de exemplo texto de exemplo texto de exemplo
