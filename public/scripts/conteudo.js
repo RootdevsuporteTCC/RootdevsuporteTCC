@@ -4,6 +4,7 @@ const menuLateral = document.querySelector("aside")
 const setaMenu = document.getElementById("arrow")
 const areaConteudo = document.getElementById("lesson-content")
 const areaComentarios = document.getElementById("comments-container")
+const listaTopicos = document.getElementById("topics-list")
 
 const parametros = new URLSearchParams(window.location.search)
 
@@ -110,6 +111,47 @@ async function carregarConteudo(topico) {
     }
 }
 
+async function carregarTopicos() {
+    listaTopicos.innerHTML = "<li>Carregando...</li>"
+
+    try {
+        const resposta = await fetch(`/conteudo/${categoria}`)
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro);
+        }
+
+        listaTopicos.innerHTML = ""
+
+        if (dados.topicos.length === 0) {
+            listaTopicos.innerHTML = "<li>Nenhum tópico disponível</li>"
+            return
+        }
+
+        dados.topicos.forEach((topico) => {
+            listaTopicos.insertAdjacentHTML("beforeend", `
+                    <li>
+                        <p class="texto-topico"></p>
+                    </li>
+                `)
+
+                const item = listaTopicos.lastElementChild
+                const texto = item.querySelector(".texto-topico")
+
+                texto.innerText = topico.replaceAll("-", " ").replaceAll("_", " ")
+
+                item.addEventListener("click", () => {
+                    carregarConteudo(topico)
+                })
+        })
+    } catch (erro) {
+        console.log("Erro ao carregar tópicos:", erro)
+
+        listaTopicos.innerHTML = "<li>Não foi possível carregar os tópicos</li>"
+    }
+}
+
 if (window.innerWidth <= 768) {
     menuLateral.classList.add("fechado")
 }
@@ -117,6 +159,7 @@ if (window.innerWidth <= 768) {
 atualizarTitulo()
 atualizarSeta()
 aplicarTema()
+carregarTopicos()
 
 const topicoInicial = parametros.get("topico")
 

@@ -62,8 +62,12 @@ footer ul {
     padding: 0;
 }
 
+footer li:hover {
+    text-decoration: underline;
+}
+
 /* efeito de clique nos botões e na tag span */
-button:not(:disabled):active, span:active {
+button:not(:disabled):active, span:active, li:active {
     opacity: 0.8;
 }
 

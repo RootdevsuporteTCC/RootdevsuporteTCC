@@ -102,6 +102,43 @@ function buscarConteudo(req, res) {
     })
 }
 
+function listarTopicos(req, res) {
+    const categoria = req.params.categoria
+
+    if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
+        return res.status(400).json({ erro: "Categoria inválida" })
+    }
+
+    const pasta = path.join(__dirname, "../content", categoria)
+
+    fs.readdir(pasta, { withFileTypes: true }, (erro, arquivos) => {
+        if (erro) {
+            if (erro.code === "ENOENT") {
+                return res.json({ topicos: [] })
+            }
+
+            console.log("Erro ao listar tópicos:", erro)
+
+            return res.status(500).json({ erro: "Não foi possível listar os tópicos" })
+        }
+
+        const topicos = []
+
+        arquivos.forEach((arquivo) => {
+            if (arquivo.isFile() && arquivo.name.endsWith(".md")) {
+                const topico = path.basename(arquivo.name, ".md")
+
+                topicos.push(topico)
+            }
+        })
+
+        topicos.sort()
+
+        return res.json({ topicos: topicos })
+    })
+}
+
 module.exports = {
-    buscarConteudo
+    buscarConteudo,
+    listarTopicos
 }
