@@ -68,6 +68,38 @@ function salvarComentario(req, res) {
     })
 }
 
+function excluirComentario(req, res) {
+    if (!req.session.usuario) {
+        return res.status(401).json({ erro: "Faça login para excluir um comentário." })
+    }
+
+    const id = Number(req.params.id)
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({ erro: "ID do comentário inválido." })
+    }
+
+    const comentario = {
+        id: id,
+        userId: req.session.usuario.id
+    }
+
+    comentarioModel.excluirComentario(comentario, (erro, resultado) => {
+        if (erro) {
+            console.log("Erro ao excluir comentário:", erro)
+
+            return res.status(500).json({ erro: "Não foi possível excluir o comentario" })
+        }
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ erro: "Comentario não encontrado ou não pertence a você." })
+        }
+
+        return res.json({ mensagem: "Comentário excluido." })
+    })
+}
+
 module.exports = {
-    salvarComentario
+    salvarComentario,
+    excluirComentario
 }

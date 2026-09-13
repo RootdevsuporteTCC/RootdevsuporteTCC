@@ -94,6 +94,14 @@ function buscarConteudo(req, res) {
                 return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
             }
 
+            comentarios.forEach((comentario) => {
+                comentario.podeExcluir = false
+
+                if (req.session.usuario) {
+                    comentario.podeExcluir = Number(comentario.com_user_id) === Number(req.session.usuario.id)
+                }
+            })
+
             return res.status(200).json({
                 conteudo: aula.conteudo,
                 comentarios: comentarios

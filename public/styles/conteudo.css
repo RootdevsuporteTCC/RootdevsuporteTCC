@@ -183,10 +183,14 @@ main pre code {
     letter-spacing: 2px;
 }
 
-#user-commentary {
-    display: flex;
-    gap: 2rem;
-    align-items: flex-start;
+.user-commentary {
+    padding: 10px;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.user-commentary:hover {
+    background-color: var(--cor-lateral);
 }
 
 /* perfil do user com emoticon de texto :3 */
@@ -245,6 +249,18 @@ main pre code {
 #comments-container .commentary {
     margin: 0;
     white-space: pre-wrap;
+}
+
+#comments-container .botao-excluir {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.5rem;
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
 }
 
 /* Estado fechado do menu lateral */

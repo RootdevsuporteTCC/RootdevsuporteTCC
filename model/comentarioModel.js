@@ -4,6 +4,7 @@ function buscarPorTopico(categoria, topico, callback) {
     const sql = `
         SELECT 
             tb_comentarios.com_id,
+            tb_comentarios.com_user_id,
             tb_comentarios.com_texto,
             tb_comentarios.com_data,
             tb_usuarios.user_name,
@@ -43,7 +44,21 @@ function salvarComentario(comentario, callback) {
     ], callback)
 }
 
+function excluirComentario(comentario, callback) {
+    const sql = `
+        DELETE FROM tb_comentarios
+        WHERE com_id = ?
+        AND com_user_id = ?
+    `
+
+    conexao.query(sql, [
+        comentario.id,
+        comentario.userId
+    ], callback)
+}
+
 module.exports = {
     buscarPorTopico,
-    salvarComentario
+    salvarComentario,
+    excluirComentario
 }

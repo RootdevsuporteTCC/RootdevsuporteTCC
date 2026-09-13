@@ -71,11 +71,20 @@ function exibirComentarios(comentarios) {
                 <h2 class="user-name disket-font"></h2>
                 <p class="commentary"></p>
             </div>
+            <button type="button" class="botao-excluir" hidden><i class="fa-solid fa-trash-can"></i></button>
         `
 
         bloco.querySelector(".avatar").innerText = comentario.user_avatar
         bloco.querySelector(".user-name").innerText = comentario.user_name
         bloco.querySelector(".commentary").innerText = comentario.com_texto
+
+        const botaoExcluir = bloco.querySelector(".botao-excluir")
+
+        botaoExcluir.hidden = !comentario.podeExcluir
+
+        botaoExcluir.addEventListener("click", () => {
+            excluirComentario(comentario.com_id)
+        })
 
         areaComentarios.appendChild(bloco)
     });
@@ -98,6 +107,8 @@ async function carregarConteudo(topico) {
     if (ocupado) {
         return
     }
+
+    const mudouDeTopico = topico !== topicoAtual
 
     ocupado = true
     topicoAtual = ""
@@ -124,7 +135,9 @@ async function carregarConteudo(topico) {
         exibirComentarios(dados.comentarios)
 
         topicoAtual = topico
-        campoComentario.value = ""
+        if (mudouDeTopico) {
+            campoComentario.value = ""
+        }
 
     } catch (erro) {
         console.log("Erro ao carregar a aula:", erro)
@@ -277,6 +290,58 @@ async function enviarComentario(event) {
     }
 }
 formComentario.addEventListener("submit", enviarComentario)
+
+async function excluirComentario(id) {
+    if (ocupado) {
+        return
+    }
+
+    const confirmou = window.confirm("Deseja excluir este comentário?")
+
+    if (!confirmou) {
+        return
+    }
+
+    const topicoSelecionado = topicoAtual
+
+    ocupado = true
+    botaoComentario.disabled = true
+    campoComentario.disabled = true
+
+    mensagemComentario.innerText = "Excluindo..."
+
+    try {
+        const resposta = await fetch(`/comentarios/${id}`, {
+            method: "DELETE"
+        })
+
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            mensagemComentario.innerText = dados.erro
+
+            if (resposta.status === 401) {
+                formComentario.hidden = true
+                avisoLoginComentario.hidden = false
+            }
+
+            return
+        }
+
+        ocupado = false
+        await carregarConteudo(topicoSelecionado)
+
+        mensagemComentario.innerText = dados.mensagem
+    } catch (erro) {
+        console.log("Erro ao excluir comentário:", erro)
+
+        mensagemComentario.innerText = "Não foi possível confirmar a exclusão. Atualize a página."
+    } finally {
+        ocupado = false
+        campoComentario.disabled = false
+        botaoComentario.disabled = topicoAtual === ""
+    }
+}
 
 if (window.innerWidth <= 768) {
     menuLateral.classList.add("fechado")
