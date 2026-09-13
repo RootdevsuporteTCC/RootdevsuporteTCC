@@ -12,10 +12,12 @@ async function verificarLogin() {
 
         authButtons.innerHTML = `
             <div id="user-painel">
-                <a href="/perfil.html" id="avatar-usuario"><button>Meu Perfil</button></a> 
-                <form action="/usuarios/logout" method="POST">
-                    <button type="submit" id="sair">Sair</button>
-                </form>
+                <div>
+                    <a href="/perfil.html" id="avatar-usuario"><button>Meu Perfil</button></a> 
+                    <form action="/usuarios/logout" method="POST">
+                        <button type="submit" id="sair">Sair</button>
+                    </form>
+                </div>
                 <p class="avatar">${dados.usuario.avatar || ":D"}</p>
             </div>
         `

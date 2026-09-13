@@ -28,6 +28,22 @@ function buscarPorTopico(categoria, topico, callback) {
     })
 }
 
+function salvarComentario(comentario, callback) {
+    const sql = `
+        INSERT INTO tb_comentarios
+        (com_user_id, com_texto, com_categoria, com_topico)
+        VALUES (?, ?, ?, ?)
+    `
+
+    conexao.query(sql, [
+        comentario.userId,
+        comentario.texto,
+        comentario.categoria,
+        comentario.topico
+    ], callback)
+}
+
 module.exports = {
-    buscarPorTopico
+    buscarPorTopico,
+    salvarComentario
 }

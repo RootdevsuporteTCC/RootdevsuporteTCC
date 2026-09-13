@@ -5,6 +5,14 @@ const setaMenu = document.getElementById("arrow")
 const areaConteudo = document.getElementById("lesson-content")
 const areaComentarios = document.getElementById("comments-container")
 const listaTopicos = document.getElementById("topics-list")
+const formComentario = document.getElementById("form-comentario")
+const avisoLoginComentario = document.getElementById("aviso-login-comentario")
+const mensagemComentario = document.getElementById("mensagem-comentario")
+const campoComentario = document.getElementById("texto-comentario")
+const botaoComentario = document.getElementById("botao-comentario")
+
+let topicoAtual = ""
+let ocupado = false
 
 const parametros = new URLSearchParams(window.location.search)
 
@@ -87,8 +95,19 @@ function exibirConteudo(markdown) {
 }
 
 async function carregarConteudo(topico) {
-    areaConteudo.textContent = "Carregando..."
-    areaComentarios.textContent = ""
+    if (ocupado) {
+        return
+    }
+
+    ocupado = true
+    topicoAtual = ""
+
+    botaoComentario.disabled = true
+    campoComentario.disabled = true
+
+    areaConteudo.innerText = "Carregando..."
+    areaComentarios.innerText = ""
+    mensagemComentario.innerText = ""
 
     try {
         const endereco =  `/conteudo/${encodeURIComponent(categoria)}/${encodeURIComponent(topico)}`
@@ -97,17 +116,24 @@ async function carregarConteudo(topico) {
         const dados = await resposta.json()
 
         if (!resposta.ok) {
-            areaConteudo.textContent = dados.erro
+            areaConteudo.innerText = dados.erro
             return
         }
 
         exibirConteudo(dados.conteudo)
         exibirComentarios(dados.comentarios)
 
+        topicoAtual = topico
+        campoComentario.value = ""
+
     } catch (erro) {
         console.log("Erro ao carregar a aula:", erro)
 
         areaConteudo.textContent = "Não foi possível carregar a aula."
+    } finally {
+        ocupado = false
+        campoComentario.disabled = false
+        botaoComentario.disabled = topicoAtual === ""
     }
 }
 
@@ -152,6 +178,106 @@ async function carregarTopicos() {
     }
 }
 
+async function verificarLoginComentario() {
+    try {
+        const resposta = await fetch("/usuarios/sessao")
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao verificar a sessão");
+        }
+
+        const dados = await resposta.json()
+
+        mensagemComentario.innerText = ""
+
+        if (dados.logado) {
+            formComentario.hidden = false
+            avisoLoginComentario.hidden = true
+        } else {
+            formComentario.hidden = true
+            avisoLoginComentario.hidden = false
+        }
+    } catch (erro) {
+        console.log("Erro ao verificar login:", erro)
+
+        formComentario.hidden = true
+        avisoLoginComentario.hidden = true
+
+        mensagemComentario.innerText = "Não foi possível verificar seu login. Atualize a página."
+    }
+}
+
+async function enviarComentario(event) {
+    event.preventDefault()
+
+    if (ocupado) {
+        return
+    }
+
+    if (topicoAtual === "") {
+        mensagemComentario.innerText = "Selecione uma aula para comentar."
+        return
+    }
+
+    const texto = campoComentario.value.trim()
+
+    if (texto.length === 0 || texto.length > 1000) {
+        mensagemComentario.innerText = "Escreva um comentario entre 1 e 1000 caracteres."
+        return
+    }
+
+    const topicoEnviado = topicoAtual
+
+    ocupado = true
+    botaoComentario.disabled = true
+    campoComentario.disabled = true
+
+    mensagemComentario.innerText = "Enviando..."
+
+    try {
+        const resposta = await fetch("/comentarios", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                texto: texto,
+                categoria: categoria,
+                topico: topicoEnviado
+            })
+        })
+
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            mensagemComentario.innerText = dados.erro
+
+            if (resposta.status === 401) {
+                formComentario.hidden = true
+                avisoLoginComentario.hidden = false
+            }
+
+            return
+        }
+
+        campoComentario.value = ""
+
+        ocupado = false
+        await carregarConteudo(topicoEnviado)
+
+        mensagemComentario.innerText = dados.mensagem
+    } catch (erro) {
+        console.log("Erro ao enviar comentário:", erro)
+
+        mensagemComentario.innerText = "Não foi possível confirmar o envio. Confira os comentários antes de tentar novamente."
+    } finally {
+        ocupado = false
+        campoComentario.disabled = false
+        botaoComentario.disabled = topicoAtual === ""
+    }
+}
+formComentario.addEventListener("submit", enviarComentario)
+
 if (window.innerWidth <= 768) {
     menuLateral.classList.add("fechado")
 }
@@ -160,6 +286,7 @@ atualizarTitulo()
 atualizarSeta()
 aplicarTema()
 carregarTopicos()
+verificarLoginComentario()
 
 const topicoInicial = parametros.get("topico")
 

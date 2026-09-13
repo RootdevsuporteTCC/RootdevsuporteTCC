@@ -69,6 +69,19 @@
 
                 <section id="comments-section">
                     <h1 class="disket-font">COMENTARIOS:</h1>
+                    <div id="form-comentario-container">
+                        <p id="mensagem-comentario">Verificando login...</p>
+                        <p id="aviso-login-comentario" hidden>
+                            <a href="/login.html">Faça login</a> para comentar.
+                        </p>
+                        <form id="form-comentario" hidden>
+                            <label for="texto-comentario">Escreva seu comentário:</label>
+                        
+                            <textarea name="texto" id="texto-comentario" rows="4" maxlength="1000" placeholder="O que você achou dessa aula?" required></textarea>
+                        
+                            <button type="submit" class="main-button disket-font" id="botao-comentario" disabled>Comentar</button>
+                        </form>
+                    </div>
 
                     <div id="comments-container">
                         <!-- comentários -->
