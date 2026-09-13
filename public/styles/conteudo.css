@@ -3,6 +3,7 @@ body {
     --cor-lateral: #f16529;
     --cor-destaque: #e44d26;
     --cor-texto-tema: #ffffff;
+    --cor-texto-contraste: #333;
 }
 
 /* Cores da categoria CSS */
@@ -10,6 +11,7 @@ body[data-categoria="css"] {
     --cor-lateral: #2ea1ff;
     --cor-destaque: #006eff;
     --cor-texto-tema: #ffffff;
+    --cor-texto-contraste: #333;
 }
 
 /* Cores da categoria JavaScript */
@@ -17,6 +19,7 @@ body[data-categoria="javascript"] {
     --cor-lateral: #fffd21;
     --cor-destaque: #d6d400;
     --cor-texto-tema: #242424;
+    --cor-texto-contraste: #f1f1f1;
 }
 
 /* layout Principal para alinhar sidebar e conteúdo */
@@ -154,7 +157,7 @@ main pre code {
 }
 
 #form-comentario-container {
-    background-color: #333;
+    background-color: var(--cor-texto-contraste);
     padding: 1rem;
     border-radius: 20px;
     margin-bottom: 3rem;
