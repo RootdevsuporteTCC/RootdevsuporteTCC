@@ -104,13 +104,13 @@ function buscarPorEmail(email, callback) {
     })
 }
 
-function buscarTodosUsuarios(pesquisa, callback) {
+function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
     let sql = `
         SELECT user_id, user_name, user_email, user_telefone, user_tipo, user_avatar
         FROM tb_usuarios
     `;
 
-    let valores = []
+    const valores = []
 
     if (pesquisa) {
         sql += `
@@ -122,13 +122,15 @@ function buscarTodosUsuarios(pesquisa, callback) {
 
         const termo = `%${pesquisa}%`
 
-        valores = [
-            termo,
-            termo,
-            termo,
-            termo
-        ]
+        valores.push(termo, termo, termo, termo)
     }
+
+    sql += `
+        ORDER BY user_id ASC
+        LIMIT ? OFFSET ?
+    `
+
+    valores.push(limite, deslocamento)
 
     conexao.query(sql, valores, (erro, usuarios) => {
         if (erro) {
@@ -136,7 +138,6 @@ function buscarTodosUsuarios(pesquisa, callback) {
         }
 
         callback(null, usuarios)
-        
     })
 }
 

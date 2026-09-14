@@ -62,14 +62,37 @@ function enviarAdminJs(req, res) {
 function buscarUsuarios(req, res) {
     const pesquisa = req.query.pesquisa || ''
 
-    userModel.buscarTodosUsuarios(pesquisa, (erro, usuarios) => {
-        if (erro) {
-            console.log(erro);
+    let pagina = 1
 
-            return res.status(500).send("Erro ao buscar usuários");
+    if (req.query.pagina !== undefined) {
+        pagina = Number(req.query.pagina)
+    }
+
+    const limite = 50
+    const deslocamento = (pagina - 1) * limite
+
+    if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
+        return res.status(400).json({ erro: "Página ou pesquisa inválida" })
+    }
+
+    userModel.buscarTodosUsuarios(pesquisa, limite + 1, deslocamento, (erro, usuarios) => {
+        if (erro) {
+            console.log("Erro ao buscar usuários:", erro);
+
+            return res.status(500).json({ erro: "Não foi possível buscar os usuários." });
         }
 
-        return res.status(200).json(usuarios);
+        const temProxima = usuarios.length > limite
+
+        if (temProxima) {
+            usuarios.pop()
+        }
+
+        return res.status(200).json({
+            usuarios: usuarios,
+            pagina: pagina,
+            temProxima: temProxima
+        });
     });
 }
 

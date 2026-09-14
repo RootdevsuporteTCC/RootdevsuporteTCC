@@ -58,12 +58,12 @@ select {
     gap: 1rem;
 }
 
-#formCadastro input#avatar {
+#formCadastro input#avatar, #formCadastro input#edit-avatar {
     width: 10rem;
     max-width: 100%;
     box-sizing: border-box;
     height: auto;
-    border-radius: 16px;
+    border-radius: 1rem;
     font-size: 1rem;
 }
 
@@ -73,7 +73,7 @@ select {
 }
 
 input#avatar::placeholder {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 /* @media para fazer a responsividade da tela */

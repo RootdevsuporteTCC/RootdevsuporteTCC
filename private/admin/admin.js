@@ -5,6 +5,9 @@ const form = {
     formEdicao: document.getElementById("form-edicao")
 }
 
+let paginaUsuariosAtual = 1
+let pesquisaUsuariosAtual = ""
+
 function abrirConsulta() {
     form.botaoVoltar.classList.remove("remove")
     form.admInicio.classList.add("remove")
@@ -26,19 +29,49 @@ function voltarInicio() {
     form.formEdicao.innerHTML = ""
 }
 
-async function mostrarUsuarios(pesquisa = "") {
+function atualizarPreviewAvatarAdm() {
+    const campoAvatar = document.getElementById("edit-avatar")
+    const previaAvatar = document.getElementById("avatar-previa")
+
+    previaAvatar.innerText = campoAvatar.value || ":D"
+}
+
+function mudarPaginaUsuarios(direcao) {
+    const novaPagina = paginaUsuariosAtual + direcao
+
+    if (novaPagina < 1) {
+        return
+    }
+
+    mostrarUsuarios(pesquisaUsuariosAtual, novaPagina)
+}
+
+async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
+
+    form.tabelaConsulta.innerHTML = "<p>Carregando...</p>"
     
     try {
-        const resposta = await fetch(`/adm/usuarios?pesquisa=${encodeURIComponent(pesquisa)}`)
-        const usuarios = await resposta.json()
+        const endereco = `/adm/usuarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
 
-        let tabela = `
+        const resposta = await fetch(endereco)
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao consultar usuários.");
+        }
+
+        const dados = await resposta.json()
+        const usuarios = dados.usuarios
+
+        paginaUsuariosAtual = dados.pagina
+        pesquisaUsuariosAtual = pesquisa
+
+        form.tabelaConsulta.innerHTML = `
             <h1 class="disket-font">Consulta de usuários</h1>
 
             <div class="form-pesquisa">
                 <form onsubmit="pesquisarUsuarios(event)">
-                    <input type="text" id="campo-pesquisa" placeholder="Pesquisar por nome, email ou tipo... " value="${pesquisa}">
+                    <input type="text" id="campo-pesquisa" placeholder="Pesquisar por nome, email ou tipo... ">
 
                     <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
                     <button type="button" onclick="limparPesquisa()">Limpar</button>
@@ -58,46 +91,74 @@ async function mostrarUsuarios(pesquisa = "") {
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="usuarios-encontrados"></tbody>
+            </table>
+
+            <div class="paginacao">
+                <button type="button", id="pagina-anterior" onclick="mudarPaginaUsuarios(-1)">Anterior</button>
+                <p id="pagina-atual"></p>
+                <button type="button" id="proxima-pagina" onclick="mudarPaginaUsuarios(1)">Próxima</button>
+            </div>
         `
+
+        document.getElementById("campo-pesquisa").value = pesquisa
+
+        const corpoTabela = document.getElementById("usuarios-encontrados")
 
         if (usuarios.length === 0) {
-            tabela += `
+            corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="7">
-                        Nenhum usuário encontrado.
-                    </td>
+                    <td colspan="7">Nenhum usuário encontrado nessa página.</td>
                 </tr>
             `
-        } else {
-            usuarios.forEach((usuario) => {
-                tabela += `
+        }
+
+        usuarios.forEach((usuario) => {
+            corpoTabela.insertAdjacentHTML("beforeend", `
                     <tr>
-                        <td>${usuario.user_id}</td>
-                        <td>${usuario.user_name}</td>
-                        <td>${usuario.user_email}</td>
-                        <td>${usuario.user_telefone || '-'}</td>
-                        <td>${usuario.user_tipo}</td>
-                        <td>${usuario.user_avatar || '-'}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>
-                            <button onclick="editarUsuario(${usuario.user_id})"><i class="fa-solid fa-pen"></i> Editar</button>
-                            <button onclick="excluirUsuario(${usuario.user_id})"><i class="fa-solid fa-trash-can"></i> Excluir</button>
+                            <button type="button" class="editar-usuario"><i class="fa-solid fa-pen"></i> Editar</button>
+                            <button type="button" class="excluir-usuario"><i class="fa-solid fa-trash-can"></i> Excluir</button>
                         </td>
                     </tr>
-                `
-            });
-        }
-        tabela += `
-                </tbody>
-            </table>
-        `
+                `)
 
-        form.tabelaConsulta.innerHTML = tabela
+            const linha = corpoTabela.lastElementChild
+            const colunas = linha.querySelectorAll("td")
+
+            colunas[0].innerText = usuario.user_id
+            colunas[1].innerText = usuario.user_name
+            colunas[2].innerText = usuario.user_email
+            colunas[3].innerText = usuario.user_telefone || "-"
+            colunas[4].innerText = usuario.user_tipo
+            colunas[5].innerText = usuario.user_avatar
+
+            linha.querySelector(".editar-usuario").addEventListener("click", () => {
+                editarUsuario(usuario.user_id)
+            })
+
+            linha.querySelector(".excluir-usuario").addEventListener("click", () => {
+                excluirUsuario(usuario.user_id)
+            })
+        });
+
+        document.getElementById("pagina-atual").innerText = `Página ${paginaUsuariosAtual}`
+
+        document.getElementById("pagina-anterior").disabled = paginaUsuariosAtual === 1
+
+        document.getElementById("proxima-pagina").disabled = !dados.temProxima
+        
     } catch (erro) {
-        console.log(erro)
+        console.log("Erro ao carregar usuários:", erro)
 
         form.tabelaConsulta.innerHTML = `
-            <p>Erro ao carregar usuários</p>
+            <p>Não foi possível carregar os usuários. Confira se você está logado como admin.</p>
         `
     }
 }
@@ -119,7 +180,7 @@ async function excluirUsuario(id) {
         }
         alert(dados.mensagem)
 
-        mostrarUsuarios()
+        mostrarUsuarios(pesquisaUsuariosAtual, paginaUsuariosAtual)
     } catch (erro) {
         console.error(erro)
         alert("Erro ao excluir usuário", erro)
@@ -182,7 +243,7 @@ async function editarUsuario(id) {
                     <div class="campo">
                         <label for="edit-avatar">Digite um Avatar:</label> 
                         <div class="avatar-edicao">
-                            <input id="edit-avatar" name="avatar" type="text" value="${usuario.user_avatar}" placeholder=":D" maxlength="10">
+                            <input id="edit-avatar" name="avatar" type="text" placeholder=":D" maxlength="10">
                             <p class="avatar" id="avatar-previa">:D</p>
                         </div>
                     </div>
@@ -193,6 +254,15 @@ async function editarUsuario(id) {
                 </form>
             </div>
         `
+
+        const campoAvatar = document.getElementById("edit-avatar")
+
+        campoAvatar.value = usuario.user_avatar || ""
+
+        campoAvatar.addEventListener("input", atualizarPreviewAvatarAdm)
+
+        atualizarPreviewAvatarAdm()
+
     } catch (erro) {
         console.log(erro)
 
@@ -237,7 +307,7 @@ async function salvarEdicao(event, id) {
 
         alert(dados.mensagem)
 
-        mostrarUsuarios()
+        mostrarUsuarios(pesquisaUsuariosAtual, paginaUsuariosAtual)
     } catch (erro) {
         console.log(erro)
         alert("Erro ao atualizar usuário.")
@@ -249,9 +319,9 @@ function pesquisarUsuarios(event) {
 
     const pesquisa = document.getElementById("campo-pesquisa").value
 
-    mostrarUsuarios(pesquisa)
+    mostrarUsuarios(pesquisa, 1)
 }
 
 function limparPesquisa() {
-    mostrarUsuarios()
+    mostrarUsuarios("", 1)
 }
