@@ -2,6 +2,7 @@ const fs = require("fs")
 const path = require("path")
 
 const comentarioModel = require("../model/comentarioModel")
+const logModel = require("../model/logModel")
 
 function salvarComentario(req, res) {
     if (!req.session.usuario) {
@@ -63,7 +64,18 @@ function salvarComentario(req, res) {
                 return res.status(500).json({ erro: "O comentário não foi salvo." })
             }
 
-            return res.status(201).json({ mensagem: "Comentário salvo." })
+            const log = {
+                userId: req.session.usuario.id,
+                acao: `Comentario publicado. ID: ${resultado.insertId}`
+            }
+
+            return logModel.registrarLog(log, (erroLog) => {
+                if (erroLog) {
+                    console.log("Erro ao registrar a publicação:", erroLog)
+                }
+
+                return res.status(201).json({ mensagem: "Comentário salvo." })
+            })
         })
     })
 }
@@ -95,7 +107,18 @@ function excluirComentario(req, res) {
             return res.status(404).json({ erro: "Comentario não encontrado ou não pertence a você." })
         }
 
-        return res.json({ mensagem: "Comentário excluido." })
+        const log = {
+            userId: req.session.usuario.id,
+            acao: `Comentário excluído pelo autor. ID: ${id}`
+        }
+
+        return logModel.registrarLog(log, (erroLog) => {
+            if (erroLog) {
+                console.log("Erro ao registrar a exclusão:", erroLog)
+            }
+
+            return res.json({ mensagem: "Comentário excluido." })
+        })
     })
 }
 

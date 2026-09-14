@@ -11,6 +11,9 @@ let pesquisaUsuariosAtual = ""
 let paginaComentariosAtual = 1
 let pesquisaComentariosAtual = ""
 
+let paginaLogsAtual = 1
+let pesquisaLogsAtual = ""
+
 
 //funções gerais
 function abrirConsulta() {
@@ -83,22 +86,23 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
                     <button type="button" onclick="limparPesquisa()">Limpar</button>
                 </form>
             </div>
+            <div id="section-tabela-consulta">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Tipo</th>
+                            <th>Avatar</th>
+                            <th>Ações</th> 
+                        </tr>
+                    </thead>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefone</th>
-                        <th>Tipo</th>
-                        <th>Avatar</th>
-                        <th>Ações</th> 
-                    </tr>
-                </thead>
-
-                <tbody id="usuarios-encontrados"></tbody>
-            </table>
+                    <tbody id="usuarios-encontrados"></tbody>
+                </table>
+            </div>
 
             <div class="paginacao">
                 <button type="button", id="pagina-anterior" onclick="mudarPaginaUsuarios(-1)">Anterior</button>
@@ -386,8 +390,8 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
                 </form>
             </div>
 
-            <div class="tabela-comentarios-rolagem">
-                <table class="tabela-comentarios">
+            <div class="tabela-rolagem">
+                <table class="tabela-admin">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -432,7 +436,7 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td class="texto-comentario-admin"></td>
+                        <td class="texto-tabela"></td>
                         <td></td>
                         <td>
                             <button type="button" class="excluir-comentario-admin"><i class="fa-solid fa-trash-can"></i> Excluir</button>
@@ -500,5 +504,132 @@ async function excluirComentarioAdmin(id) {
         console.log("Erro ao excluir comentário:", erro)
 
         alert("Não foi possível confirmar a exclusão. Atualize a consulta para conferir.")
+    }
+}
+
+//funções log
+function mudarPaginaLogs(direcao) {
+    const novaPagina = paginaLogsAtual + direcao
+
+    if (novaPagina < 1) {
+        return
+    }
+
+    mostrarLogs(pesquisaLogsAtual, novaPagina)
+}
+
+function pesquisarLogs(event) {
+    event.preventDefault()
+
+    const pesquisa = document.getElementById("campo-pesquisa").value
+
+    mostrarLogs(pesquisa, 1)
+}
+
+function limparPesquisaLogs() {
+    mostrarLogs("", 1)
+}
+
+async function mostrarLogs(pesquisa = "", pagina = 1) {
+    abrirConsulta()
+
+    form.tabelaConsulta.innerHTML = "<p>Carregando..</p>"
+
+    try {
+        const endereco = `/adm/logs?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
+        const resposta = await fetch(endereco)
+
+        if (!resposta.ok) {
+            const mensagem = await resposta.text()
+
+            throw new Error(`HTTP ${resposta.status}: ${mensagem}`);
+        }
+
+        const dados = await resposta.json()
+        const logs = dados.logs
+
+        paginaLogsAtual = dados.pagina
+        pesquisaLogsAtual = pesquisa
+
+        form.tabelaConsulta.innerHTML = `
+            <h1 class="disket-font">Consulta de Relatórios</h1>
+
+            <div class="form-pesquisa">
+                <form onsubmit="pesquisarLogs(event)">
+                    <input type="text" id="campo-pesquisa" placeholder="Pesquisar ação, usuário ou ID...">
+
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Pesquisar</button>
+
+                    <button type="button" onclick="limparPesquisaLogs()">Limpar</button>
+                </form>
+            </div>
+
+            <div class="tabela-rolagem">
+                <table class="tabela-admin">
+                    <thead>
+                        <tr>
+                            <th>ID do log</th>
+                            <th>ID do usuário</th>
+                            <th>Usuário</th>
+                            <th>Ação</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="logs-encontrados"></tbody>
+                </table>
+            </div>
+
+            <div class="paginacao">
+                <button type="button" id="pagina-anterior" onclick="mudarPaginaLogs(-1)">Anterior</button>
+
+                <p id="pagina-atual"></p>
+
+                <button type="button" id="proxima-pagina" onclick="mudarPaginaLogs(1)">Próxima</button>
+            </div>
+        `
+
+        document.getElementById("campo-pesquisa").value = pesquisa
+
+        const corpoTabela = document.getElementById("logs-encontrados")
+
+        if (logs.length === 0) [
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="5">Nenhum registro encontrado</td>
+                </tr>
+            `
+        ]
+
+        logs.forEach((log) => {
+            corpoTabela.insertAdjacentHTML("beforeend", `
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="texto-tabela"></td>
+                        <td></td>
+                    </tr>
+                `)
+
+                const linha = corpoTabela.lastElementChild
+                const colunas = linha.querySelectorAll("td")
+
+                colunas[0].innerText = log.log_id
+                colunas[1].innerText = log.tb_usuarios_user_id || "-"
+                colunas[2].innerText = log.user_name || "Sem usuário vinculado"
+                colunas[3].innerText = log.log_acao
+                colunas[4].innerText = new Date(log.log_data).toLocaleString("pt-BR")
+        })
+
+        document.getElementById("pagina-atual").innerText = `Pagina ${paginaLogsAtual}`
+
+        document.getElementById("pagina-anterior").disabled = paginaLogsAtual === 1
+
+        document.getElementById("proxima-pagina").disabled = !dados.temProxima
+    } catch (erro) {
+        console.log("Erro ao carregar logs:", erro)
+
+        form.tabelaConsulta.innerText = erro.message
     }
 }

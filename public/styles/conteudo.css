@@ -22,6 +22,10 @@ body[data-categoria="javascript"] {
     --cor-texto-contraste: #f1f1f1;
 }
 
+body:not(.disket-font) {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 /* layout Principal para alinhar sidebar e conteúdo */
 #content-layout {
     display: flex;

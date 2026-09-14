@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt")
 const userModel = require('../model/userModel')
+const logModel = require('../model/logModel')
 
 function criarUsuario(req, res) {
     /*
@@ -50,12 +51,23 @@ function criarUsuario(req, res) {
     //verificações avatar: até 10 caracteres
 
     */
-    userModel.criarUsuario(req.body, (erro) => {
+    userModel.criarUsuario(req.body, (erro, resultado) => {
         if (erro) {
             console.log(erro)
             return res.send('Erro ao cadastrar usuário.')
         }
-        res.redirect('/login.html')
+
+        const log = {
+            userId: resultado.insertId,
+            acao: "Cadastro realizado"
+        }
+
+        return logModel.registrarLog(log, (erroLog) => {
+            if (erroLog) {
+                console.log("Erro ao registrar o cadastro:", erroLog)
+            }
+            res.redirect('/login.html')
+        })
     })
 }
 
@@ -90,7 +102,19 @@ function loginUsuario(req, res) {
                 avatar: usuario.user_avatar
             }
 
-            return res.redirect("/")
+            const log = {
+                userId: req.session.usuario.id,
+                acao: "Login realizado"
+            }
+
+            return logModel.registrarLog(log, (erroLog) => {
+                if (erroLog) {
+                    console.log("Erro ao registrar o login:", erroLog)
+                }
+
+                return res.redirect("/")
+            })
+
         } catch (erro) {
             console.log(erro)
             return res.status(500).send("Erro ao verificar senha")
@@ -99,13 +123,33 @@ function loginUsuario(req, res) {
 }
 
 function logoutUsuario(req, res) {
-    req.session.destroy((erro) => {
-        if (erro) {
-            console.log(erro)
+    const usuario = req.session.usuario
+
+    req.session.destroy((erroSessao) => {
+        if (erroSessao) {
+            console.log("Erro ao encerrar a sessão:", erroSessao)
+
             return res.status(500).send("Erro ao fazer logout")
         }
+
         res.clearCookie("connect.sid")
-        return res.redirect("/")
+
+        if (!usuario) {
+            return res.redirect("/")
+        }
+
+        const log = {
+            userId: usuario.id,
+            acao: "Logout realizado"
+        }
+
+        return logModel.registrarLog(log, (erroLog) => {
+            if (erroLog) {
+                console.log("Erro ao registrar o logout:", erroLog)
+            }
+
+            return res.redirect("/")
+        })
     })
 }
 
