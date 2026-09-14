@@ -57,8 +57,60 @@ function excluirComentario(comentario, callback) {
     ], callback)
 }
 
+function buscarTodosComentarios(pesquisa, limite, deslocamento, callback) {
+    let sql = `
+        SELECT
+            tb_comentarios.com_id,
+            tb_comentarios.com_texto,
+            tb_comentarios.com_categoria,
+            tb_comentarios.com_topico,
+            tb_comentarios.com_data,
+            tb_usuarios.user_name
+        FROM tb_comentarios
+
+        INNER JOIN tb_usuarios
+            ON tb_comentarios.com_user_id = tb_usuarios.user_id
+    `
+
+    const valores = []
+
+    if (pesquisa) {
+        sql += `
+            WHERE tb_comentarios.com_texto LIKE ?
+            OR tb_usuarios.user_name LIKE ?
+            OR tb_comentarios.com_categoria LIKE ?
+            OR tb_comentarios.com_topico LIKE ?
+            OR CAST(tb_comentarios.com_id AS CHAR) LIKE ?
+        `
+
+        const termo = `%${pesquisa}%`
+
+        valores.push(termo, termo, termo, termo, termo)
+    }
+
+    sql += `
+        ORDER BY tb_comentarios.com_data DESC,
+            tb_comentarios.com_id DESC
+        LIMIT ? OFFSET ?
+    `
+
+    valores.push(limite, deslocamento)
+    conexao.query(sql, valores, callback)
+}
+
+function excluirComentarioAdmin(id, callback) {
+    const sql = `
+        DELETE FROM tb_comentarios
+        WHERE com_id = ?
+    `
+
+    conexao.query(sql, [id], callback)
+}
+
 module.exports = {
     buscarPorTopico,
     salvarComentario,
-    excluirComentario
+    excluirComentario,
+    buscarTodosComentarios,
+    excluirComentarioAdmin
 }

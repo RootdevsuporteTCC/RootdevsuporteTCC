@@ -65,6 +65,38 @@ tbody td:hover, tbody th:hover {
     transform: none;
 }
 
+#tabela-consulta {
+    width: 100%;
+    min-width: 0;
+}
+
+.tabela-comentarios-rolagem {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#tabela-consulta .tabela-comentarios {
+    width: 100%;
+    min-width: 800px;
+    font-size: 1rem;
+}
+
+#tabela-consulta .tabela-comentarios button {
+    font-size: 1rem;
+}
+
+.tabela-comentarios td {
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.tabela-comentarios .texto-comentario-admin {
+    min-width: 15rem;
+    max-width: 25rem;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
 
 .admin-container {
     display: flex;

@@ -8,6 +8,11 @@ const form = {
 let paginaUsuariosAtual = 1
 let pesquisaUsuariosAtual = ""
 
+let paginaComentariosAtual = 1
+let pesquisaComentariosAtual = ""
+
+
+//funções gerais
 function abrirConsulta() {
     form.botaoVoltar.classList.remove("remove")
     form.admInicio.classList.add("remove")
@@ -29,6 +34,7 @@ function voltarInicio() {
     form.formEdicao.innerHTML = ""
 }
 
+//funções usuario
 function atualizarPreviewAvatarAdm() {
     const campoAvatar = document.getElementById("edit-avatar")
     const previaAvatar = document.getElementById("avatar-previa")
@@ -324,4 +330,175 @@ function pesquisarUsuarios(event) {
 
 function limparPesquisa() {
     mostrarUsuarios("", 1)
+}
+
+//funções comentario
+function mudarPaginaComentarios(direcao) {
+    const novaPagina = paginaComentariosAtual + direcao
+
+    if (novaPagina < 1) {
+        return
+    }
+
+    mostrarComentarios(pesquisaComentariosAtual, novaPagina)
+}
+
+function pesquisarComentarios(event) {
+    event.preventDefault()
+
+    const pesquisa = document.getElementById("campo-pesquisa").value
+
+    mostrarComentarios(pesquisa, 1)
+}
+
+function limparPesquisaComentarios() {
+    mostrarComentarios("", 1)
+}
+
+async function mostrarComentarios(pesquisa = "", pagina = 1) {
+    abrirConsulta()
+
+    form.tabelaConsulta.innerHTML = "<p>Carregando...</p>"
+
+    try {
+        const endereco = `/adm/comentarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
+        const resposta = await fetch(endereco)
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao consultar comentários");
+        }
+
+        const dados = await resposta.json()
+        const comentarios = dados.comentarios
+
+        paginaComentariosAtual = dados.pagina
+        pesquisaComentariosAtual = pesquisa
+
+        form.tabelaConsulta.innerHTML = `
+            <h1 class="disket-font">Consulta de comentários</h1>
+
+            <div class="form-pesquisa">
+                <form onsubmit="pesquisarComentarios(event)">
+                    <input type="text" id="campo-pesquisa" placeholder="Pesquisar texto, autor, categoria, tópico ou ID...">
+
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
+                    <button type="button" onclick="limparPesquisaComentarios()">Limpar</button>
+                </form>
+            </div>
+
+            <div class="tabela-comentarios-rolagem">
+                <table class="tabela-comentarios">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Autor</th>
+                            <th>Categoria</th>
+                            <th>Tópico</th>
+                            <th>Comentário</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="comentarios-encontrados"></tbody>
+                </table>
+            </div>
+
+            <div class="paginacao">
+                <button type="button" id="pagina-anterior" onclick="mudarPaginaComentarios(-1)">Anterior</button>
+
+                <p id="pagina-atual"></p>
+
+                <button type="button" id="proxima-pagina" onclick="mudarPaginaComentarios(1)">Próxima</button>
+            </div>
+        `
+
+        document.getElementById("campo-pesquisa").value = pesquisa
+
+        const corpoTabela = document.getElementById("comentarios-encontrados")
+
+        if (comentarios.length === 0) {
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="7">Nenhum comentário encontrado nesta página.</td>
+                </tr>
+            `
+        }
+
+        comentarios.forEach((comentario) => {
+            corpoTabela.insertAdjacentHTML("beforeend", `
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="texto-comentario-admin"></td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="excluir-comentario-admin"><i class="fa-solid fa-trash-can"></i> Excluir</button>
+                        </td>
+                    </tr>
+                `)
+
+                const linha = corpoTabela.lastElementChild
+                const colunas = linha.querySelectorAll("td")
+
+                colunas[0].innerText = comentario.com_id
+                colunas[1].innerText = comentario.user_name
+                colunas[2].innerText = comentario.com_categoria
+                colunas[3].innerText = comentario.com_topico
+                colunas[4].innerText = comentario.com_texto
+                colunas[5].innerText = new Date(comentario.com_data).toLocaleString("pt-BR")
+
+                linha.querySelector(".excluir-comentario-admin").addEventListener("click", () => {
+                    excluirComentarioAdmin(comentario.com_id)
+                })
+        })
+
+        document.getElementById("pagina-atual").innerText = `Página ${paginaComentariosAtual}`
+
+        document.getElementById("pagina-anterior").disabled = paginaComentariosAtual === 1
+
+        document.getElementById("proxima-pagina").disabled = !dados.temProxima
+    } catch (erro) {
+        console.log("Erro ao carregar comentários:", erro)
+
+        form.tabelaConsulta.innerHTML = `
+            <p>Não foi possível carregar os comentários. Confira se você está conectado como admin.</p>
+        `
+    }
+}
+
+async function excluirComentarioAdmin(id) {
+    const confirmou = confirm("Deseja excluir esse comentário?")
+
+    if (!confirmou) {
+        return
+    }
+
+    try {
+        const resposta = await fetch(`/adm/comentarios/${id}`, {
+            method: "DELETE"
+        })
+
+        if (resposta.status === 401 || resposta.status === 403) {
+            alert("É necessário estar conectado como admin.")
+            return
+        }
+
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            alert(dados.erro)
+            return
+        }
+
+        alert(dados.mensagem)
+
+        await mostrarComentarios(pesquisaComentariosAtual, paginaComentariosAtual)
+    } catch (erro) {
+        console.log("Erro ao excluir comentário:", erro)
+
+        alert("Não foi possível confirmar a exclusão. Atualize a consulta para conferir.")
+    }
 }

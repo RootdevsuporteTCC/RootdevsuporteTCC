@@ -1,7 +1,9 @@
 const bcrypt = require("bcrypt")
 const path = require('path')
 const userModel = require("../model/userModel")
+const comentarioModel = require("../model/comentarioModel")
 
+//funções gerais
 async function loginAdm(req, res) {
 
         const email = req.body.email;
@@ -59,6 +61,7 @@ function enviarAdminJs(req, res) {
     res.sendFile(path.join(__dirname, "../private/admin/admin.js"))
 }
 
+//funções de usuários
 function buscarUsuarios(req, res) {
     const pesquisa = req.query.pesquisa || ''
 
@@ -150,6 +153,66 @@ function atualizarUsuario(req, res) {
     })
 }
 
+//funções de comentários
+function buscarComentarios(req, res) {
+    const pesquisa = req.query.pesquisa || ""
+
+    let pagina = 1
+
+    if (req.query.pagina !== undefined) {
+        pagina = Number(req.query.pagina)
+    }
+
+    const limite = 50
+    const deslocamento = (pagina -1) * limite
+
+    if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
+        return res.status(400).json({ erro: "Página ou pesquisa inválida" })
+    }
+
+    comentarioModel.buscarTodosComentarios(pesquisa, limite + 1, deslocamento, (erro, comentarios) => {
+        if (erro) {
+            console.log("Erro ao buscar comentarios:", erro)
+
+            return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
+        }
+
+        const temProxima = comentarios.length > limite
+
+        if (temProxima) {
+            comentarios.pop()
+        }
+
+        return res.json({
+            comentarios: comentarios,
+            pagina: pagina,
+            temProxima: temProxima
+        })
+    })
+}
+
+function excluirComentarioAdmin(req, res) {
+    const id = Number(req.params.id)
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({ erro: "Indentificador do comentário inválido." })
+    }
+
+    comentarioModel.excluirComentarioAdmin(id, (erro, resultado) => {
+        if (erro) {
+            console.log("Erro ao excluir comentário:", erro)
+
+            return res.status(500).json({ erro: "Não foi possível excluir o comentário." })
+        }
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ erro: "Comentário não encontrado" })
+        }
+
+        return res.json({ mensagem: "Comentário excluido." })
+    })
+}
+
 
 module.exports = {
     loginAdm,
@@ -158,5 +221,7 @@ module.exports = {
     buscarUsuarios,
     buscarUsuarioPorId,
     excluirUsuario,
-    atualizarUsuario
+    atualizarUsuario,
+    buscarComentarios,
+    excluirComentarioAdmin
 }

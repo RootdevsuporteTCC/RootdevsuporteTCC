@@ -12,4 +12,7 @@ router.get("/usuarios/:id", verificarAdmin, admController.buscarUsuarioPorId)
 router.delete("/usuarios/:id", verificarAdmin, admController.excluirUsuario)
 router.put("/usuarios/:id", verificarAdmin, admController.atualizarUsuario)
 
+router.get('/comentarios', verificarAdmin, admController.buscarComentarios)
+router.delete('/comentarios/:id', verificarAdmin, admController.excluirComentarioAdmin)
+
 module.exports = router
