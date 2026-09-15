@@ -174,7 +174,6 @@ function atualizarUsuario(req, res) {
     const usuario = {
         nome: req.body.nome,
         email: req.body.email,
-        telefone: req.body.telefone,
         tipo: req.body.tipo,
         avatar: req.body.avatar
     }

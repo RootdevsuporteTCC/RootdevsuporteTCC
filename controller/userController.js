@@ -6,7 +6,6 @@ function criarUsuario(req, res) {
     /*
     const nome = req.body.nome.trim()
     const email = req.body.email.trim()
-    const telefone = req.body.telefone
     const senha = req.body.senha
     const confirmarSenha = req.body.confirmarSenha
     const avatar = req.body.avatar
@@ -41,9 +40,6 @@ function criarUsuario(req, res) {
         alert("Insira um e-mail válido")
         return
     }
-
-    //verificações telefone: remove qualquer caractere que não for número
-    telefoneNovo = telefone.replace(/\d/g, "")
 
     //verificações senha: de 6 até 64 caracteres, tem pelo menos um numero e um caractere especial
 

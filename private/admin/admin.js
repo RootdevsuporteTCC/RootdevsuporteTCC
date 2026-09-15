@@ -93,7 +93,6 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Email</th>
-                            <th>Telefone</th>
                             <th>Tipo</th>
                             <th>Avatar</th>
                             <th>Ações</th> 
@@ -118,7 +117,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
         if (usuarios.length === 0) {
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="7">Nenhum usuário encontrado nessa página.</td>
+                    <td colspan="6">Nenhum usuário encontrado nessa página.</td>
                 </tr>
             `
         }
@@ -126,7 +125,6 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
         usuarios.forEach((usuario) => {
             corpoTabela.insertAdjacentHTML("beforeend", `
                     <tr>
-                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -145,9 +143,8 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
             colunas[0].innerText = usuario.user_id
             colunas[1].innerText = usuario.user_name
             colunas[2].innerText = usuario.user_email
-            colunas[3].innerText = usuario.user_telefone || "-"
-            colunas[4].innerText = usuario.user_tipo
-            colunas[5].innerText = usuario.user_avatar
+            colunas[3].innerText = usuario.user_tipo
+            colunas[4].innerText = usuario.user_avatar
 
             linha.querySelector(".editar-usuario").addEventListener("click", () => {
                 editarUsuario(usuario.user_id)
@@ -234,13 +231,6 @@ async function editarUsuario(id) {
                     </div> 
 
                     <div class="campo">
-                        <label for="edit-telefone">Telefone (opcional):</label> 
-                        <div>
-                            <input id="edit-telefone" name="telefone" type="tel" value="${usuario.user_telefone}" placeholder="(99) 12345-6789"> <span class="hidden">*</span>
-                        </div>
-                    </div> 
-
-                    <div class="campo">
                         <label for="edit-tipo">Tipo de usuário:</label> 
                         <div>
                             <select id="edit-tipo">
@@ -287,14 +277,12 @@ async function salvarEdicao(event, id) {
 
     const nome = document.getElementById("edit-nome").value
     const email = document.getElementById("edit-email").value
-    const telefone = document.getElementById("edit-telefone").value
     const tipo = document.getElementById("edit-tipo").value
     const avatar = document.getElementById("edit-avatar").value
 
     const usuarioAtualizado = {
         nome: nome,
         email: email,
-        telefone: telefone,
         tipo: tipo,
         avatar: (avatar || ":D")
     }

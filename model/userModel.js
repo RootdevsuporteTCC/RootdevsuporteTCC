@@ -9,14 +9,13 @@ async function criarUsuario(user, callback) {
 
         const sql = `
             INSERT INTO tb_usuarios
-            (user_name, user_email, user_telefone, user_pass, user_avatar)
-            VALUES (?, ?, ?, ?, ?)
+            (user_name, user_email, user_pass, user_avatar)
+            VALUES (?, ?, ?, ?)
         `
 
         conexao.query(sql, [
             user.nome,
             user.email,
-            user.telefone,
             senhaHash,
             (user.avatar || ":D")
         ], callback)
@@ -48,7 +47,6 @@ function atualizarUsuario(id, usuario, callback) {
         SET
             user_name = ?,
             user_email = ?,
-            user_telefone = ?,
             user_tipo = ?,
             user_avatar = ?
         WHERE user_id = ?
@@ -58,7 +56,6 @@ function atualizarUsuario(id, usuario, callback) {
         sql, [
             usuario.nome,
             usuario.email,
-            usuario.telefone,
             usuario.tipo,
             usuario.avatar,
             id
@@ -74,7 +71,7 @@ function atualizarUsuario(id, usuario, callback) {
 
 function buscarPorId(id, callback) {
     const sql = `
-        SELECT user_id, user_name, user_email, user_telefone, user_tipo, user_avatar
+        SELECT user_id, user_name, user_email, user_tipo, user_avatar
         FROM tb_usuarios
         WHERE user_id = ?
     `
@@ -106,7 +103,7 @@ function buscarPorEmail(email, callback) {
 
 function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
     let sql = `
-        SELECT user_id, user_name, user_email, user_telefone, user_tipo, user_avatar
+        SELECT user_id, user_name, user_email, user_tipo, user_avatar
         FROM tb_usuarios
     `;
 
