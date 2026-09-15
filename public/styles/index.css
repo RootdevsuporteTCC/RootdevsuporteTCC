@@ -44,6 +44,32 @@ ul {
     background: linear-gradient(0deg, #d6d400, #fffd21, #fffd21);
 }
 
+/* Classes bizarras */
+
+/* estiliza o bloco dos conteúdos (mas não altera a cor) */
+.content-block {
+    text-align: center;
+    justify-self: center;
+    max-width: 75%;
+    padding: 2rem;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.content-block h1 {
+    margin: 0;
+    font-size: 3rem;
+}
+
+.content-block p {
+    margin: 0;
+    margin-bottom: 1.5rem;
+}
+
+.content-block a {
+    color: white;
+}
+
 /* garante que o titulo longo do js não quebre a página numa resolução pequena */
 @media screen and (max-width: 545px) {
     #js h1 {

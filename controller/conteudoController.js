@@ -87,8 +87,6 @@ function carregarCacheConteudos() {
             cacheConteudos.push(aula)
         })
     })
-
-    console.log("Aulas carregadas no cache:", cacheConteudos.length)
 }
 
 function buscarConteudo(req, res) {

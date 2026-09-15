@@ -133,28 +133,6 @@ input::placeholder {
     cursor: pointer;
 }
 
-/* estiliza o bloco dos conteúdos (mas não altera a cor) */
-.content-block {
-    text-align: center;
-    justify-self: center;
-    max-width: 75%;
-    padding: 2rem;
-}
-
-.content-block h1 {
-    margin: 0;
-    font-size: 3rem;
-}
-
-.content-block p {
-    margin: 0;
-    margin-bottom: 1.5rem;
-}
-
-.content-block a {
-    color: white;
-}
-
 /* alinha o titulo da navbar */
 .title {
     align-self: center;
