@@ -7,6 +7,8 @@ const admRoutes = require('./routes/admRoutes')
 const conteudoRoutes = require('./routes/conteudoRoutes')
 const comentarioRoutes = require('./routes/comentarioRoutes')
 
+const conteudoController = require("./controller/conteudoController")
+
 const app = express()
 const port = 8000
 
@@ -36,6 +38,8 @@ app.get('/', (req, res) => {
 })
 
 // Inicialização do servidor
+conteudoController.carregarCacheConteudos()
+
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`)
 })

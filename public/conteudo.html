@@ -47,6 +47,21 @@
     </header>
 
     <main>
+        <div id="pesquisa-conteudo">
+            <form id="form-pesquisa-conteudo">
+                <label for="campo-pesquisa-conteudo">Pesquisar conteúdos:</label>
+
+                <div class="linha-pesquisa">
+                    <input type="search" id="campo-pesquisa-conteudo" maxlength="100" placeholder="Categoria, tópico ou conteúdo" required>
+
+                    <button id="botao-pesquisa-conteudo" type="submit" class="main-button disket-font">Pesquisar</button>
+                </div>
+            </form>
+
+            <p id="mensagem-pesquisa"></p>
+            <div id="resultados-pesquisa"></div>
+        </div>
+
         <div id="content-layout">
         
             <aside>
@@ -69,7 +84,7 @@
 
                 <section id="comments-section">
                     <h1 class="disket-font">COMENTARIOS:</h1>
-                    <div id="form-comentario-container">
+                    <div id="form-comentario-container" hidden>
                         <p id="mensagem-comentario">Verificando login...</p>
                         <p id="aviso-login-comentario" hidden>
                             <a href="/login.html">Faça login</a> para comentar.

@@ -300,6 +300,82 @@ aside.fechado #toggle-menu {
     cursor: pointer;
 }
 
+#pesquisa-conteudo {
+    padding: 1.5rem;
+    background-color: var(--cor-destaque);
+}
+
+#form-pesquisa-conteudo label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--cor-texto-tema);
+}
+
+.linha-pesquisa {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+#mensagem-pesquisa {
+    color: var(--cor-texto-tema);
+}
+
+#campo-pesquisa-conteudo {
+    flex: 1;
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid #777;
+    border-radius: 30px;
+    font-size: 1rem;
+    text-align: left;
+}
+
+#resultados-pesquisa {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
+    background-color: var(--cor-lateral);
+}
+
+#resultados-pesquisa:empty {
+    display: none;
+}
+
+.resultado-pesquisa {
+    margin: 0;
+    min-width: 0;
+}
+
+.resultado-pesquisa a {
+    display: block;
+    padding: 1rem 1.5rem;
+
+    background-color: var(--cor-destaque);
+    color: var(--cor-texto-tema);
+
+    border: none;
+    border-radius: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.4rem;
+    font-weight: normal;
+    line-height: 1.5;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.resultado-pesquisa a:hover {
+    background-color: var(--cor-lateral);
+}
+
+.resultado-pesquisa a:focus-visible {
+    outline: 2px solid var(--cor-texto-tema);
+    outline-offset: -2px;
+}
+
+
 /* responsividade e flexibilidade para diferentes tamanhos de tela (malditos usuarios do mobile!) */
 
 @media screen and (max-width: 1024px) {
@@ -436,6 +512,15 @@ aside.fechado #toggle-menu {
 
     #comments-container .commentary {
         font-size: 1rem;
+    }
+
+    .linha-pesquisa {
+        flex-direction: column;
+    }
+
+    .resultado-pesquisa a {
+        padding: 0.8rem 1rem;
+        font-size: 1.1rem;
     }
 }
 

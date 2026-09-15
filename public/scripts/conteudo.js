@@ -1,15 +1,23 @@
-const tituloCategoria = document.getElementById("matter-title")
-const botaoMenu = document.getElementById("toggle-menu")
-const menuLateral = document.querySelector("aside")
-const setaMenu = document.getElementById("arrow")
-const areaConteudo = document.getElementById("lesson-content")
-const areaComentarios = document.getElementById("comments-container")
-const listaTopicos = document.getElementById("topics-list")
-const formComentario = document.getElementById("form-comentario")
-const avisoLoginComentario = document.getElementById("aviso-login-comentario")
-const mensagemComentario = document.getElementById("mensagem-comentario")
-const campoComentario = document.getElementById("texto-comentario")
-const botaoComentario = document.getElementById("botao-comentario")
+const tituloCategoria        =   document.getElementById("matter-title")
+const botaoMenu              =   document.getElementById("toggle-menu")
+const menuLateral            =   document.querySelector("aside")
+const setaMenu               =   document.getElementById("arrow")
+const areaConteudo           =   document.getElementById("lesson-content")
+const areaComentarios        =   document.getElementById("comments-container")
+const listaTopicos           =   document.getElementById("topics-list")
+const formComentario         =   document.getElementById("form-comentario")
+const avisoLoginComentario   =   document.getElementById("aviso-login-comentario")
+const mensagemComentario     =   document.getElementById("mensagem-comentario")
+const campoComentario        =   document.getElementById("texto-comentario")
+const botaoComentario        =   document.getElementById("botao-comentario")
+const containerFormulario    =   document.getElementById("form-comentario-container")
+const formPesquisa           =   document.getElementById("form-pesquisa-conteudo")
+const campoPesquisa          =   document.getElementById("campo-pesquisa-conteudo")
+const botaoPesquisa          =   document.getElementById("botao-pesquisa-conteudo")
+const mensagemPesquisa       =   document.getElementById("mensagem-pesquisa")
+const areaResultados         =   document.getElementById("resultados-pesquisa")
+
+let pesquisando = false
 
 let topicoAtual = ""
 let ocupado = false
@@ -103,6 +111,77 @@ function exibirConteudo(markdown) {
     }
 }
 
+function exibirResultadosPesquisa(resultados) {
+    areaResultados.innerText = ""
+
+    if (resultados.length === 0) {
+        mensagemPesquisa.innerText = "Nenhum conteúdo encontrado."
+        return
+    }
+
+    mensagemPesquisa.innerText = `Resultados encontrados: ${resultados.length}`
+
+    resultados.forEach((aula) => {
+        areaResultados.insertAdjacentHTML("beforeend", `
+            <div class="resultado-pesquisa">
+                <a></a>
+            </div>
+        `)
+
+        const bloco = areaResultados.lastElementChild
+        const link = bloco.querySelector("a")
+
+        const nomeTopico = aula.topico.replaceAll("-", " ").replaceAll("_", " ")
+
+        link.innerText = `${aula.categoria.toUpperCase()} - ${nomeTopico}`
+
+        link.href = `/conteudo.html?categoria=${encodeURIComponent(aula.categoria)}&topico=${encodeURIComponent(aula.topico)}`
+    })
+}
+
+async function pesquisarConteudos(event) {
+    event.preventDefault()
+
+    if (pesquisando) {
+        return
+    }
+
+    const pesquisa = campoPesquisa.value.trim()
+
+    areaResultados.innerText = ""
+
+    if (pesquisa === "") {
+        mensagemPesquisa.innerText = "Digite algo para pesquisar."
+        return
+    }
+
+    pesquisando = true
+    botaoPesquisa.disabled = true
+    mensagemPesquisa.innerText = "Pesquisando..."
+
+    try {
+        const endereco = `/conteudo/pesquisa?pesquisa=${encodeURIComponent(pesquisa)}`
+
+        const resposta = await fetch(endereco)
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            mensagemPesquisa.innerText = dados.erro
+            return
+        }
+
+        exibirResultadosPesquisa(dados.resultados)
+    } catch (erro) {
+        console.log("Erro ao pesquisar conteúdos:", erro)
+
+        mensagemPesquisa.innerText = "Não foi possível realizar a pesquisa."
+    } finally {
+        pesquisando = false
+        botaoPesquisa.disabled = false
+    }
+}
+formPesquisa.addEventListener("submit", pesquisarConteudos)
+
 async function carregarConteudo(topico) {
     if (ocupado) {
         return
@@ -112,6 +191,7 @@ async function carregarConteudo(topico) {
 
     ocupado = true
     topicoAtual = ""
+    containerFormulario.hidden = true
 
     botaoComentario.disabled = true
     campoComentario.disabled = true
@@ -135,6 +215,8 @@ async function carregarConteudo(topico) {
         exibirComentarios(dados.comentarios)
 
         topicoAtual = topico
+        containerFormulario.hidden = false
+
         if (mudouDeTopico) {
             campoComentario.value = ""
         }
