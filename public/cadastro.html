@@ -64,14 +64,16 @@
             <div class="campo">    
                 <label for="senha">Senha:</label> 
                 <div>
-                    <input id="senha" name="senha" type="password" required  placeholder="senhaforte321"> <span class="required">*</span>
+                    <input id="senha" name="senha" type="password" required  placeholder="senhaforte321" minlength="8" maxlength="64" autocomplete="new-password"> <span class="required">*</span>
                 </div>
             </div> 
+
+            <p id="orientacao-senha" class="orientacao-campo">Use de 8 a 64 caracteres, com pelo menos um número e um desses símbolos: <br> <span class="required">! @ # $ % &amp; * ? . _ + -</span></p>
 
             <div class="campo">    
                 <label for="confirmar-senha">Confirmar Senha:</label> 
                 <div>
-                    <input id="confirmar-senha" name="confirmar-senha" type="password" required placeholder="senhaforte321"> <span class="required">*</span>
+                    <input id="confirmar-senha" name="confirmar-senha" type="password" required placeholder="senhaforte321" minlength="8" maxlength="64" autocomplete="new-password"> <span class="required">*</span>
                 </div>
             </div>
 

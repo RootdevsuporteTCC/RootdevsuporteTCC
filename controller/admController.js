@@ -1,8 +1,10 @@
 const bcrypt = require("bcrypt")
 const path = require('path')
+
 const userModel = require("../model/userModel")
 const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
+const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
 //funções gerais
 async function loginAdm(req, res) {
@@ -169,37 +171,68 @@ function excluirUsuario(req, res) {
 }
 
 function atualizarUsuario(req, res) {
-    const id = req.params.id
+    const id = Number(req.params.id)
+    const dados = req.body || {}
 
-    const usuario = {
-        nome: req.body.nome,
-        email: req.body.email,
-        tipo: req.body.tipo,
-        avatar: req.body.avatar
+    if (!Number.isSafeInteger(id) || id < 1) {
+        return res.status(400).json({ erro: "ID de usuário inválido" })
     }
 
-    userModel.atualizarUsuario(id, usuario, (erro, resultado) => {
-        if (erro) {
-            console.log("Erro ao atualizar usuário:", erro)
-        
-            return res.status(500).json({ erro: "Erro ao atualizar usuário" })
+    const usuario = {
+        nome: dados.nome,
+        email: dados.email,
+        tipo: dados.tipo,
+        avatar: dados.avatar
+    }
+
+    const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
+
+    if (erroValidacao) {
+        return res.status(400).json({ erro: erroValidacao })
+    }
+
+    if (usuario.tipo !== "usuario" && usuario.tipo !== "admin") {
+        return res.status(400).json({ erro: "Tipo de usuário inválido" })
+    }
+
+    userModel.buscarUsuarioDuplicado(usuario, id, (erroBusca, usuarios) => {
+        if (erroBusca) {
+            console.log("Erro ao verificar duplicidade:", erroBusca.code)
+
+            return res.status(500).json({ erro: "Não foi possível verificar os dados do usuário" })
         }
 
-        if (resultado.affectedRows === 0) {
-            return res.status(404).json({ erro: "Nenhum usuário foi encontrado para atualizar." })
+        if (usuarios.length > 0) {
+            return res.status(409).json({ erro: "O nome de usuário ou e-mail já pertence a outra conta." })
         }
 
-        const log = {
-            userId: req.session.usuario.id,
-            acao: `Cadastro atualizado pelo admin. User ID: ${id}`
-        }
+        userModel.atualizarUsuario(id, usuario, (erro, resultado) => {
+            if (erro) {
+                if (erro.code === "ER_DUP_ENTRY") {
+                    return res.status(409).json({ erro: "O nome de usuário ou e-mail ja pertence a outra conta." })
+                }
 
-        return logModel.registrarLog(log, (erroLog) => {
-            if (erroLog) {
-                console.log("Erro ao registrar a atualização:", erroLog)
+                console.log("Erro ao atualizar usuário:", erro.code)
+            
+                return res.status(500).json({ erro: "Erro ao atualizar usuário" })
             }
 
-            return res.status(200).json({ mensagem: "Usuário atualizado com sucesso" })
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({ erro: "Usuário não encontrado." })
+            }
+
+            const log = {
+                userId: req.session.usuario.id,
+                acao: `Cadastro atualizado pelo admin. User ID: ${id}`
+            }
+
+            return logModel.registrarLog(log, (erroLog) => {
+                if (erroLog) {
+                    console.log("Erro ao registrar a atualização:", erroLog.code)
+                }
+
+                return res.status(200).json({ mensagem: "Usuário atualizado com sucesso" })
+            })
         })
     })
 }

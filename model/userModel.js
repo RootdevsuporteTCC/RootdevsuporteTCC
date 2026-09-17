@@ -155,6 +155,22 @@ function buscarPorLogin(login, callback) {
     })
 }
 
+function buscarUsuarioDuplicado(usuario, idIgnorado, callback) {
+    const sql = `
+        SELECT user_id
+        FROM tb_usuarios
+        WHERE (user_name = ? OR user_email = ?)
+        AND user_id <> ?
+        LIMIT 1
+    `
+
+    conexao.query(sql, [
+        usuario.nome,
+        usuario.email,
+        idIgnorado
+    ], callback)
+}
+
 module.exports = {
     criarUsuario,
     excluirUsuario,
@@ -162,5 +178,6 @@ module.exports = {
     buscarPorId,
     buscarPorEmail,
     buscarTodosUsuarios,
-    buscarPorLogin
+    buscarPorLogin,
+    buscarUsuarioDuplicado
 }

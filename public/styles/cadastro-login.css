@@ -46,6 +46,18 @@ select {
     font-size: 1.1rem;
 }
 
+#form-box .orientacao-campo {
+    opacity: 0.9;
+    font-style: italic;
+    margin: 0;
+    min-width: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #cccaca;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
 #form-confirm {
     text-align: center;
 }

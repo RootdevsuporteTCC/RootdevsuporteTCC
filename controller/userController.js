@@ -1,68 +1,67 @@
 const bcrypt = require("bcrypt")
+
 const userModel = require('../model/userModel')
 const logModel = require('../model/logModel')
+const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
 function criarUsuario(req, res) {
-    /*
-    const nome = req.body.nome.trim()
-    const email = req.body.email.trim()
-    const senha = req.body.senha
-    const confirmarSenha = req.body.confirmarSenha
-    const avatar = req.body.avatar
+    const dados = req.body || {}
 
-    if (!nome || !email || !senha || !confirmarSenha) {
-        alert("Você precisa preencher as informações obrigatórias")
-        return
+    const usuario = {
+        nome: dados.nome,
+        email: dados.email,
+        senha: dados.senha,
+        avatar: dados.avatar,
     }
 
-    //verificações nome: até 80 caracteres, não contém '@' nem espaços
-    if (nome.length > 80 || nome.length < 3) {
-        alert("Nome de usuário precisa ter mais que 3 e menos que 80 caracteres")
-        return
-    }
-    if (nome.includes('@')) {
-        alert("O nome não pode conter '@'")
-        return
-    }
-    if (nome.includes(' ')) {
-        alert("O nome de usuário não pode conter espaços")
-        return
+    const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
+
+    if (erroValidacao) {
+        return res.status(400).send(erroValidacao)
     }
 
-    //verificações email: até 255 caracteres, passa por regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const confirmarSenha = dados["confirmar-senha"]
 
-    if (email.length > 255) {
-        alert("O e-mail não pode ter mais de 255 caracteres")
-        return
-    }
-    if (!emailRegex.test(email)) {
-        alert("Insira um e-mail válido")
-        return
+    const erroSenha = usuarioValidacao.validarSenha(usuario.senha, confirmarSenha)
+
+    if (erroSenha) {
+        return res.status(400).send(erroSenha)
     }
 
-    //verificações senha: de 6 até 64 caracteres, tem pelo menos um numero e um caractere especial
+    userModel.buscarUsuarioDuplicado(usuario, 0, (erroBusca, usuarios) => {
+        if (erroBusca) {
+            console.log("Erro ao verificar duplicidade:", erroBusca.code)
 
-
-    //verificações avatar: até 10 caracteres
-
-    */
-    userModel.criarUsuario(req.body, (erro, resultado) => {
-        if (erro) {
-            console.log(erro)
-            return res.send('Erro ao cadastrar usuário.')
+            return res.status(500).send("Não foi possível verificar os dados do cadastro.")
         }
 
-        const log = {
-            userId: resultado.insertId,
-            acao: "Cadastro realizado"
+        if (usuarios.length > 0) {
+            return res.status(409).send("O nome de usuário ou e-mail já está cadastrado.")
         }
 
-        return logModel.registrarLog(log, (erroLog) => {
-            if (erroLog) {
-                console.log("Erro ao registrar o cadastro:", erroLog)
+        userModel.criarUsuario(usuario, (erro, resultado) => {
+            if (erro) {
+                if (erro.code === "ER_DUP_ENTRY") {
+                    return res.status(409).send("O nome de usuário ou e-mail já está cadastrado.")
+                }
+
+                console.log("Erro ao cadastrar usuário:", erro.code)
+
+                return res.status(500).send("Não foi possível cadastrar o usuário")
             }
-            res.redirect('/login.html')
+
+            const log = {
+                userId: resultado.insertId,
+                acao: "Cadastro realizado"
+            }
+
+            return logModel.registrarLog(log, (erroLog) => {
+                if (erroLog) {
+                    console.log("Erro ao registrar o cadastro:", erroLog)
+                }
+
+                return res.redirect("/login.html")
+            })
         })
     })
 }
