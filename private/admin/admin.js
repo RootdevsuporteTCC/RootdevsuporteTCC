@@ -86,8 +86,8 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
                     <button type="button" onclick="limparPesquisa()">Limpar</button>
                 </form>
             </div>
-            <div id="section-tabela-consulta">
-                <table>
+            <div class="tabela-rolagem">
+                <table class="tabela-admin">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -302,6 +302,8 @@ async function salvarEdicao(event, id) {
             alert(dados.erro)
             return
         }
+
+        await verificarLogin()
 
         alert(dados.mensagem)
 

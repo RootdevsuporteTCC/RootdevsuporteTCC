@@ -1,6 +1,11 @@
 async function verificarLogin() {
     try {
         const resposta = await fetch('/usuarios/sessao')
+
+        if (!resposta.ok) {
+            throw new Error("Não foi possível verificar a sessão");  
+        }
+
         const dados = await resposta.json()
 
         if (!dados.logado) {
@@ -18,19 +23,22 @@ async function verificarLogin() {
                         <button type="submit" id="sair">Sair</button>
                     </form>
                 </div>
-                <p class="avatar">${dados.usuario.avatar || ":D"}</p>
+                <p class="avatar"></p>
             </div>
         `
 
         navDrawerMenu.innerHTML = `
             <div id="menu-avatar-usuario">
                 <a href="/perfil.html" id="avatar-usuario"><button>Meu Perfil</button></a> 
-                <p class="avatar">${dados.usuario.avatar || ":D"}</p>
+                <p class="avatar"></p>
                 <form action="/usuarios/logout" method="POST">
                     <button type="submit" id="sair">Sair</button>
                 </form>
             </div>
         `
+
+        authButtons.querySelector(".avatar").innerText = dados.usuario.avatar || ":D"
+        navDrawerMenu.querySelector(".avatar").innerText = dados.usuario.avatar || ":D"
 
     } catch (erro) {
         console.log("Erro ao verificar sessão:", erro)

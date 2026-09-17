@@ -150,13 +150,46 @@ function logoutUsuario(req, res) {
 }
 
 function verificarSessao(req, res) {
+    res.set("Cache-Control", "no-store") // faz o navegador não reutilizar essa resposta
+
     if (!req.session.usuario) {
-        return res.status(200).json({ logado: false })
+        return res.json({ logado: false })
     }
 
-    return res.status(200).json({
-        logado: true,
-        usuario: req.session.usuario
+    const id = req.session.usuario.id
+
+    userModel.buscarPorId(id, (erro, usuario) => {
+        if (erro) {
+            console.log("Erro ao consultar usuário da sessão", erro)
+
+            return res.status(500).json({ erro: "Não foi possível verificar a sessão" })
+        }
+
+        if (!usuario) {
+            return req.session.destroy((erroSessao) => {
+                if (erroSessao) {
+                    console.log("Erro ao encerrar sessão:", erroSessao)
+
+                    return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
+                }
+
+                res.clearCookie("connect.sid")
+
+                return res.json({ logado: false })
+            })
+        }
+
+        req.session.usuario = {
+            id: usuario.user_id,
+            nome: usuario.user_name,
+            tipo: usuario.user_tipo,
+            avatar: usuario.user_avatar
+        }
+
+        return res.status(200).json({
+            logado: true,
+            usuario: req.session.usuario
+        })
     })
 }
 

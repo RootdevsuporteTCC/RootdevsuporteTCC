@@ -70,11 +70,6 @@ tbody td:hover, tbody th:hover {
     min-width: 0;
 }
 
-#section-tabela-consulta {
-    display: flex;
-    justify-content: center;
-}
-
 .tabela-rolagem {
     width: 100%;
     overflow-x: auto;
