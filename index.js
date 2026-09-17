@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 const express = require('express')
 const path = require('path')
 const session = require('express-session')
@@ -6,6 +8,7 @@ const userRoutes = require('./routes/userRoutes')
 const admRoutes = require('./routes/admRoutes')
 const conteudoRoutes = require('./routes/conteudoRoutes')
 const comentarioRoutes = require('./routes/comentarioRoutes')
+const recuperacaoRoutes = require("./routes/recuperacaoRoutes")
 
 const conteudoController = require("./controller/conteudoController")
 
@@ -30,6 +33,7 @@ app.use('/usuarios', userRoutes)
 app.use('/adm', admRoutes)
 app.use('/conteudo', conteudoRoutes)
 app.use('/comentarios', comentarioRoutes)
+app.use("/recuperacao", recuperacaoRoutes)
 
 
 // Página inicial

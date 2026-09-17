@@ -88,6 +88,15 @@ input#avatar::placeholder {
     font-size: 1.2rem;
 }
 
+#form-box #mensagem-recuperacao {
+    opacity: 0.9;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
 /* @media para fazer a responsividade da tela */
 
 @media screen and (max-width: 475px) {
