@@ -43,6 +43,55 @@ const limitarPorEmail = rateLimit({
     }
 })
 
-router.post("/solicitar", limitarPorIp, limitarPorEmail, recuperacaoController.solicitarRecuperação)
+const limitarVerificacaoPorIp = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 20,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        erro: "Muitas tentativas. Aguarde alguns minutos e tente novamente."
+    }
+})
+
+const limitarVerificacaoPorEmail = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 5,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+
+    skip: (req) => {
+        const dados = req.body || {}
+
+        if (typeof dados.email !== "string") {
+            return true
+        }
+
+        const email = dados.email.trim()
+
+        return email.length === 0 || email.length > 254
+    },
+
+    keyGenerator: (req) => {
+        return req.body.email.trim().toLowerCase()
+    },
+
+    message: {
+        erro: "Muitas tentativas para este e-mail. Aguarde alguns minutos antes de tentar novamente."
+    }
+})
+
+const limitarRedefinicao = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        erro: "Muitas tentativas. Aguarde alguns minutos e tente novamente."
+    }
+})
+
+router.post("/solicitar", limitarPorIp, limitarPorEmail, recuperacaoController.solicitarRecuperacao)
+router.post("/verificar", limitarVerificacaoPorIp, limitarVerificacaoPorEmail, recuperacaoController.verificarCodigo)
+router.post("/redefinir", limitarRedefinicao, recuperacaoController.redefinirSenha)
 
 module.exports = router

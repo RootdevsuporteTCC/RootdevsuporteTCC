@@ -60,7 +60,7 @@ function validarSenha(senha, confirmarSenha) {
         return "A senha deve conter pelo menos um número."
     }
 
-    if (!/[!@#$%*?._+-]/.test(senha)) {
+    if (!/[!@#$%&*?._+-]/.test(senha)) {
         return "A senha deve conter pelo menos um destes símbolos: ! @ # $ % & * ? . _ + -"
     }
 

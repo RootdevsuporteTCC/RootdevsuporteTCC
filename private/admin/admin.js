@@ -548,7 +548,7 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
                 <form onsubmit="pesquisarLogs(event)">
                     <input type="text" id="campo-pesquisa" placeholder="Pesquisar ação, usuário ou ID...">
 
-                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Pesquisar</button>
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
 
                     <button type="button" onclick="limparPesquisaLogs()">Limpar</button>
                 </form>
