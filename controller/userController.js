@@ -192,9 +192,48 @@ function verificarSessao(req, res) {
     })
 }
 
+function buscarPerfil(req, res) {
+    res.set("Cache-control", "no-store")
+
+    if (!req.session.usuario) {
+        return res.status(401).json({ erro: "Faça login para acessar seu perfil" })
+    }
+
+    const id = req.session.usuario.id
+
+    userModel.buscarPorId(id, (erro, usuario) => {
+        if (erro) {
+            console.log("Erro ao consultar perfil:", erro.code)
+
+            return res.status(500).json({ erro: "Não foi possível carregar seu perfil." })
+        }
+
+        if (!usuario) {
+            return req.session.destroy((erroSessao) => {
+                if (erroSessao) {
+                    console.log("Erro ao encerrar sessão:", erroSessao.message)
+                
+                    return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
+                }
+
+                res.clearCookie("connect.sid")
+
+                return res.status(401).json({ erro: "Sua conta não está mais disponível" })
+            })
+        }
+
+        return res.json({
+            nome: usuario.user_name,
+            email: usuario.user_email,
+            avatar: usuario.user_avatar || ":D"
+        })
+    })
+}
+
 module.exports = {
     criarUsuario,
     loginUsuario,
     logoutUsuario,
-    verificarSessao
+    verificarSessao,
+    buscarPerfil
 }

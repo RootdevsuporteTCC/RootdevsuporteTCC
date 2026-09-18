@@ -7,5 +7,6 @@ router.post('/cadastro', userController.criarUsuario)
 router.post('/login', userController.loginUsuario)
 router.get('/sessao', userController.verificarSessao)
 router.post('/logout', userController.logoutUsuario)
+router.get("/perfil", userController.buscarPerfil)
 
 module.exports = router
