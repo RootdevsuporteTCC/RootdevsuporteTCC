@@ -6,6 +6,7 @@ const previaAvatarPerfil = document.getElementById("avatar-previa")
 const mensagemPerfil = document.getElementById("mensagem-perfil")
 const campoSenhaAtual = document.getElementById("senha-atual")
 const botaoSalvarPerfil = document.getElementById("botao-salvar-perfil")
+const botaoExcluirPerfil = document.getElementById("botao-excluir-perfil")
 
 function atualizarPreviaPerfil() {
     previaAvatarPerfil.innerText = campoAvatarPerfil.value || ":D"
@@ -36,6 +37,8 @@ async function carregarPerfil() {
         mensagemPerfil.hidden = true
         formPerfil.hidden = false
         botaoSalvarPerfil.disabled = false
+        botaoExcluirPerfil.disabled = false
+
     } catch (erro) {
         console.log("Erro ao carregar perfil:", erro)
 
@@ -118,6 +121,97 @@ async function salvarPerfil(evento) {
         })
     }
 }
+
+async function excluirPerfil() {
+    if (botaoExcluirPerfil.disabled || botaoSalvarPerfil.disabled) {
+        return
+    }
+
+    const senhaAtual = campoSenhaAtual.value
+
+    if (senhaAtual.length === 0) {
+        mensagemPerfil.hidden = false
+        mensagemPerfil.innerText = "Informe sua senha atual para excluir a conta."
+        campoSenhaAtual.focus()
+        return
+    }
+
+    const confirmou = window.confirm(
+        "Deseja excluir sua conta permanentemente? " +
+        "Seus comentários também serão excluídos. " +
+        "Essa ação não pode ser desfeita."
+    )
+
+    if (!confirmou) {
+        return
+    }
+
+    const campos = [
+        campoNomePerfil,
+        campoEmailPerfil,
+        campoAvatarPerfil,
+        campoSenhaAtual
+    ]
+
+    let contaExcluida = false
+
+    botaoExcluirPerfil.disabled = true
+    botaoSalvarPerfil.disabled = true
+    botaoExcluirPerfil.innerText = "EXCLUINDO..."
+
+    campos.forEach((campo) => {
+        campo.readOnly = true
+    })
+
+    mensagemPerfil.hidden = false
+    mensagemPerfil.innerText = "Excluindo conta..."
+
+    try {
+        const resposta = await fetch("/usuarios/perfil", {
+            method: "delete",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                senhaAtual: senhaAtual
+            })
+        })
+
+        if (resposta.status == 401) {
+            window.location.replace("/login.html")
+            return
+        }
+
+        const dados = await resposta.json()
+
+        if (!resposta.ok) {
+            mensagemPerfil.innerText = dados.erro || "Não foi possível excluir sua conta"
+            return
+        }
+
+        contaExcluida = true
+        campoSenhaAtual.value = ""
+
+        window.alert(dados.mensagem)
+        window.location.replace("/")
+    } catch (erro) {
+        console.log("Erro ao excluir perfil:", erro)
+
+        mensagemPerfil.innerText = "Não foi possível confirmar a exclusão. Recarregue a página para verificar sua conta."
+    } finally {
+        if (!contaExcluida) {
+            botaoExcluirPerfil.disabled = false
+            botaoSalvarPerfil.disabled = false
+            botaoExcluirPerfil.innerText = "EXCLUIR CONTA"
+
+            campos.forEach((campo) => {
+                campo.readOnly = false
+            })
+        }
+    }
+}
+
+botaoExcluirPerfil.addEventListener("click", excluirPerfil)
 
 campoAvatarPerfil.addEventListener("input", atualizarPreviaPerfil)
 

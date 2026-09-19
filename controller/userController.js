@@ -333,11 +333,91 @@ function atualizarPerfil(req, res) {
     })
 }
 
+function excluirPerfil(req, res) {
+    res.set("Cache-Control", "no-store")
+
+    if (!req.session.usuario) {
+        return res.status(401).json({ erro: "Faça login para excluir sua conta" })
+    }
+
+    if (!req.is("application/json")) {
+        return res.status(415).json({ erro: "Envie os dados no formato JSON." })
+    }
+
+    const id = req.session.usuario.id
+    const dados = req.body || {}
+    const senhaAtual = dados.senhaAtual
+
+    if (typeof senhaAtual !== "string" || senhaAtual.length === 0 || Buffer.byteLength(senhaAtual, "utf8") > 72) {
+        return res.status(400).json({ erro: "Informe uma senha atual válida." })
+    }
+
+    userModel.buscarSenhaPorId(id, async (erroBusca, conta) => {
+        if (erroBusca) {
+            console.log("Erro ao consultar conta:", erroBusca.code)
+
+            return res.status(500).json({ erro: "Não foi possível verificar sua conta" })
+        }
+
+        if (!conta) {
+            return res.status(401).json({ erro: "Sua conta não está mais disponível." })
+        }
+
+        let senhaCorreta
+
+        try {
+            senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+        } catch (erroSenha) {
+            console.log("Erro ao verificar senha:", erroSenha.message)
+
+            return res.status(500).json({ erro: "Não foi possível verificar sua senha." })
+        }
+
+        if (!senhaCorreta) {
+            return res.status(403).json({ erro: "A senha atual está incorreta." })
+        }
+
+        userModel.excluirUsuario(id, (erro, resultado) => {
+            if (erro) {
+                console.log("Erro ao excluir perfil:", erro.code)
+
+                return res.status(500).json({ erro: "Não foi possível excluir sua conta." })
+            }
+
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({ erro: "A conta não foi encontrada." })
+            }
+
+            const log = {
+                userId: null,
+                acao: `Conta excluída pelo próprio usuário. ID: ${id}`
+            }
+
+            logModel.registrarLog(log, (erroLog) => {
+                if (erroLog) {
+                    console.log("Erro ao registrar exclusão:", erroLog.code)
+                }
+
+                req.session.destroy((erroSessao) => {
+                    if (erroSessao) {
+                        console.log("Erro ao encerrar sessão após exclusão:", erroSessao.message)
+                    }
+
+                    res.clearCookie("connect.sid")
+
+                    return res.json({ mensagem: "Sua conta foi excluida." })
+                })
+            })
+        })
+    })
+}
+
 module.exports = {
     criarUsuario,
     loginUsuario,
     logoutUsuario,
     verificarSessao,
     buscarPerfil,
-    atualizarPerfil
+    atualizarPerfil,
+    excluirPerfil
 }

@@ -30,5 +30,6 @@ router.get('/sessao', userController.verificarSessao)
 router.post('/logout', userController.logoutUsuario)
 router.get('/perfil', userController.buscarPerfil)
 router.post('/perfil', limitarEdicaoPerfil, userController.atualizarPerfil)
+router.delete('/perfil', limitarEdicaoPerfil, userController.excluirPerfil)
 
 module.exports = router

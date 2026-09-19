@@ -153,6 +153,21 @@ input#avatar::placeholder {
     cursor: not-allowed;
 }
 
+#confirm-perfil * {
+    margin-bottom: 1rem;    
+}
+
+#botao-excluir-perfil {
+    background-color: #a72020;
+    color: white;
+    margin-top: 1rem;
+}
+
+#botao-excluir-perfil:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 /* @media para fazer a responsividade da tela */
 
 @media screen and (max-width: 475px) {
