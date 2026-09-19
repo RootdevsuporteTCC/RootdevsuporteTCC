@@ -69,6 +69,23 @@ function atualizarUsuario(id, usuario, callback) {
     )
 }
 
+function atualizarPerfil(id, usuario, callback) {
+    const sql = `
+        UPDATE tb_usuarios
+        SET user_name = ?,
+            user_email = ?,
+            user_avatar = ?
+        WHERE user_id = ?
+    `
+
+    conexao.query(sql, [
+        usuario.nome,
+        usuario.email,
+        usuario.avatar || ":D",
+        id
+    ], callback)
+}
+
 function buscarPorId(id, callback) {
     const sql = `
         SELECT user_id, user_name, user_email, user_tipo, user_avatar
@@ -171,13 +188,31 @@ function buscarUsuarioDuplicado(usuario, idIgnorado, callback) {
     ], callback)
 }
 
+function buscarSenhaPorId(id, callback) {
+    const sql = `
+        SELECT user_pass
+        FROM tb_usuarios
+        WHERE user_id = ?
+    `
+
+    conexao.query(sql, [id], (erro, usuarios) => {
+        if (erro) {
+            return callback(erro)
+        }
+
+        return callback(null, usuarios[0])
+    })
+}
+
 module.exports = {
     criarUsuario,
     excluirUsuario,
     atualizarUsuario,
+    atualizarPerfil,
     buscarPorId,
     buscarPorEmail,
     buscarTodosUsuarios,
     buscarPorLogin,
-    buscarUsuarioDuplicado
+    buscarUsuarioDuplicado,
+    buscarSenhaPorId
 }

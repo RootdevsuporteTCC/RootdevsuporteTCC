@@ -67,7 +67,8 @@ select {
     display: none;
 }
 
-#formCadastro .avatar-edicao {
+#formCadastro .avatar-edicao,
+#form-perfil .avatar-edicao {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -75,7 +76,9 @@ select {
     gap: 1rem;
 }
 
-#formCadastro input#avatar, #formCadastro input#edit-avatar {
+#formCadastro input#avatar,
+#formCadastro input#edit-avatar,
+#form-perfil input#avatar {
     width: 10rem;
     max-width: 100%;
     box-sizing: border-box;
@@ -84,9 +87,24 @@ select {
     font-size: 1rem;
 }
 
-#formCadastro #avatar-previa {
+#formCadastro #avatar-previa,
+#form-perfil #avatar-previa {
     margin: 0;
     font-size: 1rem;
+}
+
+#form-perfil .campo > div {
+    max-width: 100%;
+}
+
+#form-perfil input {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#form-perfil button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 input#avatar::placeholder {

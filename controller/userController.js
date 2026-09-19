@@ -230,10 +230,114 @@ function buscarPerfil(req, res) {
     })
 }
 
+function atualizarPerfil(req, res) {
+    res.set("Cache-Control", "no-store")
+
+    if (!req.session.usuario) {
+        return res.status(401).json({ erro: "Faça login para alterar seu perfil" })
+    }
+
+    if (!req.is("application/json")) {
+        return res.status(415).json({ erro: "Envie os dados no formato JSON" })
+    }
+
+    const id = req.session.usuario.id
+    const dados = req.body || {}
+
+    const usuario = {
+        nome: dados.nome,
+        email: dados.email,
+        avatar: dados.avatar
+    }
+
+    const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
+
+    if (erroValidacao) {
+        return res.status(400).json({ erro: erroValidacao })
+    }
+
+    const senhaAtual = dados.senhaAtual
+
+    if (typeof senhaAtual !== "string" || senhaAtual.length === 0 || Buffer.byteLength(senhaAtual, "utf8") > 72) {
+        return res.status(400).json({ erro: "Informe uma senha atual válida" })
+    }
+
+    userModel.buscarSenhaPorId(id, async (erroBusca, conta) => {
+        if (erroBusca) {
+            console.log("Erro ao consultar senha:", erroBusca.code)
+
+            return res.status(500).json({ erro: "Não foi possível verificar sua conta." })
+        }
+
+        if (!conta) {
+            return res.status(401).json({ erro: "Sua conta não está mais disponível" })
+        }
+
+        let senhaCorreta
+
+        try {
+            senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+        } catch (erroSenha) {
+            console.log("Erro ao verificar senha:", erroSenha.message)
+
+            return res.status(500).json({ erro: "Não foi possível verificar sua senha" })
+        }
+
+        if (!senhaCorreta) {
+            return res.status(403).json({ erro: "A senha atual está incorreta." })
+        }
+
+        userModel.buscarUsuarioDuplicado(usuario, id, (erroDuplicado, usuarios) => {
+            if (erroDuplicado) {
+                console.log("Erro ao verificar usuario duplicado:", erroDuplicado.code)
+
+                return res.status(500).json({ erro: "Não foi possível verificar os dados do perfil" })
+            }
+
+            if (usuarios.length > 0) {
+                return res.status(409).json({ erro: "O nome de usuário ou e-mail ja está cadastrado" })
+            }
+
+            userModel.atualizarPerfil(id, usuario, (erro, resultado) => {
+                if (erro) {
+                    if (erro.code === "ER_DUP_ENTRY") {
+                        return res.status(409).json({ erro: "O nome de usuário ou e-mail ja está cadastrado" })
+                    }
+
+                    console.log("Erro ao atualizar perfil:", erro.code)
+
+                    return res.status(500).json({ erro: "Não foi possível atualizar seu perfil." })
+                }
+
+                if (resultado.affectedRows === 0) {
+                    return res.status(404).json({ erro: "A conta não foi encontrada." })
+                }
+
+                req.session.usuario.nome = usuario.nome
+                req.session.usuario.avatar = usuario.avatar
+
+                const log = {
+                    userId: id,
+                    acao: "Perfil atualizado pelo próprio usuário"
+                }
+
+                logModel.registrarLog(log, (erroLog) => {
+                    if (erroLog) {
+                        console.log("Erro ao registrar edição do perfil:", erroLog.code)
+                    }
+
+                    return res.json({ mensagem: "Perfil atualizado com sucesso." })
+                })
+            })
+        })
+    })
+}
+
 module.exports = {
     criarUsuario,
     loginUsuario,
     logoutUsuario,
     verificarSessao,
-    buscarPerfil
+    buscarPerfil,
+    atualizarPerfil
 }
