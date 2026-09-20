@@ -9,8 +9,6 @@
   src: url('../fonts/Disket-mono/Disket-Mono-Bold.ttf');
 }
 
-/* Tags */
-
 body {
     min-width: 320px;
     background-color: #e1e1e1;
@@ -116,8 +114,6 @@ input::placeholder {
     font-size: 15px;
 }
 
-/* Classes */
-
 /* estiliza o botão principal */
 .main-button {
     font-size: 1.2rem;
@@ -203,8 +199,6 @@ input::placeholder {
 .span-contato {
     color: aqua;
 }
-
-/* IDs */
 
 /* estiliza os botoes de login e cadastro na navbar */
 #auth-buttons {
@@ -333,7 +327,10 @@ header #sair {
     background-color: rgb(255, 86, 86);
 }
 
-/* faz a responsividade da tela */
+
+/* responsividade */
+
+/* adapta os textos de contato e organiza o avatar do menu em coluna */
 @media screen and (max-width: 428px) {
     #contato {
         padding: 2vw;
@@ -356,6 +353,7 @@ header #sair {
     }
 }
 
+/* ajusta o tamanho do título e do ícone da navegação */
 @media screen and (max-width: 470px) {
     nav h1{
         font-size: 10vw;
@@ -366,6 +364,7 @@ header #sair {
     }
 }
 
+/* troca os controles da navegação pelo menu hamburguer */
 @media screen and (max-width: 720px) {
     #auth-buttons {
         display: none;
@@ -380,12 +379,14 @@ header #sair {
     }
 }
 
+/* esconde o ícone do título para economizar espaço */
 @media screen and (max-width: 776px) {
     .title i {
         display: none;
     }
 }
 
+/* organiza o footer em coluna e redistribui suas seções */
 @media screen and (max-width: 1100px) {
     footer {
         padding: 3rem 2rem;
@@ -400,28 +401,28 @@ header #sair {
     }
 }
 
+/* empilha e centraliza as seções do footer em telas menores */
 @media screen and (max-width: 768px) {
     footer {
         padding: 2.5rem 1.5rem;
-        flex-direction: column; /* Empilha o logotipo e o bloco de links */
+        flex-direction: column;
         align-items: center; 
-        gap: 2.5rem; /* Espaço entre o logo e os links */
+        gap: 2.5rem;
     }
 
     #main-footer {
-        flex-direction: column; /* Força as colunas (Início, GitHub, Contato) a empilharem verticalmente */
-        align-items: center; /* Centraliza os itens no eixo cruzado */
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        gap: 2.5rem; /* Espaçamento confortável entre as seções para facilitar o clique no celular */
-        text-align: center; /* Garante que os textos fiquem centralizados */
+        gap: 2.5rem;
+        text-align: center;
         width: 100%;
     }
     
     #footer-logo {
-        font-size: 3rem; /* Ajusta o tamanho do logo para não ficar desproporcional */
+        font-size: 3rem;
     }
 
-    /* Reduz levemente as fontes no celular para não ocupar muito espaço da tela */
     #main-footer h2 {
         font-size: 1.8rem;
         margin-bottom: 0.5rem;

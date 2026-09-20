@@ -4,8 +4,10 @@ const path = require("path")
 const comentarioModel = require('../model/comentarioModel')
 const logModel = require("../model/logModel")
 
+// mantém as aulas na memória para atender as pesquisas
 const cacheConteudos = []
 
+// recebe o markdown e retorna categoria, tópico e conteúdo ou null se o cabeçalho for inválido
 function extrairMetadados(texto) {
     const linhas = texto.split("\n")
 
@@ -38,6 +40,7 @@ function extrairMetadados(texto) {
         return null
     }
 
+    // separa o texto da aula das linhas do cabeçalho
     const conteudo = linhas.slice(fimCabecalho + 1).join("\n")
 
     return {
@@ -47,6 +50,7 @@ function extrairMetadados(texto) {
     }
 }
 
+// le as pastas das categorias e preenche o cache com as aulas validas
 function carregarCacheConteudos() {
     cacheConteudos.length = 0
 
@@ -89,6 +93,7 @@ function carregarCacheConteudos() {
     })
 }
 
+// recebe categoria e tópico pela rota, le a aula e devolve o markdown e os comentários em json
 function buscarConteudo(req, res) {
     const categoria = req.params.categoria
     const topico = req.params.topico
@@ -139,6 +144,7 @@ function buscarConteudo(req, res) {
                 return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
             }
 
+            // informa ao navegador quais comentários pertencem ao usuário conectado
             comentarios.forEach((comentario) => {
                 comentario.podeExcluir = false
 
@@ -155,6 +161,7 @@ function buscarConteudo(req, res) {
     })
 }
 
+// recebe a categoria pela rota e devolve em json os nomes dos arquivos markdown em ordem alfabética
 function listarTopicos(req, res) {
     const categoria = req.params.categoria
 
@@ -191,6 +198,7 @@ function listarTopicos(req, res) {
     })
 }
 
+// recebe a pesquisa pela url, consulta o cache e devolve as categorias e os tópicos encontrados em json
 function pesquisarConteudos(req, res) {
     const pesquisa = req.query.pesquisa || ""
 
@@ -210,6 +218,7 @@ function pesquisarConteudos(req, res) {
 
     const resultados = []
 
+    // procura o termo na categoria, no tópico e no texto de cada aula
     cacheConteudos.forEach((aula) => {
         const categoria = aula.categoria.toLowerCase()
         const topico = aula.topico.toLowerCase()
@@ -223,6 +232,7 @@ function pesquisarConteudos(req, res) {
         }
     });
 
+    // permite registrar pesquisas feitas por visitantes sem login
     let userId = null
 
     if (req.session.usuario) {

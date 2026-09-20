@@ -1,20 +1,14 @@
-/* Classes */
-
 /* alinha e aumenta os icones na pagina principal */
 .center-icon {
     font-size: 4rem;
     margin: 1rem;
 }
 
-/* Tags */
-
 ul {
     list-style: none;
     font-size: 1.5rem;
     padding: 0;
 }
-
-/* IDs */
 
 #introducao {
     margin: 4rem auto;
@@ -44,8 +38,6 @@ ul {
     background: linear-gradient(0deg, #d6d400, #fffd21, #fffd21);
 }
 
-/* Classes bizarras */
-
 /* estiliza o bloco dos conteúdos (mas não altera a cor) */
 .content-block {
     text-align: center;
@@ -70,14 +62,14 @@ ul {
     color: white;
 }
 
-/* garante que o titulo longo do js não quebre a página numa resolução pequena */
+/* reduz o título de javascript para caber em telas pequenas */
 @media screen and (max-width: 545px) {
     #js h1 {
         font-size: 9vw;
     }
 }
 
-/* ajuste de responsividade para a tela inicial (mobile) */
+/* reduz os espaços e os textos da introdução em telas pequenas */
 @media screen and (max-width: 768px) {
     #introducao {
         margin: 2rem 1rem;

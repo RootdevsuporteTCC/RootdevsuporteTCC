@@ -12,8 +12,10 @@ const campoConfirmarNovaSenha   =  document.getElementById("confirmar-nova-senha
 const botaoSalvarSenha          =  document.getElementById("botao-salvar-senha")
 const areaRecuperacaoConcluida  =  document.getElementById("recuperacao-concluida")
 
+// guarda o email usado na solicitação para enviar junto com o código
 let emailSolicitado = ""
 
+// recebe o envio do formulário, envia o email e mostra a etapa de código após a resposta
 async function solicitarCodigo(evento) {
     evento.preventDefault()
 
@@ -48,8 +50,10 @@ async function solicitarCodigo(evento) {
 
         mensagemRecuperacao.innerText = dados.mensagem
 
+        // mantém o email da solicitação para a próxima etapa
         emailSolicitado = email
 
+        // troca o formulário de email pelo formulário do código
         formRecuperacao.hidden = true
         formCodigo.hidden = false
 
@@ -65,6 +69,7 @@ async function solicitarCodigo(evento) {
     }
 }
 
+// recebe o envio do formulário, envia email e código e mostra a nova senha após a validação
 async function verificarCodigoInformado(evento) {
     evento.preventDefault()
 
@@ -80,6 +85,8 @@ async function verificarCodigoInformado(evento) {
     }
 
     const codigo = campoCodigo.value.trim().toUpperCase()
+
+    // controla se a etapa do código já foi concluída
     let verificado = false
 
     botaoVerificarCodigo.disabled = true
@@ -113,6 +120,7 @@ async function verificarCodigoInformado(evento) {
 
         formCodigo.hidden = true
 
+        // limpa e mostra os campos para cadastrar a nova senha
         formNovaSenha.reset()
         formNovaSenha.hidden = false
 
@@ -123,6 +131,7 @@ async function verificarCodigoInformado(evento) {
     } finally {
         botaoVoltarEmail.disabled = false
 
+        // mantém o código bloqueado quando a verificação já foi concluída
         botaoVerificarCodigo.disabled = verificado
         campoCodigo.readOnly = verificado
 
@@ -134,6 +143,7 @@ async function verificarCodigoInformado(evento) {
     }
 }
 
+// recebe o envio do formulário, envia senha e confirmação e mostra a conclusão após o sucesso
 async function salvarNovaSenha(evento) {
     evento.preventDefault()
 
@@ -141,6 +151,7 @@ async function salvarNovaSenha(evento) {
         return
     }
 
+    // lê as senhas sem remover espaços dos valores digitados
     const senha = campoNovaSenha.value
     const confirmarSenha = campoConfirmarNovaSenha.value
     
@@ -182,6 +193,8 @@ async function salvarNovaSenha(evento) {
         formNovaSenha.hidden = true
 
         mensagemRecuperacao.innerText = dados.mensagem
+
+        // mostra o acesso ao login depois da confirmação da troca de senha
         areaRecuperacaoConcluida.hidden = false
 
     } catch (erro) {
@@ -195,10 +208,12 @@ async function salvarNovaSenha(evento) {
     }
 }
 
+// encaminha o envio de cada formulário para sua etapa da recuperação
 formRecuperacao.addEventListener("submit", solicitarCodigo)
 formCodigo.addEventListener("submit", verificarCodigoInformado)
 formNovaSenha.addEventListener("submit", salvarNovaSenha)
 
+// volta para a etapa do email e limpa os dados da verificação na interface
 botaoVoltarEmail.addEventListener("click", () => {
     formCodigo.hidden = true
     formRecuperacao.hidden = false

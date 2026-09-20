@@ -4,6 +4,8 @@ const path = require("path")
 const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
 
+// recebe texto, categoria e tópico e identifica o autor pela sessão
+// valida a aula, salva pelo model, registra a ação e responde em json
 function salvarComentario(req, res) {
     if (!req.session.usuario) {
         return res.status(401).json({ erro: "Faça login para comentar." })
@@ -31,6 +33,7 @@ function salvarComentario(req, res) {
 
     const caminhoArquivo = path.join(__dirname, "../content", categoria, `${topico}.md`)
 
+    // verifica no servidor se o arquivo da aula existe antes de aceitar o comentário
     fs.stat(caminhoArquivo, (erroArquivo, arquivo) => {
         if (erroArquivo) {
             if (erroArquivo.code === "ENOENT") {
@@ -80,6 +83,8 @@ function salvarComentario(req, res) {
     })
 }
 
+// recebe o id pela rota e o autor pela sessão
+// solicita a exclusão ao model, registra a ação e responde em json
 function excluirComentario(req, res) {
     if (!req.session.usuario) {
         return res.status(401).json({ erro: "Faça login para excluir um comentário." })
@@ -96,6 +101,7 @@ function excluirComentario(req, res) {
         userId: req.session.usuario.id
     }
 
+    // envia os dois ids para que a exclusão confira também o autor
     comentarioModel.excluirComentario(comentario, (erro, resultado) => {
         if (erro) {
             console.log("Erro ao excluir comentário:", erro)

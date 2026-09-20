@@ -7,6 +7,8 @@ const logModel = require("../model/logModel")
 const emailService = require("../service/emailService")
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
+// recebe o email e responde com uma mensagem genérica de solicitação
+// para contas existentes, salva a recuperação e encaminha o código por email
 function solicitarRecuperacao(req, res) {
     const dados = req.body || {}
 
@@ -21,8 +23,10 @@ function solicitarRecuperacao(req, res) {
         return res.status(400).json({ erro: "Informe um e-mail válido." })
     }
 
+    // gera um código aleatório com oito caracteres hexadecimais
     const codigo = crypto.randomBytes(4).toString("hex").toUpperCase()
 
+    // responde sem revelar se o email pertence a uma conta cadastrada
     res.status(202).json({ mensagem: "Solicitação recebida. Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação." })
 
     userModel.buscarPorEmail(email, (erro, usuario) => {
@@ -68,12 +72,15 @@ function solicitarRecuperacao(req, res) {
     })
 }
 
+// recebe email e código e verifica a recuperação mais recente
+// salva a autorização na sessão e responde em json quando o código é válido
 function verificarCodigo(req, res) {
     const dados = req.body || {}
     const mensagemInvalida = "Código inválido ou expirado"
 
     res.set("Cache-control", "no-store")
 
+    // remove uma autorização anterior antes de verificar outro código
     delete req.session.recuperacao
 
     if (typeof dados.email !== "string" || typeof dados.codigo !== "string") {
@@ -99,6 +106,7 @@ function verificarCodigo(req, res) {
             return res.status(400).json({ erro: mensagemInvalida })
         }
 
+        // considera somente a solicitação mais recente dessa conta
         recuperacaoModel.buscarUltimaRecuperacao(usuario.user_id, (erro, recuperacao) => {
             if (erro) {
                 console.log("Erro ao consultar recuperacao:", erro.code)
@@ -110,12 +118,14 @@ function verificarCodigo(req, res) {
                 return res.status(400).json({ erro: mensagemInvalida })
             }
 
+            // converte a expiração para comparar com o horário atual
             const expiracao = new Date(recuperacao.rec_expiracao).getTime()
 
             if (!Number.isFinite(expiracao) || expiracao <= Date.now()) {
                 return res.status(400).json({ erro: mensagemInvalida })
             }
 
+            // compara o código recebido com o hash salvo no banco
             bcrypt.compare(codigo, recuperacao.rec_codigo, (erro, codigoCorreto) => {
                 if (erro) {
                     console.log("Erro ao comparar código:", erro.message)
@@ -127,6 +137,7 @@ function verificarCodigo(req, res) {
                     return res.status(400).json({ erro: mensagemInvalida })
                 }
 
+                // cria uma nova sessão antes de guardar a autorização de recuperação
                 req.session.regenerate((erro) => {
                     if (erro) {
                         return res.status(500).json({ erro: "Não foi possível iniciar a recuperação." })
@@ -139,6 +150,7 @@ function verificarCodigo(req, res) {
                         expiracao: expiracao
                     }
 
+                    // salva a autorização antes de liberar o próximo passo no navegador
                     req.session.save((erro) => {
                         if (erro) {
                             delete req.session.recuperacao
@@ -165,6 +177,8 @@ function verificarCodigo(req, res) {
     })
 }
 
+// recebe a nova senha e sua confirmação e usa a autorização guardada na sessão
+// solicita a atualização ao model, encerra a sessão atual e responde em json
 function redefinirSenha(req, res) {
     res.set("Cache-Control", "no-store")
 
@@ -187,6 +201,7 @@ function redefinirSenha(req, res) {
         return res.status(400).json({ erro: erroSenha })
     }
 
+    // manda o model conferir novamente a validade e alterar a senha
     recuperacaoModel.concluirRecuperacao(recuperacao, dados.senha, (erro, resultado) => {
         if (erro) {
             console.log("Erro ao redefinir senha:", erro.code)
@@ -194,6 +209,7 @@ function redefinirSenha(req, res) {
             return res.status(500).json({ erro: "Não foi possível alterar a senha. Tente novamente." })
         }
 
+        // mostra que nenhuma recuperação disponível permitiu atualizar a senha
         if (resultado.affectedRows === 0) {
             delete req.session.recuperacao
 

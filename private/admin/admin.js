@@ -5,6 +5,7 @@ const form = {
     formEdicao: document.getElementById("form-edicao")
 }
 
+// mantém a página e a pesquisa de cada consulta durante a navegação
 let paginaUsuariosAtual = 1
 let pesquisaUsuariosAtual = ""
 
@@ -16,6 +17,8 @@ let pesquisaLogsAtual = ""
 
 
 //funções gerais
+
+// prepara a area de consulta e esconde as opções iniciais do painel
 function abrirConsulta() {
     form.botaoVoltar.classList.remove("remove")
     form.admInicio.classList.add("remove")
@@ -24,11 +27,13 @@ function abrirConsulta() {
     form.formEdicao.innerHTML = ""
 }
 
+// limpa as areas de consulta e edição antes de montar o formulário
 function abrirEdicao() {
     form.tabelaConsulta.innerHTML = ""
     form.formEdicao.innerHTML = ""
 }
 
+// limpa as areas abertas e mostra as opções iniciais
 function voltarInicio() {
     form.botaoVoltar.classList.add("remove")
     form.admInicio.classList.remove("remove")
@@ -37,7 +42,9 @@ function voltarInicio() {
     form.formEdicao.innerHTML = ""
 }
 
-//funções usuario
+//funções de usuario
+
+// le o avatar do formulário de edição e atualiza a prévia
 function atualizarPreviewAvatarAdm() {
     const campoAvatar = document.getElementById("edit-avatar")
     const previaAvatar = document.getElementById("avatar-previa")
@@ -45,6 +52,7 @@ function atualizarPreviewAvatarAdm() {
     previaAvatar.innerText = campoAvatar.value || ":D"
 }
 
+// recebe a direção da navegação e solicita outra página mantendo a pesquisa
 function mudarPaginaUsuarios(direcao) {
     const novaPagina = paginaUsuariosAtual + direcao
 
@@ -55,6 +63,7 @@ function mudarPaginaUsuarios(direcao) {
     mostrarUsuarios(pesquisaUsuariosAtual, novaPagina)
 }
 
+// recebe pesquisa e página, consulta os usuários pelo fetch e monta a tabela
 async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
@@ -122,6 +131,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
             `
         }
 
+        // cria as linhas da página recebida e preenche as células com os dados
         usuarios.forEach((usuario) => {
             corpoTabela.insertAdjacentHTML("beforeend", `
                     <tr>
@@ -157,8 +167,8 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
 
         document.getElementById("pagina-atual").innerText = `Página ${paginaUsuariosAtual}`
 
+        // ajusta os botões conforme a página atual e a existência de mais resultados
         document.getElementById("pagina-anterior").disabled = paginaUsuariosAtual === 1
-
         document.getElementById("proxima-pagina").disabled = !dados.temProxima
         
     } catch (erro) {
@@ -170,6 +180,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     }
 }
 
+// recebe o id, confirma a exclusão e atualiza a consulta depois da resposta do servidor
 async function excluirUsuario(id) {
     const confirmar = confirm("Deletar Usuário?")
 
@@ -194,6 +205,7 @@ async function excluirUsuario(id) {
     }
 }
 
+// recebe o id, consulta os dados pelo fetch e monta o formulário de edição
 async function editarUsuario(id) {
 
     try {
@@ -257,8 +269,10 @@ async function editarUsuario(id) {
 
         const campoAvatar = document.getElementById("edit-avatar")
 
+        // preenche o avatar depois de criar os campos do formulário
         campoAvatar.value = usuario.user_avatar || ""
 
+        // conecta a prévia ao campo que acabou de ser inserido na página
         campoAvatar.addEventListener("input", atualizarPreviewAvatarAdm)
 
         atualizarPreviewAvatarAdm()
@@ -272,6 +286,7 @@ async function editarUsuario(id) {
     }
 }
 
+// recebe o evento e o id, envia os campos alterados e atualiza a consulta após salvar
 async function salvarEdicao(event, id) {
     event.preventDefault()
 
@@ -303,6 +318,7 @@ async function salvarEdicao(event, id) {
             return
         }
 
+        // atualiza a navegação caso os dados da conta conectada tenham sido alterados
         await verificarLogin()
 
         alert(dados.mensagem)
@@ -314,6 +330,7 @@ async function salvarEdicao(event, id) {
     }
 }
 
+// recebe o envio da pesquisa e consulta os usuários a partir da primeira página
 function pesquisarUsuarios(event) {
     event.preventDefault()
 
@@ -322,11 +339,14 @@ function pesquisarUsuarios(event) {
     mostrarUsuarios(pesquisa, 1)
 }
 
+// consulta a primeira página de usuários sem usar um termo de pesquisa
 function limparPesquisa() {
     mostrarUsuarios("", 1)
 }
 
-//funções comentario
+//funções de comentario
+
+// recebe a direção e consulta outra página de comentários mantendo a pesquisa
 function mudarPaginaComentarios(direcao) {
     const novaPagina = paginaComentariosAtual + direcao
 
@@ -337,6 +357,7 @@ function mudarPaginaComentarios(direcao) {
     mostrarComentarios(pesquisaComentariosAtual, novaPagina)
 }
 
+// recebe o envio da pesquisa e consulta os comentários a partir da primeira página
 function pesquisarComentarios(event) {
     event.preventDefault()
 
@@ -345,10 +366,12 @@ function pesquisarComentarios(event) {
     mostrarComentarios(pesquisa, 1)
 }
 
+// consulta a primeira página de comentários sem aplicar um termo de pesquisa
 function limparPesquisaComentarios() {
     mostrarComentarios("", 1)
 }
 
+// recebe pesquisa e página, consulta os comentários pelo fetch e monta a tabela
 async function mostrarComentarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
@@ -419,6 +442,7 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
             `
         }
 
+        // cria as linhas da página recebida e preenche as células com os dados
         comentarios.forEach((comentario) => {
             corpoTabela.insertAdjacentHTML("beforeend", `
                     <tr>
@@ -451,8 +475,8 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
 
         document.getElementById("pagina-atual").innerText = `Página ${paginaComentariosAtual}`
 
+        // ajusta os botões conforme a página atual e a existência de mais resultados
         document.getElementById("pagina-anterior").disabled = paginaComentariosAtual === 1
-
         document.getElementById("proxima-pagina").disabled = !dados.temProxima
     } catch (erro) {
         console.log("Erro ao carregar comentários:", erro)
@@ -463,6 +487,7 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
     }
 }
 
+// recebe o id, confirma a exclusão e atualiza a consulta após a resposta do servidor
 async function excluirComentarioAdmin(id) {
     const confirmou = confirm("Deseja excluir esse comentário?")
 
@@ -498,6 +523,8 @@ async function excluirComentarioAdmin(id) {
 }
 
 //funções log
+
+// recebe a direção e consulta outra página de logs mantendo a pesquisa
 function mudarPaginaLogs(direcao) {
     const novaPagina = paginaLogsAtual + direcao
 
@@ -508,6 +535,7 @@ function mudarPaginaLogs(direcao) {
     mostrarLogs(pesquisaLogsAtual, novaPagina)
 }
 
+// recebe o envio da pesquisa e consulta os logs a partir da primeira página
 function pesquisarLogs(event) {
     event.preventDefault()
 
@@ -516,10 +544,12 @@ function pesquisarLogs(event) {
     mostrarLogs(pesquisa, 1)
 }
 
+// consulta a primeira página de logs sem aplicar um termo de pesquisa
 function limparPesquisaLogs() {
     mostrarLogs("", 1)
 }
 
+// recebe pesquisa e página, consulta os logs pelo fetch e monta a tabela
 async function mostrarLogs(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
@@ -591,6 +621,7 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
             `
         ]
 
+        // cria as linhas da página recebida e preenche as células com os dados
         logs.forEach((log) => {
             corpoTabela.insertAdjacentHTML("beforeend", `
                     <tr>
@@ -606,7 +637,7 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
                 const colunas = linha.querySelectorAll("td")
 
                 colunas[0].innerText = log.log_id
-                colunas[1].innerText = log.tb_usuarios_user_id || "-"
+                colunas[1].innerText = log.tb_usuarios_user_id || "-" // mostra uma identificação diferente para logs sem conta vinculada
                 colunas[2].innerText = log.user_name || "Sem usuário vinculado"
                 colunas[3].innerText = log.log_acao
                 colunas[4].innerText = new Date(log.log_data).toLocaleString("pt-BR")
@@ -614,8 +645,8 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
 
         document.getElementById("pagina-atual").innerText = `Pagina ${paginaLogsAtual}`
 
+        // ajusta os botões conforme a página atual e a existência de mais resultados
         document.getElementById("pagina-anterior").disabled = paginaLogsAtual === 1
-
         document.getElementById("proxima-pagina").disabled = !dados.temProxima
     } catch (erro) {
         console.log("Erro ao carregar logs:", erro)

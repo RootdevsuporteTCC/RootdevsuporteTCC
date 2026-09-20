@@ -376,8 +376,9 @@ aside.fechado #toggle-menu {
 }
 
 
-/* responsividade e flexibilidade para diferentes tamanhos de tela (malditos usuarios do mobile!) */
+/* responsividade */
 
+/* ajusta o espaço dos comentários e a margem do menu fechado */
 @media screen and (max-width: 1024px) {
     #comments-section {
         padding: 2.5rem 3rem;
@@ -388,6 +389,7 @@ aside.fechado #toggle-menu {
     }
 }
 
+/* sobrepõe o menu da aula e adapta os espaços e textos para telas menores */
 @media screen and (max-width: 768px) {
     #content-layout {
         position: relative; 
@@ -410,6 +412,7 @@ aside.fechado #toggle-menu {
         box-shadow: none;
     }
 
+    /* reserva espaço acima da aula para o controle do menu */
     #main-content-area {
         padding: 0;
         padding-top: 5.5rem;
@@ -466,6 +469,7 @@ aside.fechado #toggle-menu {
     }
 }
 
+/* amplia o menu e reorganiza a pesquisa para telas pequenas */
 @media screen and (max-width: 480px) {
     aside {
         width: 100%;
@@ -514,6 +518,7 @@ aside.fechado #toggle-menu {
         font-size: 1rem;
     }
 
+    /* coloca os controles da pesquisa em coluna */
     .linha-pesquisa {
         flex-direction: column;
     }

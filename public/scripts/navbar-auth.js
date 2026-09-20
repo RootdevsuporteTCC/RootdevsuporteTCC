@@ -1,3 +1,4 @@
+// consulta o estado do login pelo fetch e monta a navegação do usuário conectado
 async function verificarLogin() {
     try {
         const resposta = await fetch('/usuarios/sessao')
@@ -8,6 +9,7 @@ async function verificarLogin() {
 
         const dados = await resposta.json()
 
+        // mantem os controles de visitante quando não existe login ativo
         if (!dados.logado) {
             return
         }
@@ -37,6 +39,7 @@ async function verificarLogin() {
             </div>
         `
 
+        // insere o avatar recebido como texto nos dois menus
         authButtons.querySelector(".avatar").innerText = dados.usuario.avatar || ":D"
         navDrawerMenu.querySelector(".avatar").innerText = dados.usuario.avatar || ":D"
 
@@ -45,4 +48,5 @@ async function verificarLogin() {
     }
 }
 
+// consulta a sessão quando o script é carregado
 verificarLogin()

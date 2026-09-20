@@ -1,5 +1,3 @@
-/* estilizações da caixa do formulario, tanto do login quanto cadastro e recuperação de senha */
-
 form {
     display: grid;
     gap: 1.5rem;
@@ -168,8 +166,9 @@ input#avatar::placeholder {
     cursor: not-allowed;
 }
 
-/* @media para fazer a responsividade da tela */
+/* responsividade */
 
+/* reduz as margens laterais e adapta o espaçamento do formulário */
 @media screen and (max-width: 475px) {
     #form-box {
         padding: 6vw;
@@ -178,6 +177,7 @@ input#avatar::placeholder {
     }
 }
 
+/* ajusta a largura do formulário e os textos para telas menores */
 @media screen and (max-width: 428px) {
     #form-box {
         max-width: 95%;
@@ -194,6 +194,7 @@ input#avatar::placeholder {
     }
 }
 
+/* organiza os campos em coluna quando a largura disponível diminui */
 @media screen and (max-width: 688px) {
     .campo {
         display: flex;
@@ -206,6 +207,7 @@ input#avatar::placeholder {
     }
 }
 
+/* permite que o formulário ocupe até 80% da largura disponível */
 @media screen and (min-width: 430px) {
     #form-box {
         max-width: 80%;
@@ -213,6 +215,7 @@ input#avatar::placeholder {
     }
 }
 
+/* limita a largura do formulário em telas maiores */
 @media screen and (min-width: 900px) {
     #form-box {
         max-width: 600px;

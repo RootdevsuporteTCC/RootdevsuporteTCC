@@ -6,7 +6,9 @@ const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
-//funções gerais
+// funções gerais
+
+// recebe email e senha, verifica o tipo da conta e redireciona ao painel após criar a sessão
 async function loginAdm(req, res) {
 
         const email = req.body.email;
@@ -67,15 +69,19 @@ async function loginAdm(req, res) {
         })
 } 
 
+// responde a rota protegida com o arquivo da página do admin
 function enviarPainel(req, res) {
     res.sendFile(path.join(__dirname, "../private/admin/admin.html"))
 }
 
+// responde a rota protegida com o script do painel do admin
 function enviarAdminJs(req, res) {
     res.sendFile(path.join(__dirname, "../private/admin/admin.js"))
 }
 
-//funções de usuários
+// funções de usuários
+
+// recebe pesquisa e página pela url e devolve usuários e dados da paginação em json
 function buscarUsuarios(req, res) {
     const pesquisa = req.query.pesquisa || ''
 
@@ -86,12 +92,15 @@ function buscarUsuarios(req, res) {
     }
 
     const limite = 50
+
+    // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina - 1) * limite
 
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
         return res.status(400).json({ erro: "Página ou pesquisa inválida" })
     }
 
+    // consulta um registro extra para descobrir se existe uma próxima página
     userModel.buscarTodosUsuarios(pesquisa, limite + 1, deslocamento, (erro, usuarios) => {
         if (erro) {
             console.log("Erro ao buscar usuários:", erro);
@@ -101,6 +110,7 @@ function buscarUsuarios(req, res) {
 
         const temProxima = usuarios.length > limite
 
+        // remove o registro extra antes de enviar a página ao navegador
         if (temProxima) {
             usuarios.pop()
         }
@@ -113,6 +123,7 @@ function buscarUsuarios(req, res) {
     });
 }
 
+// recebe o id pela rota e devolve os dados do usuário encontrado em json
 function buscarUsuarioPorId(req, res) {
     const id = req.params.id
     userModel.buscarPorId(id, (erro, usuario) => {
@@ -129,6 +140,7 @@ function buscarUsuarioPorId(req, res) {
     })
 }
 
+// recebe o id pela rota, exclui a conta pelo model, registra a ação e responde em json
 function excluirUsuario(req, res) {
     const id = Number(req.params.id)
 
@@ -136,6 +148,7 @@ function excluirUsuario(req, res) {
         return res.status(400).json({ erro: "Identificador do usuário inválido" })
     }
 
+    // impede que o administrador exclua a própria conta pela consulta administrativa
     if (id === Number(req.session.usuario.id)) {
         return res.status(400).json({ erro: "Você não pode excluir sua própria conta" })
     }
@@ -170,6 +183,7 @@ function excluirUsuario(req, res) {
     })
 }
 
+// recebe id e dados da edição, valida, atualiza pelo model e responde em json
 function atualizarUsuario(req, res) {
     const id = Number(req.params.id)
     const dados = req.body || {}
@@ -238,6 +252,8 @@ function atualizarUsuario(req, res) {
 }
 
 //funções de comentários
+
+// recebe pesquisa e página pela url e devolve comentários e dados da paginação em json
 function buscarComentarios(req, res) {
     const pesquisa = req.query.pesquisa || ""
 
@@ -248,12 +264,15 @@ function buscarComentarios(req, res) {
     }
 
     const limite = 50
+
+    // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina -1) * limite
 
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
         return res.status(400).json({ erro: "Página ou pesquisa inválida" })
     }
 
+    // consulta um registro extra para descobrir se existe uma próxima página
     comentarioModel.buscarTodosComentarios(pesquisa, limite + 1, deslocamento, (erro, comentarios) => {
         if (erro) {
             console.log("Erro ao buscar comentarios:", erro)
@@ -263,6 +282,7 @@ function buscarComentarios(req, res) {
 
         const temProxima = comentarios.length > limite
 
+        // remove o registro extra antes de enviar a página ao navegador
         if (temProxima) {
             comentarios.pop()
         }
@@ -275,6 +295,7 @@ function buscarComentarios(req, res) {
     })
 }
 
+// recebe o id pela rota, exclui o comentário, registra a ação e responde em json
 function excluirComentarioAdmin(req, res) {
     const id = Number(req.params.id)
 
@@ -308,7 +329,9 @@ function excluirComentarioAdmin(req, res) {
     })
 }
 
-//funções de log
+//função de log
+
+// recebe pesquisa e página pela url e devolve logs e dados da paginação em json
 function buscarLogs(req, res) {
     const pesquisa = req.query.pesquisa || ""
 
@@ -319,12 +342,15 @@ function buscarLogs(req, res) {
     }
 
     const limite = 50
+    
+    // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina - 1) * limite
 
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
         return res.status(400).json({ erro: "Página ou pesquisa inválida" })
     }
 
+    // consulta um registro extra para descobrir se existe uma próxima página
     logModel.buscarTodosLogs(pesquisa, limite + 1, deslocamento, (erro, logs) => {
         if (erro) {
             console.log("Erro ao buscar logs:", erro)
@@ -334,6 +360,7 @@ function buscarLogs(req, res) {
 
         const temProxima = logs.length > limite
 
+        // remove o registro extra antes de enviar a página ao navegador
         if (temProxima) {
             logs.pop()
         }

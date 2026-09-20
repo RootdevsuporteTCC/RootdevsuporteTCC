@@ -1,3 +1,4 @@
+// seleciona as áreas usadas para mostrar aulas, tópicos, comentários e pesquisas
 const tituloCategoria        =   document.getElementById("matter-title")
 const botaoMenu              =   document.getElementById("toggle-menu")
 const menuLateral            =   document.querySelector("aside")
@@ -17,11 +18,12 @@ const botaoPesquisa          =   document.getElementById("botao-pesquisa-conteud
 const mensagemPesquisa       =   document.getElementById("mensagem-pesquisa")
 const areaResultados         =   document.getElementById("resultados-pesquisa")
 
+// guarda o estado das operações e o tópico que está aberto
 let pesquisando = false
-
 let topicoAtual = ""
 let ocupado = false
 
+// le a categoria e o tópico enviados no endereço da página
 const parametros = new URLSearchParams(window.location.search)
 
 let categoria = parametros.get("categoria")
@@ -30,6 +32,8 @@ if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
     categoria = "html"
 }
 
+
+// usa a categoria atual para atualizar o título da página e do menu
 function atualizarTitulo() {
     if (categoria === "html") {
         tituloCategoria.textContent = "HTML"
@@ -42,12 +46,14 @@ function atualizarTitulo() {
     document.title = tituloCategoria.textContent + " - ROOT DEV"
 }
 
+// alterna a abertura do menu lateral e atualiza a seta
 function alternarMenu() {
     menuLateral.classList.toggle("fechado")
     atualizarSeta()
 }
 botaoMenu.addEventListener("click", alternarMenu)
 
+// consulta o estado do menu e ajusta o ícone da seta
 function atualizarSeta() {
     if (menuLateral.classList.contains("fechado")) {
         setaMenu.className = "fa-solid fa-chevron-right"
@@ -56,10 +62,12 @@ function atualizarSeta() {
     }
 }
 
+// informa a categoria ao css pela tag do body
 function aplicarTema() {
     document.body.setAttribute("data-categoria", categoria)
 }
 
+// recebe a lista do servidor e preenche os comentários
 function exibirComentarios(comentarios) {
     areaComentarios.textContent = ""
 
@@ -82,12 +90,14 @@ function exibirComentarios(comentarios) {
             <button type="button" class="botao-excluir" hidden><i class="fa-solid fa-trash-can"></i></button>
         `
 
+        // preenche os dados recebidos como texto sem interpretar como html
         bloco.querySelector(".avatar").innerText = comentario.user_avatar
         bloco.querySelector(".user-name").innerText = comentario.user_name
         bloco.querySelector(".commentary").innerText = comentario.com_texto
 
         const botaoExcluir = bloco.querySelector(".botao-excluir")
 
+        // mostra o icone de lixeira conforme a indicação recebida do servidor
         botaoExcluir.hidden = !comentario.podeExcluir
 
         botaoExcluir.addEventListener("click", () => {
@@ -98,8 +108,11 @@ function exibirComentarios(comentarios) {
     });
 }
 
+// recebe o markdown, converte para html, limpa e mostra a aula
 function exibirConteudo(markdown) {
     const html = marked.parse(markdown)
+
+    // remove elementos e atributos não permitidos antes de inserir o html na página
     const htmlSeguro = DOMPurify.sanitize(html)
 
     areaConteudo.innerHTML = htmlSeguro
@@ -111,6 +124,7 @@ function exibirConteudo(markdown) {
     }
 }
 
+// recebe os resultados do servidor e monta os links para as aulas
 function exibirResultadosPesquisa(resultados) {
     areaResultados.innerText = ""
 
@@ -139,6 +153,7 @@ function exibirResultadosPesquisa(resultados) {
     })
 }
 
+// recebe o envio do formulário, consulta a pesquisa pelo fetch e mostra os resultados
 async function pesquisarConteudos(event) {
     event.preventDefault()
 
@@ -182,14 +197,18 @@ async function pesquisarConteudos(event) {
 }
 formPesquisa.addEventListener("submit", pesquisarConteudos)
 
+// recebe o tópico, consulta a aula e os comentários pelo fetch e atualiza a tela
 async function carregarConteudo(topico) {
     if (ocupado) {
         return
     }
 
+    // identifica a troca de aula para limpar o comentário em edição
     const mudouDeTopico = topico !== topicoAtual
 
     ocupado = true
+
+    // impede comentários enquanto a nova aula ainda não foi carregada
     topicoAtual = ""
     containerFormulario.hidden = true
 
@@ -217,6 +236,7 @@ async function carregarConteudo(topico) {
         topicoAtual = topico
         containerFormulario.hidden = false
 
+        // limpa o campo apenas quando o usuário abre outra aula
         if (mudouDeTopico) {
             campoComentario.value = ""
         }
@@ -232,6 +252,7 @@ async function carregarConteudo(topico) {
     }
 }
 
+// consulta os tópicos da categoria atual e monta a lista de navegação
 async function carregarTopicos() {
     listaTopicos.innerHTML = "<li>Carregando...</li>"
 
@@ -273,6 +294,7 @@ async function carregarTopicos() {
     }
 }
 
+// consulta a sessão pelo fetch e mostra o formulário ou o aviso de login
 async function verificarLoginComentario() {
     try {
         const resposta = await fetch("/usuarios/sessao")
@@ -302,6 +324,7 @@ async function verificarLoginComentario() {
     }
 }
 
+// recebe o envio do formulário, envia texto e aula pro servidor e recarrega os comentários
 async function enviarComentario(event) {
     event.preventDefault()
 
@@ -321,6 +344,7 @@ async function enviarComentario(event) {
         return
     }
 
+    // guarda a aula que o comentário enviado pertence
     const topicoEnviado = topicoAtual
 
     ocupado = true
@@ -357,6 +381,7 @@ async function enviarComentario(event) {
 
         campoComentario.value = ""
 
+        // libera o carregamento da aula depois de concluir a operação
         ocupado = false
         await carregarConteudo(topicoEnviado)
 
@@ -373,6 +398,7 @@ async function enviarComentario(event) {
 }
 formComentario.addEventListener("submit", enviarComentario)
 
+// recebe o id, confirma a exclusão, envia a solicitação e recarrega a aula
 async function excluirComentario(id) {
     if (ocupado) {
         return
@@ -410,6 +436,7 @@ async function excluirComentario(id) {
             return
         }
 
+        // libera o carregamento da aula depois de concluir a operação
         ocupado = false
         await carregarConteudo(topicoSelecionado)
 
@@ -425,16 +452,19 @@ async function excluirComentario(id) {
     }
 }
 
+// inicia o menu lateral fechado em telas menores
 if (window.innerWidth <= 768) {
     menuLateral.classList.add("fechado")
 }
 
+// prepara o tema, os tópicos e o estado de login ao abrir a página
 atualizarTitulo()
 atualizarSeta()
 aplicarTema()
 carregarTopicos()
 verificarLoginComentario()
 
+// abre a aula indicada no endereço quando existe um tópico informado
 const topicoInicial = parametros.get("topico")
 
 if (topicoInicial) {

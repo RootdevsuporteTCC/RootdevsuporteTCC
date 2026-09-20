@@ -65,16 +65,19 @@ tbody td:hover, tbody th:hover {
     transform: none;
 }
 
+/* permite que a area de consulta encolha dentro do espaço disponível */
 #tabela-consulta {
     width: 100%;
     min-width: 0;
 }
 
+/* mantem a rolagem horizontal dentro da área da tabela */
 .tabela-rolagem {
     width: 100%;
     overflow-x: auto;
 }
 
+/* mantem uma largura mínima para a tabela usar a rolagem em telas estreitas */
 #tabela-consulta .tabela-admin {
     width: 100%;
     min-width: 800px;
@@ -210,8 +213,7 @@ tbody td:hover, tbody th:hover {
     margin: 1rem;
 }
 
-/* faz com que os cards não quebrem dependendo da resolução */
-
+/* adapta os cards e organiza os controles da pesquisa em coluna */
 @media screen and (max-width: 700px) {
     .admin-card {
         padding: 7vw;
@@ -228,6 +230,7 @@ tbody td:hover, tbody th:hover {
     }
 }
 
+/* ajusta os tamanhos e os espaços das tabelas conforme a largura da tela */
 @media screen and (max-width: 1300px) {
     h1 {
         font-size: 5vw;
