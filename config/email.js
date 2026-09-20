@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer")
 
+// configura o envio pelo gmail usando as credenciais
 const email = nodemailer.createTransport({
     service: "gmail",
     auth: {

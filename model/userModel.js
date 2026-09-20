@@ -1,10 +1,11 @@
 const bcrypt = require('bcrypt')
 const conexao = require('../config/database')
 
+// recebe os dados do cadastro, salva a senha com hash e manda o resultado pelo callback
 async function criarUsuario(user, callback) {
 
     try {
-
+        // gera o hash para evitar o armazenamento da senha original
         const senhaHash = await bcrypt.hash(user.senha, 10);
 
         const sql = `
@@ -25,6 +26,7 @@ async function criarUsuario(user, callback) {
     }
 }
 
+// recebe o id, exclui a conta e manda o resultado pelo callback
 function excluirUsuario(id, callback) {
     const sql = `
         DELETE FROM tb_usuarios
@@ -40,6 +42,7 @@ function excluirUsuario(id, callback) {
     })
 }
 
+// recebe id e dados da edição do admin e manda o resultado pelo callback
 function atualizarUsuario(id, usuario, callback) {
 
     const sql = `
@@ -69,6 +72,7 @@ function atualizarUsuario(id, usuario, callback) {
     )
 }
 
+// recebe id e dados do perfil, atualiza nome, email e avatar e responde pelo callback
 function atualizarPerfil(id, usuario, callback) {
     const sql = `
         UPDATE tb_usuarios
@@ -86,6 +90,7 @@ function atualizarPerfil(id, usuario, callback) {
     ], callback)
 }
 
+// recebe o id e entrega pelo callback o usuário sem o campo de senha ou undefined
 function buscarPorId(id, callback) {
     const sql = `
         SELECT user_id, user_name, user_email, user_tipo, user_avatar
@@ -102,6 +107,7 @@ function buscarPorId(id, callback) {
     })
 }
 
+// recebe o email e entrega pelo callback o cadastro completo ou undefined
 function buscarPorEmail(email, callback) {
     
     const sql = `
@@ -118,6 +124,7 @@ function buscarPorEmail(email, callback) {
     })
 }
 
+// recebe pesquisa, limite e deslocamento e entrega a lista encontrada pelo callback
 function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
     let sql = `
         SELECT user_id, user_name, user_email, user_tipo, user_avatar
@@ -126,6 +133,7 @@ function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
 
     const valores = []
 
+    // acrescenta os filtros somente quando existe um termo de pesquisa
     if (pesquisa) {
         sql += `
             WHERE user_name LIKE ?
@@ -139,6 +147,7 @@ function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
         valores.push(termo, termo, termo, termo)
     }
 
+    // ordena os registros e limita a consulta para a página solicitada
     sql += `
         ORDER BY user_id ASC
         LIMIT ? OFFSET ?
@@ -155,6 +164,7 @@ function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
     })
 }
 
+// recebe nome ou email e entrega pelo callback o cadastro completo ou undefined
 function buscarPorLogin(login, callback) {
     const sql = `
         SELECT *
@@ -172,7 +182,9 @@ function buscarPorLogin(login, callback) {
     })
 }
 
+// recebe nome, email e id ignorado e entrega pelo callback a lista de coincidencias
 function buscarUsuarioDuplicado(usuario, idIgnorado, callback) {
+    // ignora a própria conta para permitir manter seu nome e email na edição
     const sql = `
         SELECT user_id
         FROM tb_usuarios
@@ -188,6 +200,7 @@ function buscarUsuarioDuplicado(usuario, idIgnorado, callback) {
     ], callback)
 }
 
+// recebe o id e entrega pelo callback o registro com o hash da senha ou undefined
 function buscarSenhaPorId(id, callback) {
     const sql = `
         SELECT user_pass

@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config() // carrega as variáveis de ambiente antes de configurar os serviços
 
 const express = require('express')
 const path = require('path')
@@ -15,20 +15,21 @@ const conteudoController = require("./controller/conteudoController")
 const app = express()
 const port = 8000
 
-// Middleware
+// disponibiliza em req.body os dados enviados por formulários e json
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-// Define a pasta public como estática
+// disponibiliza os arquivos da pasta public para o navegador
 app.use(express.static(path.join(__dirname, 'public')))
 
+// configura a sessão usada pelas rotas para identificar o usuário
 app.use(session({
-    secret: "chave-legal-do-root-dev",  // chave usada para proteger o cookie da sessão
-    resave: false,                      // evita ficar salvando a sessão sem necessidade
-    saveUninitialized: false            // faz com que o express so salve a sessão se ela conter alguma informação
+    secret: "chave-legal-do-root-dev",  // chave usada para assinar o cookie da sessão
+    resave: false,                      // evita salvar novamente uma sessão que não foi alterada
+    saveUninitialized: false            // evita salvar sessões novas que ainda não receberam dados
 }))
 
-// Rotas
+// encaminha cada grupo de rotas para seu arquivo de rotas
 app.use('/usuarios', userRoutes)
 app.use('/adm', admRoutes)
 app.use('/conteudo', conteudoRoutes)
@@ -36,14 +37,15 @@ app.use('/comentarios', comentarioRoutes)
 app.use("/recuperacao", recuperacaoRoutes)
 
 
-// Página inicial
+// responde ao acesso da página inicial com o arquivo index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
-// Inicialização do servidor
+// carrega as aulas na memória para a pesquisa antes de iniciar o servidor
 conteudoController.carregarCacheConteudos()
 
+// liga o server e começa a receber requisições na porta configurada
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`)
 })

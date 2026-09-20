@@ -1,3 +1,5 @@
+// recebe os dados do usuário e normaliza nome, email e avatar
+// retorna uma mensagem de erro ou null quando os dados são válidos
 function validarDadosUsuario(usuario) {
     if (typeof usuario.nome !== "string" || typeof usuario.email !== "string") {
         return "Informe o nome de usuário e o e-mail."
@@ -40,6 +42,8 @@ function validarDadosUsuario(usuario) {
     return null
 }
 
+// recebe a senha e sua confirmação e verifica as regras de cadastro
+// retorna uma mensagem de erro ou null quando a senha é válida
 function validarSenha(senha, confirmarSenha) {
     if (typeof senha !== "string" || typeof confirmarSenha !== "string") {
         return "Informe a senha e sua confirmação."
@@ -49,9 +53,7 @@ function validarSenha(senha, confirmarSenha) {
         return "A senha deve ter entre 8 e 64 caracteres."
     }
 
-    /* o bcrypt considera apenas os primeiros 72 bytes, e caracteres com acento 
-    ou emojis podem ocupar mais de um byte. Essa verificação impede que uma parte
-    da senha seja ignorada. O Buffer vem nativamente no Nodejs.*/
+    // verifica os bytes para evitar que o bcrypt ignore parte da senha
     if (Buffer.byteLength(senha, "utf8") > 72) {
         return "A senha ficou muito longa. Reduza o texto e tente novamente."
     }

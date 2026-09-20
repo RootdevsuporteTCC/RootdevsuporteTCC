@@ -5,7 +5,7 @@ const { rateLimit } = require("express-rate-limit")
 
 const recuperacaoController = require("../controller/recuperacaoController")
 
-
+// limita a solicitação de códigos a 10 tentativas por ip em 15 minutos
 const limitarPorIp = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
@@ -16,12 +16,14 @@ const limitarPorIp = rateLimit({
     }
 })
 
+// limita a solicitação de códigos a 3 tentativas por email em 15 minutos
 const limitarPorEmail = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 3,
     standardHeaders: "draft-8",
     legacyHeaders: false,
 
+    // pula a contagem por email quando o valor não pode ser usado como identificador
     skip: (req) => {
         const dados = req.body || {}
 
@@ -34,15 +36,17 @@ const limitarPorEmail = rateLimit({
         return email.length === 0 || email.length > 254
     },
 
+    // padroniza o email recebido para identificar o contador de tentativas
     keyGenerator: (req) => {
         return req.body.email.trim().toLowerCase()
     },
 
     message: {
-        erro: "Limite de solicitações para esse e-mail atingido. Aguarde alguns minutos."
+        erro: "Limite de solicitações para esse email atingido. Aguarde alguns minutos."
     }
 })
 
+// limita a verificação de códigos a 20 tentativas por ip em 15 minutos
 const limitarVerificacaoPorIp = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 20,
@@ -53,12 +57,14 @@ const limitarVerificacaoPorIp = rateLimit({
     }
 })
 
+// limita a verificação a 5 tentativas por email em 15 minutos
 const limitarVerificacaoPorEmail = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
     standardHeaders: "draft-8",
     legacyHeaders: false,
 
+    // pula a contagem por email quando o valor não pode ser usado como identificador
     skip: (req) => {
         const dados = req.body || {}
 
@@ -71,6 +77,7 @@ const limitarVerificacaoPorEmail = rateLimit({
         return email.length === 0 || email.length > 254
     },
 
+    // padroniza o e-mail recebido para identificar o contador de tentativas
     keyGenerator: (req) => {
         return req.body.email.trim().toLowerCase()
     },
@@ -80,6 +87,7 @@ const limitarVerificacaoPorEmail = rateLimit({
     }
 })
 
+// limita a redefinição a 10 tentativas por ip em 15 minutos
 const limitarRedefinicao = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
@@ -90,8 +98,8 @@ const limitarRedefinicao = rateLimit({
     }
 })
 
-router.post("/solicitar", limitarPorIp, limitarPorEmail, recuperacaoController.solicitarRecuperacao)
-router.post("/verificar", limitarVerificacaoPorIp, limitarVerificacaoPorEmail, recuperacaoController.verificarCodigo)
-router.post("/redefinir", limitarRedefinicao, recuperacaoController.redefinirSenha)
+router.post("/solicitar", limitarPorIp, limitarPorEmail, recuperacaoController.solicitarRecuperacao) // aplica os limites antes de mandar a solicitação do código
+router.post("/verificar", limitarVerificacaoPorIp, limitarVerificacaoPorEmail, recuperacaoController.verificarCodigo) // aplica os limites antes de mandar o email e o código para verificação
+router.post("/redefinir", limitarRedefinicao, recuperacaoController.redefinirSenha) // aplica o limite antes de mandar a nova senha e sua confirmação
 
 module.exports = router

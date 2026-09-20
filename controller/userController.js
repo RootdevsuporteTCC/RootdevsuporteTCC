@@ -4,6 +4,7 @@ const userModel = require('../model/userModel')
 const logModel = require('../model/logModel')
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
+// recebe o cadastro e a confirmação de senha, valida, salva pelo model e redireciona ao login
 function criarUsuario(req, res) {
     const dados = req.body || {}
 
@@ -28,6 +29,7 @@ function criarUsuario(req, res) {
         return res.status(400).send(erroSenha)
     }
 
+    // verifica se o nome ou o email já pertence a outra conta
     userModel.buscarUsuarioDuplicado(usuario, 0, (erroBusca, usuarios) => {
         if (erroBusca) {
             console.log("Erro ao verificar duplicidade:", erroBusca.code)
@@ -41,6 +43,7 @@ function criarUsuario(req, res) {
 
         userModel.criarUsuario(usuario, (erro, resultado) => {
             if (erro) {
+                // trata também a duplicidade identificada pelo banco durante a gravação
                 if (erro.code === "ER_DUP_ENTRY") {
                     return res.status(409).send("O nome de usuário ou e-mail já está cadastrado.")
                 }
@@ -66,6 +69,7 @@ function criarUsuario(req, res) {
     })
 }
 
+// recebe nome ou email e senha, cria a sessão após conferir os dados e redireciona ao início
 function loginUsuario(req, res) {
     const login = req.body.login
     const senha = req.body.senha
@@ -81,15 +85,14 @@ function loginUsuario(req, res) {
         }
 
         try {
-            const senhaCorreta = await bcrypt.compare(
-                senha,
-                usuario.user_pass
-            )
+            // compara a senha recebida com o hash armazenado no banco
+            const senhaCorreta = await bcrypt.compare(senha, usuario.user_pass)
 
             if (!senhaCorreta) {
                 return res.status(401).send("Nome, e-mail ou senha incorretos")
             }
 
+            // guarda os dados necessários para identificar o usuário nas próximas requisições
             req.session.usuario = {
                 id: usuario.user_id,
                 nome: usuario.user_name,
@@ -117,6 +120,7 @@ function loginUsuario(req, res) {
     })
 }
 
+// recebe a sessão atual, encerra o login, registra a saída e redireciona ao início
 function logoutUsuario(req, res) {
     const usuario = req.session.usuario
 
@@ -148,6 +152,7 @@ function logoutUsuario(req, res) {
     })
 }
 
+// consulta a conta indicada pela sessão e devolve o estado do login e os dados atualizados em json
 function verificarSessao(req, res) {
     res.set("Cache-Control", "no-store") // faz o navegador não reutilizar essa resposta
 
@@ -178,6 +183,7 @@ function verificarSessao(req, res) {
             })
         }
 
+        // atualiza a sessão com os dados atuais do banco
         req.session.usuario = {
             id: usuario.user_id,
             nome: usuario.user_name,
@@ -192,6 +198,7 @@ function verificarSessao(req, res) {
     })
 }
 
+// usa o id da sessão para buscar e devolver nome, email e avatar em json
 function buscarPerfil(req, res) {
     res.set("Cache-control", "no-store")
 
@@ -199,6 +206,7 @@ function buscarPerfil(req, res) {
         return res.status(401).json({ erro: "Faça login para acessar seu perfil" })
     }
 
+    // identifica a conta pela sessão sem aceitar um id enviado pelo navegador
     const id = req.session.usuario.id
 
     userModel.buscarPorId(id, (erro, usuario) => {
@@ -230,6 +238,7 @@ function buscarPerfil(req, res) {
     })
 }
 
+// recebe os dados do perfil e a senha atual, valida a alteração e devolve o resultado em json
 function atualizarPerfil(req, res) {
     res.set("Cache-Control", "no-store")
 
@@ -241,6 +250,7 @@ function atualizarPerfil(req, res) {
         return res.status(415).json({ erro: "Envie os dados no formato JSON" })
     }
 
+    // identifica a conta pela sessão sem aceitar um id enviado pelo navegador
     const id = req.session.usuario.id
     const dados = req.body || {}
 
@@ -276,7 +286,9 @@ function atualizarPerfil(req, res) {
         let senhaCorreta
 
         try {
+            // compara a senha recebida com o hash armazenado no banco
             senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+
         } catch (erroSenha) {
             console.log("Erro ao verificar senha:", erroSenha.message)
 
@@ -287,6 +299,7 @@ function atualizarPerfil(req, res) {
             return res.status(403).json({ erro: "A senha atual está incorreta." })
         }
 
+        // verifica se o nome ou o email já pertence a outra conta
         userModel.buscarUsuarioDuplicado(usuario, id, (erroDuplicado, usuarios) => {
             if (erroDuplicado) {
                 console.log("Erro ao verificar usuario duplicado:", erroDuplicado.code)
@@ -300,6 +313,7 @@ function atualizarPerfil(req, res) {
 
             userModel.atualizarPerfil(id, usuario, (erro, resultado) => {
                 if (erro) {
+                    // trata também a duplicidade identificada pelo banco durante a gravação
                     if (erro.code === "ER_DUP_ENTRY") {
                         return res.status(409).json({ erro: "O nome de usuário ou e-mail ja está cadastrado" })
                     }
@@ -313,6 +327,7 @@ function atualizarPerfil(req, res) {
                     return res.status(404).json({ erro: "A conta não foi encontrada." })
                 }
 
+                // atualiza nome e avatar na sessão após salvar o perfil
                 req.session.usuario.nome = usuario.nome
                 req.session.usuario.avatar = usuario.avatar
 
@@ -333,6 +348,7 @@ function atualizarPerfil(req, res) {
     })
 }
 
+// recebe a senha atual, exclui a conta da sessão após conferir a senha e devolve o resultado em json
 function excluirPerfil(req, res) {
     res.set("Cache-Control", "no-store")
 
@@ -344,6 +360,7 @@ function excluirPerfil(req, res) {
         return res.status(415).json({ erro: "Envie os dados no formato JSON." })
     }
 
+    // identifica a conta pela sessão sem aceitar um id enviado pelo navegador
     const id = req.session.usuario.id
     const dados = req.body || {}
     const senhaAtual = dados.senhaAtual
@@ -366,7 +383,9 @@ function excluirPerfil(req, res) {
         let senhaCorreta
 
         try {
+            // compara a senha recebida com o hash armazenado no banco
             senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+
         } catch (erroSenha) {
             console.log("Erro ao verificar senha:", erroSenha.message)
 
@@ -388,6 +407,7 @@ function excluirPerfil(req, res) {
                 return res.status(404).json({ erro: "A conta não foi encontrada." })
             }
 
+            // registra a exclusão sem chave estrangeira porque a conta já foi removida
             const log = {
                 userId: null,
                 acao: `Conta excluída pelo próprio usuário. ID: ${id}`
@@ -398,6 +418,7 @@ function excluirPerfil(req, res) {
                     console.log("Erro ao registrar exclusão:", erroLog.code)
                 }
 
+                // encerra a sessão atual e remove o cookie após excluir a conta
                 req.session.destroy((erroSessao) => {
                     if (erroSessao) {
                         console.log("Erro ao encerrar sessão após exclusão:", erroSessao.message)

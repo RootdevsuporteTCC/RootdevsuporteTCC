@@ -1,8 +1,10 @@
 const conexao = require("../config/database")
 const bcrypt = require("bcrypt")
 
+// recebe usuário e código, salva o hash com validade de 10 minutos e responde pelo callback
 async function criarRecuperacao(recuperacao, callback) {
     try {
+        // armazena o hash do código enquanto o original é enviado por email
         const codigoHash = await bcrypt.hash(recuperacao.codigo, 10)
 
         const sql = `
@@ -20,6 +22,7 @@ async function criarRecuperacao(recuperacao, callback) {
     }
 }
 
+// recebe o id do usuário e entrega a recuperação mais recente ou undefined pelo callback
 function buscarUltimaRecuperacao(userId, callback) {
     const sql = `
         SELECT
@@ -43,10 +46,13 @@ function buscarUltimaRecuperacao(userId, callback) {
     })
 }
 
+// recebe a autorização e a nova senha e entrega o resultado da atualização pelo callback
 async function concluirRecuperacao(recuperacao, novaSenha, callback) {
     try {
         const senhaHash = await bcrypt.hash(novaSenha, 10)
 
+        // altera a senha e marca o código como usado na mesma consulta
+        // exige a recuperação mais recente, ainda válida e ligada à conta e ao email informados
         const sql = `
             UPDATE tb_usuarios AS usuario
 

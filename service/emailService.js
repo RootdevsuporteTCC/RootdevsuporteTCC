@@ -1,5 +1,7 @@
 const email = require("../config/email")
 
+// recebe destinatário e código e monta o email de recuperação
+// entrega o erro ou resultado do envio pelo callback
 function enviarCodigoRecuperacao(destinatario, codigo, callback) {
     const mensagem = {
         from: {
@@ -19,6 +21,7 @@ function enviarCodigoRecuperacao(destinatario, codigo, callback) {
         Se você não solicitou a recuperação, ignore este e-mail.`
     }
 
+    // manda a mensagem pro email configurado
     email.sendMail(mensagem, callback)
 }
 

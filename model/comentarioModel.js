@@ -1,5 +1,6 @@
 const conexao = require('../config/database')
 
+// recebe categoria e tópico e entrega os comentarios com nome e avatar pelo callback
 function buscarPorTopico(categoria, topico, callback) {
     const sql = `
         SELECT 
@@ -29,7 +30,9 @@ function buscarPorTopico(categoria, topico, callback) {
     })
 }
 
+// recebe autor, texto, categoria e tópico e entrega o resultado do insert pelo callback
 function salvarComentario(comentario, callback) {
+    // deixa o banco preencher automaticamente o id e a data
     const sql = `
         INSERT INTO tb_comentarios
         (com_user_id, com_texto, com_categoria, com_topico)
@@ -44,7 +47,9 @@ function salvarComentario(comentario, callback) {
     ], callback)
 }
 
+// recebe os ids do comentario e do autor e entrega o resultado da exclusão pelo callback
 function excluirComentario(comentario, callback) {
+    // exige que o comentário pertença ao usuário informado
     const sql = `
         DELETE FROM tb_comentarios
         WHERE com_id = ?
@@ -57,6 +62,7 @@ function excluirComentario(comentario, callback) {
     ], callback)
 }
 
+// recebe pesquisa, limite e deslocamento e entrega os comentários encontrados pelo callback
 function buscarTodosComentarios(pesquisa, limite, deslocamento, callback) {
     let sql = `
         SELECT
@@ -98,6 +104,7 @@ function buscarTodosComentarios(pesquisa, limite, deslocamento, callback) {
     conexao.query(sql, valores, callback)
 }
 
+// recebe o id do comentário e entrega o resultado da exclusão do admin pelo callback
 function excluirComentarioAdmin(id, callback) {
     const sql = `
         DELETE FROM tb_comentarios

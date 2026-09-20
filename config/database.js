@@ -1,5 +1,6 @@
 const mysql = require('mysql2')
 
+// cria a conexão com o banco usando as configurações definidas
 const conexao = mysql.createConnection({
     host: 'localhost',
     port: 3306,
@@ -8,6 +9,7 @@ const conexao = mysql.createConnection({
     database: 'mydb'
 })
 
+// tenta conectar ao banco e faz o tratamento de erro
 conexao.connect((erro) => {
     if (erro) {
         console.log('Erro ao conectar ao banco', erro)
