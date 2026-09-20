@@ -103,6 +103,7 @@ function buscarConteudo(req, res) {
         categoria !== "css" &&
         categoria !== "javascript"
     ) {
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Categoria inválida" })
     }
 
@@ -110,6 +111,8 @@ function buscarConteudo(req, res) {
     const nomeValido = /^[a-zA-Z0-9_-]+$/ 
 
     if (!topico || !nomeValido.test(topico)) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Tópico inválido" })
     }
 
@@ -118,10 +121,13 @@ function buscarConteudo(req, res) {
     fs.readFile(caminhoArquivo, "utf8", (erroArquivo, conteudo) => {
         if (erroArquivo) {
             if (erroArquivo.code === "ENOENT") {
+
+                // status 404 - recurso não encontrado
                 return res.status(404).json({ erro: "Aula não encontrada" })
             }
             console.log("Erro ao ler a aula:", erroArquivo)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível ler a aula" })
         }
 
@@ -129,10 +135,14 @@ function buscarConteudo(req, res) {
         const aula = extrairMetadados(conteudo)
 
         if (aula === null) {
+
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "O cabeçalho da aula está incompleto ou incorreto" })
         }
 
         if (aula.categoria !== categoria || aula.topico !== topico) {
+
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "O cabeçalho não corresponde à pasta e ao nome da aula" })
         }
 
@@ -141,6 +151,7 @@ function buscarConteudo(req, res) {
             if (erroComentario) {
                 console.log("Erro ao buscar comentários:", erroComentario)
 
+                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
             }
 
@@ -153,6 +164,7 @@ function buscarConteudo(req, res) {
                 }
             })
 
+            // status 200 - requisição bem-sucedida
             return res.status(200).json({
                 conteudo: aula.conteudo,
                 comentarios: comentarios
@@ -166,6 +178,8 @@ function listarTopicos(req, res) {
     const categoria = req.params.categoria
 
     if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Categoria inválida" })
     }
 
@@ -179,6 +193,7 @@ function listarTopicos(req, res) {
 
             console.log("Erro ao listar tópicos:", erro)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível listar os tópicos" })
         }
 
@@ -203,12 +218,16 @@ function pesquisarConteudos(req, res) {
     const pesquisa = req.query.pesquisa || ""
 
     if (typeof pesquisa !== "string") {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Pesquisa inválida" })
     }
 
     const termo = pesquisa.trim().toLowerCase()
 
     if (termo.length > 100) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "A pesquisa deve ter até 100 caracteres" })
     }
 

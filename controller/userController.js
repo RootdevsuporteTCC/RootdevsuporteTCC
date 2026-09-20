@@ -18,6 +18,8 @@ function criarUsuario(req, res) {
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 
     if (erroValidacao) {
+
+        // status 400 - requisição inválida
         return res.status(400).send(erroValidacao)
     }
 
@@ -26,6 +28,8 @@ function criarUsuario(req, res) {
     const erroSenha = usuarioValidacao.validarSenha(usuario.senha, confirmarSenha)
 
     if (erroSenha) {
+
+        // status 400 - requisição inválida
         return res.status(400).send(erroSenha)
     }
 
@@ -34,10 +38,13 @@ function criarUsuario(req, res) {
         if (erroBusca) {
             console.log("Erro ao verificar duplicidade:", erroBusca.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).send("Não foi possível verificar os dados do cadastro.")
         }
 
         if (usuarios.length > 0) {
+
+            // status 409 - conflito nos dados
             return res.status(409).send("O nome de usuário ou e-mail já está cadastrado.")
         }
 
@@ -45,11 +52,14 @@ function criarUsuario(req, res) {
             if (erro) {
                 // trata também a duplicidade identificada pelo banco durante a gravação
                 if (erro.code === "ER_DUP_ENTRY") {
+
+                    // status 409 - conflito nos dados
                     return res.status(409).send("O nome de usuário ou e-mail já está cadastrado.")
                 }
 
                 console.log("Erro ao cadastrar usuário:", erro.code)
 
+                // status 500 - erro interno do servidor
                 return res.status(500).send("Não foi possível cadastrar o usuário")
             }
 
@@ -77,10 +87,14 @@ function loginUsuario(req, res) {
     userModel.buscarPorLogin(login, async (erro, usuario) => {
         if (erro) {
             console.log(erro)
+
+            // status 500 - erro interno do servidor
             return res.status(500).send("Erro ao buscar usuário")
         }
 
         if (!usuario) {
+
+            // status 401 - autenticação ausente ou inválida
             return res.status(401).send("Nome, e-mail ou senha incorretos")
         }
 
@@ -89,6 +103,8 @@ function loginUsuario(req, res) {
             const senhaCorreta = await bcrypt.compare(senha, usuario.user_pass)
 
             if (!senhaCorreta) {
+
+                // status 401 - autenticação ausente ou inválida
                 return res.status(401).send("Nome, e-mail ou senha incorretos")
             }
 
@@ -115,6 +131,8 @@ function loginUsuario(req, res) {
 
         } catch (erro) {
             console.log(erro)
+
+            // status 500 - erro interno do servidor
             return res.status(500).send("Erro ao verificar senha")
         }
     })
@@ -128,6 +146,7 @@ function logoutUsuario(req, res) {
         if (erroSessao) {
             console.log("Erro ao encerrar a sessão:", erroSessao)
 
+            // status 500 - erro interno do servidor
             return res.status(500).send("Erro ao fazer logout")
         }
 
@@ -166,6 +185,7 @@ function verificarSessao(req, res) {
         if (erro) {
             console.log("Erro ao consultar usuário da sessão", erro)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar a sessão" })
         }
 
@@ -174,6 +194,7 @@ function verificarSessao(req, res) {
                 if (erroSessao) {
                     console.log("Erro ao encerrar sessão:", erroSessao)
 
+                    // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
                 }
 
@@ -191,6 +212,7 @@ function verificarSessao(req, res) {
             avatar: usuario.user_avatar
         }
 
+        // status 200 - requisição bem-sucedida
         return res.status(200).json({
             logado: true,
             usuario: req.session.usuario
@@ -203,6 +225,8 @@ function buscarPerfil(req, res) {
     res.set("Cache-control", "no-store")
 
     if (!req.session.usuario) {
+
+        // status 401 - autenticação ausente ou inválida
         return res.status(401).json({ erro: "Faça login para acessar seu perfil" })
     }
 
@@ -213,6 +237,7 @@ function buscarPerfil(req, res) {
         if (erro) {
             console.log("Erro ao consultar perfil:", erro.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível carregar seu perfil." })
         }
 
@@ -221,11 +246,13 @@ function buscarPerfil(req, res) {
                 if (erroSessao) {
                     console.log("Erro ao encerrar sessão:", erroSessao.message)
                 
+                    // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
                 }
 
                 res.clearCookie("connect.sid")
 
+                // status 401 - autenticação ausente ou inválida
                 return res.status(401).json({ erro: "Sua conta não está mais disponível" })
             })
         }
@@ -243,10 +270,14 @@ function atualizarPerfil(req, res) {
     res.set("Cache-Control", "no-store")
 
     if (!req.session.usuario) {
+
+        // status 401 - autenticação ausente ou inválida
         return res.status(401).json({ erro: "Faça login para alterar seu perfil" })
     }
 
     if (!req.is("application/json")) {
+
+        // status 415 - formato não aceito
         return res.status(415).json({ erro: "Envie os dados no formato JSON" })
     }
 
@@ -263,12 +294,16 @@ function atualizarPerfil(req, res) {
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 
     if (erroValidacao) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: erroValidacao })
     }
 
     const senhaAtual = dados.senhaAtual
 
     if (typeof senhaAtual !== "string" || senhaAtual.length === 0 || Buffer.byteLength(senhaAtual, "utf8") > 72) {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Informe uma senha atual válida" })
     }
 
@@ -276,10 +311,13 @@ function atualizarPerfil(req, res) {
         if (erroBusca) {
             console.log("Erro ao consultar senha:", erroBusca.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar sua conta." })
         }
 
         if (!conta) {
+
+            // status 401 - autenticação ausente ou inválida
             return res.status(401).json({ erro: "Sua conta não está mais disponível" })
         }
 
@@ -292,10 +330,13 @@ function atualizarPerfil(req, res) {
         } catch (erroSenha) {
             console.log("Erro ao verificar senha:", erroSenha.message)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar sua senha" })
         }
 
         if (!senhaCorreta) {
+
+            // status 403 - acesso negado
             return res.status(403).json({ erro: "A senha atual está incorreta." })
         }
 
@@ -304,10 +345,13 @@ function atualizarPerfil(req, res) {
             if (erroDuplicado) {
                 console.log("Erro ao verificar usuario duplicado:", erroDuplicado.code)
 
+                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Não foi possível verificar os dados do perfil" })
             }
 
             if (usuarios.length > 0) {
+
+                // status 409 - conflito nos dados
                 return res.status(409).json({ erro: "O nome de usuário ou e-mail ja está cadastrado" })
             }
 
@@ -315,15 +359,20 @@ function atualizarPerfil(req, res) {
                 if (erro) {
                     // trata também a duplicidade identificada pelo banco durante a gravação
                     if (erro.code === "ER_DUP_ENTRY") {
+
+                        // status 409 - conflito nos dados
                         return res.status(409).json({ erro: "O nome de usuário ou e-mail ja está cadastrado" })
                     }
 
                     console.log("Erro ao atualizar perfil:", erro.code)
 
+                    // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível atualizar seu perfil." })
                 }
 
                 if (resultado.affectedRows === 0) {
+
+                    // status 404 - recurso não encontrado
                     return res.status(404).json({ erro: "A conta não foi encontrada." })
                 }
 
@@ -353,10 +402,14 @@ function excluirPerfil(req, res) {
     res.set("Cache-Control", "no-store")
 
     if (!req.session.usuario) {
+
+        // status 401 - autenticação ausente ou inválida
         return res.status(401).json({ erro: "Faça login para excluir sua conta" })
     }
 
     if (!req.is("application/json")) {
+
+        // status 415 - formato não aceito
         return res.status(415).json({ erro: "Envie os dados no formato JSON." })
     }
 
@@ -366,6 +419,8 @@ function excluirPerfil(req, res) {
     const senhaAtual = dados.senhaAtual
 
     if (typeof senhaAtual !== "string" || senhaAtual.length === 0 || Buffer.byteLength(senhaAtual, "utf8") > 72) {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Informe uma senha atual válida." })
     }
 
@@ -373,10 +428,13 @@ function excluirPerfil(req, res) {
         if (erroBusca) {
             console.log("Erro ao consultar conta:", erroBusca.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar sua conta" })
         }
 
         if (!conta) {
+            
+            // status 401 - autenticação ausente ou inválida
             return res.status(401).json({ erro: "Sua conta não está mais disponível." })
         }
 
@@ -389,10 +447,13 @@ function excluirPerfil(req, res) {
         } catch (erroSenha) {
             console.log("Erro ao verificar senha:", erroSenha.message)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar sua senha." })
         }
 
         if (!senhaCorreta) {
+
+            // status 403 - acesso negado
             return res.status(403).json({ erro: "A senha atual está incorreta." })
         }
 
@@ -400,10 +461,13 @@ function excluirPerfil(req, res) {
             if (erro) {
                 console.log("Erro ao excluir perfil:", erro.code)
 
+                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Não foi possível excluir sua conta." })
             }
 
             if (resultado.affectedRows === 0) {
+
+                // status 404 - recurso não encontrado
                 return res.status(404).json({ erro: "A conta não foi encontrada." })
             }
 

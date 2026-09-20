@@ -371,6 +371,7 @@ async function enviarComentario(event) {
         if (!resposta.ok) {
             mensagemComentario.innerText = dados.erro
 
+            // status 401 - autenticação ausente ou inválida
             if (resposta.status === 401) {
                 formComentario.hidden = true
                 avisoLoginComentario.hidden = false
@@ -428,6 +429,7 @@ async function excluirComentario(id) {
         if (!resposta.ok) {
             mensagemComentario.innerText = dados.erro
 
+            // status 401 - autenticação ausente ou inválida
             if (resposta.status === 401) {
                 formComentario.hidden = true
                 avisoLoginComentario.hidden = false

@@ -18,6 +18,7 @@ async function carregarPerfil() {
     try {
         const resposta = await fetch("usuarios/perfil")
 
+        // status 401 - autenticação ausente ou inválida
         if (resposta.status === 401) {
             window.location.replace("/login.html")
             return
@@ -91,6 +92,7 @@ async function salvarPerfil(evento) {
             body: JSON.stringify(usuario)
         })
 
+        // status 401 - autenticação ausente ou inválida
         if (resposta.status === 401) {
             window.location.replace("/login.html")
             return
@@ -187,7 +189,8 @@ async function excluirPerfil() {
             })
         })
 
-        if (resposta.status == 401) {
+        // status 401 - autenticação ausente ou inválida
+        if (resposta.status === 401) {
             window.location.replace("/login.html")
             return
         }

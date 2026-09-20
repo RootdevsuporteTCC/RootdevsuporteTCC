@@ -13,6 +13,8 @@ function solicitarRecuperacao(req, res) {
     const dados = req.body || {}
 
     if (typeof dados.email !== "string") {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Informe um e-mail válido." })
     }
 
@@ -20,6 +22,8 @@ function solicitarRecuperacao(req, res) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (email.length > 254 || !emailRegex.test(email)) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Informe um e-mail válido." })
     }
 
@@ -27,6 +31,7 @@ function solicitarRecuperacao(req, res) {
     const codigo = crypto.randomBytes(4).toString("hex").toUpperCase()
 
     // responde sem revelar se o email pertence a uma conta cadastrada
+    // status 202 - solicitação aceita
     res.status(202).json({ mensagem: "Solicitação recebida. Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação." })
 
     userModel.buscarPorEmail(email, (erro, usuario) => {
@@ -84,6 +89,8 @@ function verificarCodigo(req, res) {
     delete req.session.recuperacao
 
     if (typeof dados.email !== "string" || typeof dados.codigo !== "string") {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: mensagemInvalida })
     }
 
@@ -92,6 +99,8 @@ function verificarCodigo(req, res) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (email.length > 254 || !emailRegex.test(email) || !/^[A-F0-9]{8}$/.test(codigo)) {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: mensagemInvalida })
     }
 
@@ -99,10 +108,13 @@ function verificarCodigo(req, res) {
         if (erro) {
             console.log("Erro ao consultar usuário:", erro.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar o código." })
         }
 
         if (!usuario) {
+
+            // status 400 - requisição inválida
             return res.status(400).json({ erro: mensagemInvalida })
         }
 
@@ -111,10 +123,13 @@ function verificarCodigo(req, res) {
             if (erro) {
                 console.log("Erro ao consultar recuperacao:", erro.code)
 
+                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Não foi possível verificar o código." })
             }
 
             if (!recuperacao || recuperacao.rec_usado !== 0) {
+
+                // status 400 - requisição inválida
                 return res.status(400).json({ erro: mensagemInvalida })
             }
 
@@ -122,6 +137,8 @@ function verificarCodigo(req, res) {
             const expiracao = new Date(recuperacao.rec_expiracao).getTime()
 
             if (!Number.isFinite(expiracao) || expiracao <= Date.now()) {
+                
+                // status 400 - requisição inválida
                 return res.status(400).json({ erro: mensagemInvalida })
             }
 
@@ -130,16 +147,21 @@ function verificarCodigo(req, res) {
                 if (erro) {
                     console.log("Erro ao comparar código:", erro.message)
 
+                    // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível verificar o código." })
                 }
 
                 if (!codigoCorreto || expiracao <= Date.now()) {
+
+                    // status 400 - requisição inválida
                     return res.status(400).json({ erro: mensagemInvalida })
                 }
 
                 // cria uma nova sessão antes de guardar a autorização de recuperação
                 req.session.regenerate((erro) => {
                     if (erro) {
+
+                        // status 500 - erro interno do servidor
                         return res.status(500).json({ erro: "Não foi possível iniciar a recuperação." })
                     }
 
@@ -155,6 +177,7 @@ function verificarCodigo(req, res) {
                         if (erro) {
                             delete req.session.recuperacao
 
+                            // status 500 - erro interno do servidor
                             return res.status(500).json({ erro: "Não foi possível salvar a autorização." })
                         }
 
@@ -183,6 +206,8 @@ function redefinirSenha(req, res) {
     res.set("Cache-Control", "no-store")
 
     if (!req.is("application/json")) {
+
+        // status 415 - formato não aceito
         return res.status(415).json({ erro: "Envie os dados em formato JSON." })
     }
 
@@ -192,12 +217,15 @@ function redefinirSenha(req, res) {
     if (!recuperacao || !Number.isFinite(recuperacao.expiracao) || recuperacao.expiracao <= Date.now()) {
         delete req.session.recuperacao
 
+        // status 401 - autenticação ausente ou inválida
         return res.status(401).json({ erro: "Solicite e valide um novo código de recuperação." })
     }
 
     const erroSenha = usuarioValidacao.validarSenha(dados.senha, dados.confirmarSenha)
 
     if (erroSenha) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: erroSenha })
     }
 
@@ -206,6 +234,7 @@ function redefinirSenha(req, res) {
         if (erro) {
             console.log("Erro ao redefinir senha:", erro.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível alterar a senha. Tente novamente." })
         }
 
@@ -213,6 +242,7 @@ function redefinirSenha(req, res) {
         if (resultado.affectedRows === 0) {
             delete req.session.recuperacao
 
+            // status 409 - conflito nos dados
             return res.status(409).json({ erro: "Esta recuperação não está mais disponível, Solicite um novo código." }) 
         }
 

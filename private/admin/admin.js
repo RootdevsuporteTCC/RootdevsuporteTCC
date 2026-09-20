@@ -500,6 +500,8 @@ async function excluirComentarioAdmin(id) {
             method: "DELETE"
         })
 
+        // status 401 - autenticação ausente ou inválida
+        // status 403 - acesso negado
         if (resposta.status === 401 || resposta.status === 403) {
             alert("É necessário estar conectado como admin.")
             return

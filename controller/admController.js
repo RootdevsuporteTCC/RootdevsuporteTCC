@@ -19,11 +19,14 @@ async function loginAdm(req, res) {
             if (erro) {
                 console.log(erro);
 
+                // status 500 - erro interno do servidor
                 return res.status(500).send("Erro ao buscar usuário")
             }
 
             // se usuario não existir
             if (!user) {
+                
+                // status 401 - autenticação ausente ou inválida
                 return res.status(401).send("Email ou senha incorretos")
             }
 
@@ -32,11 +35,13 @@ async function loginAdm(req, res) {
                 
                 if (!senhaCorreta) {
                     // se a senha não coincidir
+                    // status 401 - autenticação ausente ou inválida
                     return res.status(401).send("Email ou senha incorretos")
                 }
             
                 if (user.user_tipo !== 'admin') {
                     // se não for admin
+                    // status 403 - acesso negado
                     return res.status(403).send("Você não é um administrador")
                 }
 
@@ -64,6 +69,7 @@ async function loginAdm(req, res) {
             } catch (erro) {
                 console.log(erro)
                 
+                // status 500 - erro interno do servidor
                 return res.status(500).send("Erro ao verificar senha")
             }
         })
@@ -97,6 +103,8 @@ function buscarUsuarios(req, res) {
     const deslocamento = (pagina - 1) * limite
 
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Página ou pesquisa inválida" })
     }
 
@@ -105,6 +113,7 @@ function buscarUsuarios(req, res) {
         if (erro) {
             console.log("Erro ao buscar usuários:", erro);
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível buscar os usuários." });
         }
 
@@ -115,6 +124,7 @@ function buscarUsuarios(req, res) {
             usuarios.pop()
         }
 
+        // status 200 - requisição bem-sucedida
         return res.status(200).json({
             usuarios: usuarios,
             pagina: pagina,
@@ -129,13 +139,17 @@ function buscarUsuarioPorId(req, res) {
     userModel.buscarPorId(id, (erro, usuario) => {
         if (erro) {
             console.log(erro)
+
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Erro ao buscar usuário" })
         }
 
         if (!usuario) {
+            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Usuário não encontrado" })
         }
 
+        // status 200 - requisição bem-sucedida
         return res.status(200).json(usuario)
     })
 }
@@ -145,11 +159,15 @@ function excluirUsuario(req, res) {
     const id = Number(req.params.id)
 
     if (!Number.isSafeInteger(id) || id <= 0) {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Identificador do usuário inválido" })
     }
 
     // impede que o administrador exclua a própria conta pela consulta administrativa
     if (id === Number(req.session.usuario.id)) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Você não pode excluir sua própria conta" })
     }
 
@@ -158,13 +176,18 @@ function excluirUsuario(req, res) {
             console.log("Erro ao excluir usuário:", erro)
 
             if (erro.code === "ER_ROW_IS_REFERENCED_2") {
+
+                // status 409 - conflito nos dados
                 return res.status(409).json({ erro: "Esse usuário tem registros vinculados que impedem a exclusão." })
             }
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível excluir o usuário"})
         }
 
         if (resultado.affectedRows === 0) {
+
+            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Usuário não encontrado." })
         }
 
@@ -178,6 +201,7 @@ function excluirUsuario(req, res) {
                 console.log("Erroo ao registrar a exclusão do usuário:", erroLog)
             }
 
+            // status 200 - requisição bem-sucedida
             return res.status(200).json({ mensagem: "Usuário excluido com sucesso"})
         })
     })
@@ -189,6 +213,8 @@ function atualizarUsuario(req, res) {
     const dados = req.body || {}
 
     if (!Number.isSafeInteger(id) || id < 1) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "ID de usuário inválido" })
     }
 
@@ -202,10 +228,14 @@ function atualizarUsuario(req, res) {
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 
     if (erroValidacao) {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: erroValidacao })
     }
 
     if (usuario.tipo !== "usuario" && usuario.tipo !== "admin") {
+
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Tipo de usuário inválido" })
     }
 
@@ -213,25 +243,33 @@ function atualizarUsuario(req, res) {
         if (erroBusca) {
             console.log("Erro ao verificar duplicidade:", erroBusca.code)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar os dados do usuário" })
         }
 
         if (usuarios.length > 0) {
+
+            // status 409 - conflito nos dados
             return res.status(409).json({ erro: "O nome de usuário ou e-mail já pertence a outra conta." })
         }
 
         userModel.atualizarUsuario(id, usuario, (erro, resultado) => {
             if (erro) {
                 if (erro.code === "ER_DUP_ENTRY") {
+
+                    // status 409 - conflito nos dados
                     return res.status(409).json({ erro: "O nome de usuário ou e-mail ja pertence a outra conta." })
                 }
 
                 console.log("Erro ao atualizar usuário:", erro.code)
             
+                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Erro ao atualizar usuário" })
             }
 
             if (resultado.affectedRows === 0) {
+
+                // status 404 - recurso não encontrado
                 return res.status(404).json({ erro: "Usuário não encontrado." })
             }
 
@@ -245,6 +283,7 @@ function atualizarUsuario(req, res) {
                     console.log("Erro ao registrar a atualização:", erroLog.code)
                 }
 
+                // status 200 - requisição bem-sucedida
                 return res.status(200).json({ mensagem: "Usuário atualizado com sucesso" })
             })
         })
@@ -269,6 +308,8 @@ function buscarComentarios(req, res) {
     const deslocamento = (pagina -1) * limite
 
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Página ou pesquisa inválida" })
     }
 
@@ -277,6 +318,7 @@ function buscarComentarios(req, res) {
         if (erro) {
             console.log("Erro ao buscar comentarios:", erro)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
         }
 
@@ -300,6 +342,8 @@ function excluirComentarioAdmin(req, res) {
     const id = Number(req.params.id)
 
     if (!Number.isSafeInteger(id) || id <= 0) {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Indentificador do comentário inválido." })
     }
 
@@ -307,10 +351,13 @@ function excluirComentarioAdmin(req, res) {
         if (erro) {
             console.log("Erro ao excluir comentário:", erro)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível excluir o comentário." })
         }
 
         if (resultado.affectedRows === 0) {
+
+            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Comentário não encontrado" })
         }
 
@@ -347,6 +394,8 @@ function buscarLogs(req, res) {
     const deslocamento = (pagina - 1) * limite
 
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
+        
+        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Página ou pesquisa inválida" })
     }
 
@@ -355,6 +404,7 @@ function buscarLogs(req, res) {
         if (erro) {
             console.log("Erro ao buscar logs:", erro)
 
+            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível buscar os logs" })
         }
 
