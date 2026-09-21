@@ -98,8 +98,13 @@ const limitarRedefinicao = rateLimit({
     }
 })
 
-router.post("/solicitar", limitarPorIp, limitarPorEmail, recuperacaoController.solicitarRecuperacao) // aplica os limites antes de mandar a solicitação do código
-router.post("/verificar", limitarVerificacaoPorIp, limitarVerificacaoPorEmail, recuperacaoController.verificarCodigo) // aplica os limites antes de mandar o email e o código para verificação
-router.post("/redefinir", limitarRedefinicao, recuperacaoController.redefinirSenha) // aplica o limite antes de mandar a nova senha e sua confirmação
+// aplica os limites antes de mandar a solicitação do código
+router.post("/solicitar", limitarPorIp, limitarPorEmail, recuperacaoController.solicitarRecuperacao)     
+
+// aplica os limites antes de mandar o email e o código para verificação
+router.post("/verificar", limitarVerificacaoPorIp, limitarVerificacaoPorEmail, recuperacaoController.verificarCodigo) 
+
+// aplica o limite antes de mandar a nova senha e sua confirmação
+router.post("/redefinir", limitarRedefinicao, recuperacaoController.redefinirSenha)                                   
 
 module.exports = router
