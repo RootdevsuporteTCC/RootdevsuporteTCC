@@ -567,7 +567,7 @@ O formulário dentro do bloco será apresentado como exemplo de código, não co
 
 **Print do arquivo da nova aula:**
 
-Depois de criar **content/html/Formularios-HTML.md**, tire o print desde o **---** inicial até o parágrafo depois do exemplo de código. Mostre o nome do arquivo, o cabeçalho completo e o título da aula.
+![alt text](image-15.png)
 
 ### Abrir a nova aula
 
@@ -588,11 +588,11 @@ Não é necessário inserir a aula no banco. Seus comentários serão associados
 
 **Print da nova aula no site:**
 
-Abra **Formularios-HTML** pelo menu da categoria HTML. Tire o print mostrando o tópico no menu e o título **Formulários em HTML** na área da aula.
+![alt text](image-16.png)
 
 **Print da pesquisa pela nova aula:**
 
-Pesquise por **Formularios-HTML** e tire o print mostrando o termo digitado e o resultado da nova aula.
+![alt text](image-17.png)
 
 ### Alterar, renomear ou remover aulas
 
@@ -645,15 +645,15 @@ A responsividade do header e do footer está em **DOC_GLOBAL.md**.
 
 **Print das regras de responsividade:**
 
-Abra **public/styles/conteudo.css** e tire o print da linha **393** até a linha **420**, mostrando o bloco de 768 pixels e as regras de posicionamento do menu e da área principal.
+![alt text](image-18.png)
 
 **Print da página em tela larga:**
 
-Abra uma aula com largura maior que 1024 pixels. Tire o print mostrando a pesquisa, o menu aberto e o início da aula.
+![alt text](image-19.png)
 
 **Print da página em tela de celular:**
 
-Abra a mesma aula com largura de 390 pixels, usando um celular ou a simulação de celular do navegador. Tire o print com a pesquisa, o menu fechado e o início da aula, mostrando que o conteúdo cabe na tela.
+![alt text](image-20.png)
 
 ## Mensagens e situações que podem ocorrer
 
