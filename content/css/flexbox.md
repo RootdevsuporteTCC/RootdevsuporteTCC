@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: flexbox
+topico: Flexbox
 ---
 
 # FLEXBOX (LAYOUTS MALEÁVEIS)

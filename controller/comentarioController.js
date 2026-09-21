@@ -13,6 +13,7 @@ function salvarComentario(req, res) {
         return res.status(401).json({ erro: "Faça login para comentar." })
     }
 
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
     const categoria = dados.categoria
@@ -24,7 +25,7 @@ function salvarComentario(req, res) {
         return res.status(400).json({ erro: "Categoria inválida." })
     }
 
-    const nomeValido = /^[a-zA-Z0-9_-]+$/
+    const nomeValido = /^[a-zA-Z0-9_-]+$/ // regex que permite os caracteres "a-z", "A-Z", "0-9", "_", "-"
 
     if (!nomeValido.test(topico)) {
 
@@ -44,6 +45,8 @@ function salvarComentario(req, res) {
     // verifica no servidor se o arquivo da aula existe antes de aceitar o comentário
     fs.stat(caminhoArquivo, (erroArquivo, arquivo) => {
         if (erroArquivo) {
+
+            // o erro ENOENT da biblioteca fs significa "No such file or directory" (arquivo ou pasta não encontrado)
             if (erroArquivo.code === "ENOENT") {
 
                 // status 404 - recurso não encontrado
@@ -111,6 +114,7 @@ function excluirComentario(req, res) {
 
     const id = Number(req.params.id)
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id <= 0) {
         
         // status 400 - requisição inválida

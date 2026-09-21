@@ -6,6 +6,8 @@ const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
 // recebe o cadastro e a confirmação de senha, valida, salva pelo model e redireciona ao login
 function criarUsuario(req, res) {
+
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
     const usuario = {
@@ -50,7 +52,7 @@ function criarUsuario(req, res) {
 
         userModel.criarUsuario(usuario, (erro, resultado) => {
             if (erro) {
-                // trata também a duplicidade identificada pelo banco durante a gravação
+                // trata também a duplicidade encontrada pelo banco na gravação
                 if (erro.code === "ER_DUP_ENTRY") {
 
                     // status 409 - conflito nos dados
@@ -142,6 +144,7 @@ function loginUsuario(req, res) {
 function logoutUsuario(req, res) {
     const usuario = req.session.usuario
 
+    // apaga a sessão do usuario no servidor
     req.session.destroy((erroSessao) => {
         if (erroSessao) {
             console.log("Erro ao encerrar a sessão:", erroSessao)
@@ -150,7 +153,7 @@ function logoutUsuario(req, res) {
             return res.status(500).send("Erro ao fazer logout")
         }
 
-        res.clearCookie("connect.sid")
+        res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
         if (!usuario) {
             return res.redirect("/")
@@ -190,6 +193,8 @@ function verificarSessao(req, res) {
         }
 
         if (!usuario) {
+
+            // apaga a sessão do usuario no servidor
             return req.session.destroy((erroSessao) => {
                 if (erroSessao) {
                     console.log("Erro ao encerrar sessão:", erroSessao)
@@ -198,7 +203,7 @@ function verificarSessao(req, res) {
                     return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
                 }
 
-                res.clearCookie("connect.sid")
+                res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
                 return res.json({ logado: false })
             })
@@ -222,7 +227,7 @@ function verificarSessao(req, res) {
 
 // usa o id da sessão para buscar e devolver nome, email e avatar em json
 function buscarPerfil(req, res) {
-    res.set("Cache-control", "no-store")
+    res.set("Cache-control", "no-store") // faz o navegador não guardar essa resposta para uso futuro
 
     if (!req.session.usuario) {
 
@@ -242,6 +247,8 @@ function buscarPerfil(req, res) {
         }
 
         if (!usuario) {
+
+            // apaga a sessão do usuario no servidor
             return req.session.destroy((erroSessao) => {
                 if (erroSessao) {
                     console.log("Erro ao encerrar sessão:", erroSessao.message)
@@ -249,8 +256,8 @@ function buscarPerfil(req, res) {
                     // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
                 }
-
-                res.clearCookie("connect.sid")
+ 
+                res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
                 // status 401 - autenticação ausente ou inválida
                 return res.status(401).json({ erro: "Sua conta não está mais disponível" })
@@ -267,7 +274,7 @@ function buscarPerfil(req, res) {
 
 // recebe os dados do perfil e a senha atual, valida a alteração e devolve o resultado em json
 function atualizarPerfil(req, res) {
-    res.set("Cache-Control", "no-store")
+    res.set("Cache-Control", "no-store") // faz o navegador não guardar essa resposta para uso futuro
 
     if (!req.session.usuario) {
 
@@ -283,6 +290,8 @@ function atualizarPerfil(req, res) {
 
     // identifica a conta pela sessão sem aceitar um id enviado pelo navegador
     const id = req.session.usuario.id
+
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
     const usuario = {
@@ -301,6 +310,7 @@ function atualizarPerfil(req, res) {
 
     const senhaAtual = dados.senhaAtual
 
+    // verifica se a senha existe e é válida, depois verifica os bytes para evitar que o bcrypt ignore parte da senha
     if (typeof senhaAtual !== "string" || senhaAtual.length === 0 || Buffer.byteLength(senhaAtual, "utf8") > 72) {
         
         // status 400 - requisição inválida
@@ -399,7 +409,7 @@ function atualizarPerfil(req, res) {
 
 // recebe a senha atual, exclui a conta da sessão após conferir a senha e devolve o resultado em json
 function excluirPerfil(req, res) {
-    res.set("Cache-Control", "no-store")
+    res.set("Cache-Control", "no-store") // faz o navegador não guardar essa resposta para uso futuro
 
     if (!req.session.usuario) {
 
@@ -415,9 +425,13 @@ function excluirPerfil(req, res) {
 
     // identifica a conta pela sessão sem aceitar um id enviado pelo navegador
     const id = req.session.usuario.id
+
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
+
     const senhaAtual = dados.senhaAtual
 
+    // verifica se a senha existe e é válida, depois verifica os bytes para evitar que o bcrypt ignore parte da senha
     if (typeof senhaAtual !== "string" || senhaAtual.length === 0 || Buffer.byteLength(senhaAtual, "utf8") > 72) {
         
         // status 400 - requisição inválida
@@ -482,13 +496,13 @@ function excluirPerfil(req, res) {
                     console.log("Erro ao registrar exclusão:", erroLog.code)
                 }
 
-                // encerra a sessão atual e remove o cookie após excluir a conta
+                // apaga a sessão do usuario no servidor
                 req.session.destroy((erroSessao) => {
                     if (erroSessao) {
                         console.log("Erro ao encerrar sessão após exclusão:", erroSessao.message)
                     }
 
-                    res.clearCookie("connect.sid")
+                    res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
                     return res.json({ mensagem: "Sua conta foi excluida." })
                 })

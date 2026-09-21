@@ -9,8 +9,8 @@ const recuperacaoController = require("../controller/recuperacaoController")
 const limitarPorIp = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
+    standardHeaders: "draft-8", // define o cabeçalho padronizado como "draft-8"
+    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
     message: {
         erro: "Muitas solicitações. Aguarde alguns minutos e tente novamente."
     }
@@ -20,8 +20,8 @@ const limitarPorIp = rateLimit({
 const limitarPorEmail = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 3,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
+    standardHeaders: "draft-8", // define o cabeçalho padronizado como "draft-8"
+    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
 
     // pula a contagem por email quando o valor não pode ser usado como identificador
     skip: (req) => {
@@ -62,7 +62,7 @@ const limitarVerificacaoPorEmail = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
     standardHeaders: "draft-8",
-    legacyHeaders: false,
+    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
 
     // pula a contagem por email quando o valor não pode ser usado como identificador
     skip: (req) => {

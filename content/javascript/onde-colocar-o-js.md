@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: onde-colocar-o-js
+topico: Onde-colocar-o-JS
 ---
 
 # ONDE COLOCAR O JAVASCRIPT

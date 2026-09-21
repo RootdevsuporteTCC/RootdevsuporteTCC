@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: saida-de-dados
+topico: Saida-de-dados
 ---
 
 # SAÍDA DE DADOS (OUTPUT)

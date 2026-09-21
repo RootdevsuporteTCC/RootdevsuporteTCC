@@ -36,9 +36,9 @@ async function solicitarCodigo(evento) {
         const resposta = await fetch("/recuperacao/solicitar", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json"  // diz que os dados estão em formato json
             },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({ email: email }) // transforma o objeto json em uma string json para ser enviado
         })
 
         const dados = await resposta.json()
@@ -100,9 +100,9 @@ async function verificarCodigoInformado(evento) {
         const resposta = await fetch("/recuperacao/verificar", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json"  // diz que os dados estão em formato json
             },
-            body: JSON.stringify({
+            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
                 email: emailSolicitado,
                 codigo: codigo
             })
@@ -174,9 +174,9 @@ async function salvarNovaSenha(evento) {
         const resposta = await fetch("/recuperacao/redefinir", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json"  // diz que os dados estão em formato json
             },
-            body: JSON.stringify({
+            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
                 senha: senha,
                 confirmarSenha: confirmarSenha
             })

@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: cores-no-css
+topico: Cores-no-CSS
 ---
 
 # CORES NO CSS

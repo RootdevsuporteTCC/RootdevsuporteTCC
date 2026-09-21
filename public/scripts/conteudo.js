@@ -354,12 +354,13 @@ async function enviarComentario(event) {
     mensagemComentario.innerText = "Enviando..."
 
     try {
+        // envia uma requsição post
         const resposta = await fetch("/comentarios", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json" // diz que os dados estão em formato json
             },
-            body: JSON.stringify({
+            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
                 texto: texto,
                 categoria: categoria,
                 topico: topicoEnviado
@@ -420,6 +421,7 @@ async function excluirComentario(id) {
     mensagemComentario.innerText = "Excluindo..."
 
     try {
+        // faz uma requisição de delete
         const resposta = await fetch(`/comentarios/${id}`, {
             method: "DELETE"
         })

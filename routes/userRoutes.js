@@ -8,8 +8,8 @@ const userController = require('../controller/userController')
 const limitarCadastro = rateLimit({
     windowMs: 5 * 60 * 1000,
     limit: 10,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
+    standardHeaders: "draft-8", // define o cabeçalho padronizado como "draft-8"
+    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
     message: {
         erro: "Muitas tentativas de cadastro. Aguarde 5 minutos antes de tentar novamente."
     }
@@ -19,8 +19,8 @@ const limitarCadastro = rateLimit({
 const limitarEdicaoPerfil = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
+    standardHeaders: "draft-8", // define o cabeçalho padronizado como "draft-8"
+    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
     message: {
         erro: "Muitas tentativas. Aguarde alguns minutos e tente novamente."
     }

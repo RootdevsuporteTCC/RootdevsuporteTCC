@@ -1,6 +1,6 @@
 ---
 categoria: html
-topico: preparando-o-ambiente
+topico: Preparando-o-Ambiente
 ---
 
 # PREPARANDO SEU AMBIENTE (WORKSPACE)

@@ -9,8 +9,9 @@ const cacheConteudos = []
 
 // recebe o markdown e retorna categoria, tópico e conteúdo ou null se o cabeçalho for inválido
 function extrairMetadados(texto) {
-    const linhas = texto.split("\n")
+    const linhas = texto.split("\n") //separa o texto em linhas
 
+    // verifica se o arquivo tem cabeçalho
     if (linhas[0].trim() !== "---") {
         return null
     }
@@ -19,18 +20,22 @@ function extrairMetadados(texto) {
     let topico = ""
     let fimCabecalho = -1
 
+    // loop que começa depois da primeira linha do cabeçalho
     for (let i = 1; i < linhas.length; i++) {
         const linha = linhas[i].trim();
         
+        // se chegar no fim do cabeçalho termina o loop
         if (linha === "---") {
             fimCabecalho = i
             break
         }
 
+        // se a linha começa com "categoria:", captura os dados como a categoria da aula
         if (linha.startsWith("categoria:")) {
             categoria = linha.replace("categoria:", "").trim()
         }
 
+        // se a linha começa com "topico:", captura os dados como o tópico da aula
         if (linha.startsWith("topico:")) {
             topico = linha.replace("topico:", "").trim()
         }
@@ -59,6 +64,7 @@ function carregarCacheConteudos() {
     categorias.forEach((categoria) => {
         const pasta = path.join(__dirname, "../content", categoria)
 
+        // le o conteudo de um diretório de forma sincrona (espera terminar antes de continuar o codigo)
         const arquivos = fs.readdirSync(pasta, { withFileTypes: true })
 
         arquivos.forEach((arquivo) => {
@@ -68,13 +74,14 @@ function carregarCacheConteudos() {
 
             const topico = path.basename(arquivo.name, ".md")
 
+            //regex que permite apenas letras, numeros, hifen e underline
             if (!/^[a-zA-Z0-9_-]+$/.test(topico)) {
                 console.log("Nome de tópico inválido:", arquivo.name)
                 return
             }
 
             const caminhoArquivo = path.join(pasta, arquivo.name)
-            const texto = fs.readFileSync(caminhoArquivo, "utf8")
+            const texto = fs.readFileSync(caminhoArquivo, "utf8") // le o conteúdo de um arquivo no padrão utf8
 
             const aula = extrairMetadados(texto)
 
@@ -83,6 +90,7 @@ function carregarCacheConteudos() {
                 return
             }
 
+            // se os atributos do cabeçalho forem diferentes da pasta ou arquivo, o arquivo é rejeitado
             if (aula.categoria !== categoria || aula.topico !== topico) {
                 console.log("Cabeçalho diferente da pasta ou arquivo:", caminhoArquivo)
                 return
@@ -98,11 +106,7 @@ function buscarConteudo(req, res) {
     const categoria = req.params.categoria
     const topico = req.params.topico
 
-    if (
-        categoria !== "html" &&
-        categoria !== "css" &&
-        categoria !== "javascript"
-    ) {
+    if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
         // status 400 - requisição inválida
         return res.status(400).json({ erro: "Categoria inválida" })
     }
@@ -120,6 +124,8 @@ function buscarConteudo(req, res) {
 
     fs.readFile(caminhoArquivo, "utf8", (erroArquivo, conteudo) => {
         if (erroArquivo) {
+
+            // o erro ENOENT da biblioteca fs significa "No such file or directory" (arquivo ou pasta não encontrado)
             if (erroArquivo.code === "ENOENT") {
 
                 // status 404 - recurso não encontrado
@@ -185,8 +191,11 @@ function listarTopicos(req, res) {
 
     const pasta = path.join(__dirname, "../content", categoria)
 
+    // le o diretório inserido
     fs.readdir(pasta, { withFileTypes: true }, (erro, arquivos) => {
         if (erro) {
+
+            // o erro ENOENT da biblioteca fs significa "No such file or directory" (arquivo ou pasta não encontrado)
             if (erro.code === "ENOENT") {
                 return res.json({ topicos: [] })
             }
@@ -201,13 +210,15 @@ function listarTopicos(req, res) {
 
         arquivos.forEach((arquivo) => {
             if (arquivo.isFile() && arquivo.name.endsWith(".md")) {
+
+                // encontra o arquivo em "arquivo.name" e retorna o nome do arquivo, sem o sufixo ".md"
                 const topico = path.basename(arquivo.name, ".md")
 
                 topicos.push(topico)
             }
         })
 
-        topicos.sort()
+        topicos.sort() // organiza o array de topicos
 
         return res.json({ topicos: topicos })
     })
@@ -251,7 +262,7 @@ function pesquisarConteudos(req, res) {
         }
     });
 
-    // permite registrar pesquisas feitas por visitantes sem login
+    // permite registrar pesquisas feitas por usuarios sem login
     let userId = null
 
     if (req.session.usuario) {

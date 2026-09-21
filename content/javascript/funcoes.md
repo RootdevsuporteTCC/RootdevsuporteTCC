@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: funcoes
+topico: Funcoes
 ---
 
 # FUNÇÕES NO JAVASCRIPT

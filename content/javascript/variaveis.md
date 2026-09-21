@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: variaveis
+topico: Variaveis
 ---
 
 # VARIÁVEIS NO JAVASCRIPT

@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: tipos-de-dados
+topico: Tipos-de-dados
 ---
 
 # TIPOS DE DADOS

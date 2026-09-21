@@ -87,9 +87,9 @@ async function salvarPerfil(evento) {
         const resposta = await fetch("/usuarios/perfil", {
             method: "post",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json"  // diz que os dados estão em formato json
             },
-            body: JSON.stringify(usuario)
+            body: JSON.stringify(usuario)  // transforma o objeto json em uma string json para ser enviado
         })
 
         // status 401 - autenticação ausente ou inválida
@@ -182,9 +182,9 @@ async function excluirPerfil() {
         const resposta = await fetch("/usuarios/perfil", {
             method: "delete",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json" // diz que os dados estão em formato json
             },
-            body: JSON.stringify({
+            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
                 senhaAtual: senhaAtual
             })
         })

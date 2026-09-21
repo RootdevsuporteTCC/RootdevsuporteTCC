@@ -6,6 +6,7 @@ const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
+//----------------------------------------------------------------------------------------------
 // funções gerais
 
 // recebe email e senha, verifica o tipo da conta e redireciona ao painel após criar a sessão
@@ -31,6 +32,7 @@ async function loginAdm(req, res) {
             }
 
             try {
+                // função do bcrypt para comparar hashs
                 const senhaCorreta = await bcrypt.compare(senha, user.user_pass)
                 
                 if (!senhaCorreta) {
@@ -85,6 +87,7 @@ function enviarAdminJs(req, res) {
     res.sendFile(path.join(__dirname, "../private/admin/admin.js"))
 }
 
+//---------------------------------------------------------------------------------------------------
 // funções de usuários
 
 // recebe pesquisa e página pela url e devolve usuários e dados da paginação em json
@@ -102,6 +105,7 @@ function buscarUsuarios(req, res) {
     // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina - 1) * limite
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
         
         // status 400 - requisição inválida
@@ -158,6 +162,7 @@ function buscarUsuarioPorId(req, res) {
 function excluirUsuario(req, res) {
     const id = Number(req.params.id)
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id <= 0) {
         
         // status 400 - requisição inválida
@@ -210,8 +215,11 @@ function excluirUsuario(req, res) {
 // recebe id e dados da edição, valida, atualiza pelo model e responde em json
 function atualizarUsuario(req, res) {
     const id = Number(req.params.id)
+
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id < 1) {
 
         // status 400 - requisição inválida
@@ -307,6 +315,7 @@ function buscarComentarios(req, res) {
     // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina -1) * limite
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
         
         // status 400 - requisição inválida
@@ -341,6 +350,7 @@ function buscarComentarios(req, res) {
 function excluirComentarioAdmin(req, res) {
     const id = Number(req.params.id)
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id <= 0) {
         
         // status 400 - requisição inválida
@@ -375,8 +385,8 @@ function excluirComentarioAdmin(req, res) {
         })
     })
 }
-
-//função de log
+//----------------------------------------------------------------------------------------------
+// função de log
 
 // recebe pesquisa e página pela url e devolve logs e dados da paginação em json
 function buscarLogs(req, res) {
@@ -393,6 +403,7 @@ function buscarLogs(req, res) {
     // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina - 1) * limite
 
+    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
         
         // status 400 - requisição inválida

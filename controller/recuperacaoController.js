@@ -10,6 +10,8 @@ const usuarioValidacao = require("../validacoes/usuarioValidacao")
 // recebe o email e responde com uma mensagem genérica de solicitação
 // para contas existentes, salva a recuperação e encaminha o código por email
 function solicitarRecuperacao(req, res) {
+    
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
     if (typeof dados.email !== "string") {
@@ -19,7 +21,7 @@ function solicitarRecuperacao(req, res) {
     }
 
     const email = dados.email.trim()
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // regex que permite apenas o formato basico de email (email@email.email)
 
     if (email.length > 254 || !emailRegex.test(email)) {
 
@@ -80,10 +82,13 @@ function solicitarRecuperacao(req, res) {
 // recebe email e código e verifica a recuperação mais recente
 // salva a autorização na sessão e responde em json quando o código é válido
 function verificarCodigo(req, res) {
+
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
+
     const mensagemInvalida = "Código inválido ou expirado"
 
-    res.set("Cache-control", "no-store")
+    res.set("Cache-control", "no-store") // faz o navegador não guardar essa resposta para uso futuro
 
     // remove uma autorização anterior antes de verificar outro código
     delete req.session.recuperacao
@@ -96,8 +101,9 @@ function verificarCodigo(req, res) {
 
     const email = dados.email.trim()
     const codigo = dados.codigo.trim().toUpperCase()
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // regex que permite apenas o formato basico de email (email@email.email)
 
+    // verifica o email e o código inserido, o regex do código verifica se ele é um hexadecimal de exatamente 8 caracteres
     if (email.length > 254 || !emailRegex.test(email) || !/^[A-F0-9]{8}$/.test(codigo)) {
         
         // status 400 - requisição inválida
@@ -127,13 +133,14 @@ function verificarCodigo(req, res) {
                 return res.status(500).json({ erro: "Não foi possível verificar o código." })
             }
 
+            // se rec_usado for diferente de 0 significa que a recuperação já foi usada
             if (!recuperacao || recuperacao.rec_usado !== 0) {
 
                 // status 400 - requisição inválida
                 return res.status(400).json({ erro: mensagemInvalida })
             }
 
-            // converte a expiração para comparar com o horário atual
+            // converte a data de expiração para comparar com o horário atual
             const expiracao = new Date(recuperacao.rec_expiracao).getTime()
 
             if (!Number.isFinite(expiracao) || expiracao <= Date.now()) {
@@ -203,7 +210,7 @@ function verificarCodigo(req, res) {
 // recebe a nova senha e sua confirmação e usa a autorização guardada na sessão
 // solicita a atualização ao model, encerra a sessão atual e responde em json
 function redefinirSenha(req, res) {
-    res.set("Cache-Control", "no-store")
+    res.set("Cache-Control", "no-store") // faz o navegador não guardar essa resposta para uso futuro
 
     if (!req.is("application/json")) {
 
@@ -211,7 +218,9 @@ function redefinirSenha(req, res) {
         return res.status(415).json({ erro: "Envie os dados em formato JSON." })
     }
 
+    // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
+    
     const recuperacao = req.session.recuperacao
 
     if (!recuperacao || !Number.isFinite(recuperacao.expiracao) || recuperacao.expiracao <= Date.now()) {

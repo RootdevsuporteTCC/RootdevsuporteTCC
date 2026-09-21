@@ -1,4 +1,4 @@
-require("dotenv").config() // carrega as variáveis de ambiente antes de configurar os serviços
+require("dotenv").config() // carrega as variáveis do arquivo .env e sua biblioteca "dotenv" antes dos outros serviços
 
 const express = require('express')
 const path = require('path')

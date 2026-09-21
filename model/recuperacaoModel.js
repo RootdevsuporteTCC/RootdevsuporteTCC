@@ -12,6 +12,7 @@ async function criarRecuperacao(recuperacao, callback) {
                 (tb_usuarios_user_id, rec_codigo, rec_expiracao)
             VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
         `
+        // DATE_ADD(NOW(), INTERVAL 10 MINUTE) calcula um horário futuro 10 minutos depois da data e hora atuais
 
         conexao.query(sql, [
             recuperacao.userId,

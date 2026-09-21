@@ -1,6 +1,6 @@
 ---
 categoria: html
-topico: imagens
+topico: Imagens
 ---
 
 # IMAGENS NO HTML

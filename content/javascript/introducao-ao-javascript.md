@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: introducao-ao-javascript
+topico: Introducao-ao-JavaScript
 ---
 
 # INTRODUÇÃO AO JAVASCRIPT

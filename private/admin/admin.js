@@ -305,10 +305,10 @@ async function salvarEdicao(event, id) {
     try {
         const resposta = await fetch(`/adm/usuarios/${id}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
+            headers: { 
+                "Content-Type": "application/json" // diz que os dados estão em formato json
             },
-            body: JSON.stringify(usuarioAtualizado)
+            body: JSON.stringify(usuarioAtualizado) // transforma o objeto json em uma string json para ser enviado
         })
 
         const dados = await resposta.json()

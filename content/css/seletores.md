@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: seletores
+topico: Seletores
 ---
 
 # SELETORES CSS
