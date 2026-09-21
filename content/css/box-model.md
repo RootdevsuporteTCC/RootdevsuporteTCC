@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: Box-Model
+topico: box-model
 ---
 
 # MODELO DE CAIXA (BOX MODEL)

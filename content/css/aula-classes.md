@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: Aula-Classes
+topico: aula-classes
 ---
 
 # CLASSES NO CSS

@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: Introducao-ao-CSS
+topico: introducao-ao-css
 ---
 
 # INTRODUÇÃO AO CSS

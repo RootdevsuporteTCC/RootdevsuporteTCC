@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: Eventos
+topico: eventos
 ---
 
 # EVENTOS JAVASCRIPT

@@ -1,6 +1,6 @@
 ---
 categoria: javascript
-topico: Condicionais
+topico: condicionais
 ---
 
 # CONDICIONAIS (IF / ELSE)

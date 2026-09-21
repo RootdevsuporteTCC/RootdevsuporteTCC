@@ -1,6 +1,6 @@
 ---
 categoria: css
-topico: Bordas
+topico: bordas
 ---
 
 # BORDAS NO CSS

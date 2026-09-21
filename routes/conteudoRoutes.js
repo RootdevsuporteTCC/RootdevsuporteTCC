@@ -7,7 +7,10 @@ const conteudoController = require("../controller/conteudoController")
 // pois a rota de categoria usa a mesma posição mas com uma rota variável)
 router.get("/pesquisa", conteudoController.pesquisarConteudos)
 
-router.get("/:categoria", conteudoController.listarTopicos) // manda a pesquisa antes que seu endereço seja interpretado como categoria
-router.get("/:categoria/:topico", conteudoController.buscarConteudo) // manda categoria e tópico para consultar a aula e os comentários
+// manda a pesquisa antes que seu endereço seja interpretado como categoria
+router.get("/:categoria", conteudoController.listarTopicos)
+
+// manda categoria e tópico para consultar a aula e os comentários
+router.get("/:categoria/:topico", conteudoController.buscarConteudo)
 
 module.exports = router
