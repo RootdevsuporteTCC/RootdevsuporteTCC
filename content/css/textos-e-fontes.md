@@ -3,64 +3,52 @@ categoria: css
 topico: textos-e-fontes
 ---
 
-# TEXTOS E FONTES
+# Textos e fontes
 
-A forma como você apresenta o texto (a tipografia) é fundamental para a leitura e o visual do seu site. O CSS tem várias propriedades para isso.
+O CSS permite ajustar a fonte, o tamanho das letras, o alinhamento e o espaçamento do texto.
 
-## Formatando Textos
+No HTML:
 
-### Alinhamento de Texto (`text-align`)
-Define se o texto ficará na esquerda, direita, centralizado ou justificado.
+```html
+<h1 class="titulo">Organização dos estudos</h1>
+<p class="descricao">Separe um período para revisar o conteúdo de cada aula.</p>
+```
+
+No CSS:
 
 ```css
-h1 {
-  text-align: center; /* Centraliza o texto */
+.titulo {
+    font-family: Arial, sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
 }
-p {
-  text-align: justify; /* Deixa as bordas do texto retas */
+
+.descricao {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
 }
 ```
 
-### Decoração de Texto (`text-decoration`)
-Muito usado para remover o sublinhado padrão dos links, ou para adicionar sublinhados/riscados.
+## Entendendo as propriedades
+
+- **font-family:** define a fonte. Se Arial não estiver disponível, o navegador usa uma fonte da família genérica **sans-serif**.
+- **font-size:** define o tamanho das letras.
+- **font-weight:** controla o peso da fonte. O valor **bold** aplica negrito.
+- **text-align:** define o alinhamento do texto dentro do elemento.
+- **line-height:** controla a altura das linhas. O valor **1.5** acompanha o tamanho da fonte.
+
+## Decoração do texto
+
+A propriedade **text-decoration** pode adicionar ou remover decorações:
 
 ```css
-a {
-  text-decoration: none; /* Remove o sublinhado dos links */
-}
-.riscado {
-  text-decoration: line-through; /* Cria um texto riscado */
+.destaque {
+    text-decoration: underline;
 }
 ```
 
-## Trabalhando com Fontes
+Nesse caso, o texto fica sublinhado.
 
-### Família da Fonte (`font-family`)
-Muda o estilo da letra. Você deve listar algumas fontes como "reserva", separadas por vírgula. Se o computador do usuário não tiver a primeira, ele tenta a segunda.
-
-```css
-p {
-  font-family: "Arial", sans-serif;
-}
-```
-
-### Tamanho da Fonte (`font-size`)
-Define o tamanho do texto. Pode ser em pixels (`px`), `em`, ou `rem`.
-
-```css
-h2 {
-  font-size: 24px;
-}
-```
-
-### Peso da Fonte (`font-weight`)
-Controla a espessura da letra (se é negrito ou não).
-
-```css
-.negrito {
-  font-weight: bold; /* ou valores numéricos como 700 */
-}
-.fino {
-  font-weight: normal; /* ou valores como 400 */
-}
-```
+Em links, o sublinhado ajuda a identificar que o texto pode ser clicado. Se ele for removido, mantenha outra indicação visual clara.

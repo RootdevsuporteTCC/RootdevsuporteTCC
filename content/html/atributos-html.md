@@ -3,40 +3,42 @@ categoria: html
 topico: atributos-html
 ---
 
-# ATRIBUTOS HTML
+# Atributos HTML
 
-Os atributos fornecem **informações adicionais** sobre os elementos HTML. Eles são como "configurações extras" que você passa para a tag.
-
-## Regras dos Atributos
-1. Todo atributo é sempre colocado na **Tag de Abertura**.
-2. Eles geralmente vêm em pares de nome e valor: `nome="valor"`.
-
-## Exemplos de Atributos Comuns
-
-### O atributo `href`
-Usado na tag de link (`<a>`). Ele diz ao navegador para qual endereço de internet (URL) o usuário deve ser levado quando clicar no link.
+Os atributos acrescentam informações aos elementos. Eles são escritos na tag de abertura, normalmente no formato **nome="valor"**.
 
 ```html
-<a href="https://www.google.com">Clique aqui para ir ao Google</a>
+<a href="https://www.w3schools.com/">Consultar aulas</a>
 ```
 
-### O atributo `src`
-Usado na tag de imagem (`<img>`). "Src" vem de *source* (fonte/origem). Ele indica o caminho onde a imagem está guardada para que o navegador possa carregá-la.
+O atributo **href** informa o destino do link. Já o texto entre as tags é o que aparece na página.
+
+## Atributos de uma imagem
 
 ```html
-<img src="foto-do-gato.jpg">
+<img src="imagens/computador.jpg" alt="Computador sobre uma mesa">
 ```
 
-### O atributo `alt`
-Também usado na tag de imagem. Ele fornece um "texto alternativo". Se a imagem der erro e não carregar, ou se um usuário com deficiência visual estiver usando um leitor de tela, esse é o texto que será lido/exibido.
+Nesse exemplo:
+
+- **src:** indica o caminho da imagem.
+- **alt:** fornece uma descrição alternativa para seu conteúdo.
+
+O arquivo precisa existir no caminho informado para ser carregado.
+
+## Identificando elementos
+
+Os atributos **id** e **class** ajudam a selecionar elementos no CSS e no JavaScript.
 
 ```html
-<img src="foto-do-gato.jpg" alt="Um gato laranja dormindo no sofá">
+<h1 id="titulo-principal">Guia de estudos</h1>
+
+<p class="aviso">Confira o conteúdo da próxima aula.</p>
+<p class="aviso">Salve suas anotações.</p>
 ```
 
-### Os atributos `class` e `id`
-Você usará esses dois com muita frequência quando for aprender CSS! Eles servem para dar "nomes" ou "etiquetas" aos seus elementos HTML, para que você possa localizá-los e mudá-los de cor ou tamanho depois.
+O **id** identifica um elemento e não deve se repetir na mesma página.
 
-```html
-<p class="texto-vermelho">Este texto ficará vermelho no CSS.</p>
-```
+A **class** pode ser compartilhada por vários elementos. No exemplo, os parágrafos pertencem à classe **aviso**.
+
+Esses nomes não mudam a aparência sozinhos. É necessário escrever regras CSS ou utilizar JavaScript para trabalhar com eles.

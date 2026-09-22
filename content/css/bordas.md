@@ -3,58 +3,65 @@ categoria: css
 topico: bordas
 ---
 
-# BORDAS NO CSS
+# Bordas
 
-As bordas permitem colocar contornos ao redor dos seus elementos. O CSS oferece várias opções para personalizar essas linhas.
+As bordas delimitam a área de um elemento. Podemos definir sua espessura, seu estilo e sua cor.
 
-Para uma borda aparecer, você **precisa** definir o estilo dela usando a propriedade `border-style`.
+No HTML:
 
-## Propriedades da Borda
+```html
+<p class="aviso">O prazo para enviar a atividade termina amanhã.</p>
+```
 
-### 1. Estilo da Borda (`border-style`)
-Define o tipo de linha. Valores comuns:
-* `solid`: Linha contínua sólida.
-* `dashed`: Linha tracejada.
-* `dotted`: Linha pontilhada.
-* `none`: Nenhuma borda.
-
-### 2. Espessura da Borda (`border-width`)
-Define a grossura da linha (em pixels, por exemplo).
-
-### 3. Cor da Borda (`border-color`)
-Define a cor.
+No CSS:
 
 ```css
-.caixa {
-  border-style: solid;
-  border-width: 3px;
-  border-color: red;
+.aviso {
+    border: 2px solid #650080;
+    padding: 16px;
 }
 ```
 
-## A propriedade abreviada (Shorthand)
-Para não ter que escrever três linhas de código sempre que quiser uma borda, você pode juntar tudo na propriedade `border`:
+A propriedade **border** reúne 3 valores:
+
+- **2px:** espessura da borda.
+- **solid:** linha contínua.
+- **#650080:** cor da borda.
+
+O **padding** cria um espaço entre o texto e a borda.
+
+## Outros estilos
 
 ```css
-/* Espessura | Estilo | Cor */
-.caixa {
-  border: 3px solid red;
+.exemplo-tracejado {
+    border: 2px dashed #650080;
+}
+
+.exemplo-pontilhado {
+    border: 2px dotted #650080;
 }
 ```
 
-## Arredondando as bordas (`border-radius`)
-Uma das propriedades mais adoradas no CSS moderno. Ela permite criar botões redondos ou cartões com cantos suaves.
+O valor **dashed** produz uma linha tracejada. O valor **dotted** produz uma linha pontilhada.
+
+## Alterando apenas um lado
 
 ```css
-.botao {
-  border: 2px solid black;
-  border-radius: 10px; /* Arredonda os cantos */
-}
-
-.circulo-perfeito {
-  width: 100px;
-  height: 100px;
-  background-color: blue;
-  border-radius: 50%; /* 50% cria um círculo ou elipse */
+h2 {
+    border-bottom: 2px solid #650080;
 }
 ```
+
+Nesse caso, a borda aparece apenas na parte inferior do título.
+
+## Arredondando os cantos
+
+```css
+.aviso {
+    border: 2px solid #650080;
+    border-radius: 8px;
+    padding: 16px;
+}
+```
+
+A propriedade **border-radius** arredonda os cantos. Ela também pode ser usada em elementos com fundo colorido, mesmo que não exista uma borda visível.

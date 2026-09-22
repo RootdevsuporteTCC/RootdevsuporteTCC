@@ -3,34 +3,47 @@ categoria: javascript
 topico: saida-de-dados
 ---
 
-# SAÍDA DE DADOS (OUTPUT)
+# Saída de dados
 
-Como fazemos o JavaScript "falar" conosco ou mostrar informações na tela? Existem algumas formas principais de exibir dados.
+A saída de dados é a apresentação de uma informação produzida pelo código. No navegador, podemos mostrar um resultado na página, no console ou em uma caixa de alerta.
 
-## 1. Escrevendo no HTML (`innerHTML`)
+## Mostrando na página
 
-Esta é a forma mais comum de alterar o conteúdo do seu site. Você acessa um elemento HTML e muda o que está escrito dentro dele.
+Coloque este exemplo dentro do **body**:
 
-```javascript
-// Procura um elemento com o id "demo" e muda o texto dele
-document.getElementById("demo").innerHTML = "Olá, Mundo!";
+```html
+<p id="resultado"></p>
+
+<script>
+    const resultado = document.getElementById("resultado")
+    const aulasConcluidas = 5
+
+    resultado.innerText = "Aulas concluídas: " + aulasConcluidas
+</script>
 ```
 
-## 2. Caixa de Alerta (`alert`)
+O **getElementById** seleciona o parágrafo. O **innerText** define o texto apresentado nele.
 
-O `alert()` cria uma daquelas caixinhas pop-up no navegador que pausam a tela e exigem que o usuário clique em "OK".
+O operador **+** junta a mensagem com o valor da variável.
 
-```javascript
-alert("Bem-vindo ao ROOT DEV!");
-```
-*Dica: Use com moderação, pois alertas em excesso irritam os usuários.*
-
-## 3. O Console do Navegador (`console.log`)
-
-Esta é a ferramenta **mais importante** para você que está aprendendo a programar. O `console.log()` não mostra nada para o usuário comum, ele imprime mensagens secretas no painel de desenvolvedor do navegador. É perfeito para testar se o seu código está funcionando!
+## Mostrando no console
 
 ```javascript
-console.log("O cálculo foi feito com sucesso!");
+const aulasConcluidas = 5
+
+console.log("Aulas concluídas:", aulasConcluidas)
 ```
 
-**Como abrir o console:** No seu navegador (Chrome, Edge, etc), aperte a tecla **F12** no teclado e clique na aba **"Console"**. É lá que essas mensagens aparecerão.
+O console fica nas ferramentas de desenvolvedor do navegador. Ele ajuda a acompanhar valores e investigar problemas no código.
+
+Essas informações não são secretas. Qualquer pessoa com acesso à página pode abrir o console.
+
+## Mostrando um alerta
+
+```javascript
+alert("As alterações foram salvas.")
+```
+
+O alerta abre uma caixa de mensagem e interrompe a interação com a página até ser fechado.
+
+Para mensagens frequentes, geralmente é mais adequado utilizar um elemento da própria página, como um parágrafo.

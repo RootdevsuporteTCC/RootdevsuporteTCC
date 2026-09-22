@@ -3,36 +3,39 @@ categoria: html
 topico: preparando-o-ambiente
 ---
 
-# PREPARANDO SEU AMBIENTE (WORKSPACE)
+# Preparando o ambiente
 
-Um dos maiores desafios de quem está começando é saber onde escrever o código. Você não precisa de equipamentos caros, apenas de um programa chamado **Editor de Código**.
+Para escrever os exemplos de HTML, você precisa de um editor de texto e de um navegador.
 
-## Passo 1: Baixando o Editor
+Pode usar o VS Code, o Bloco de Notas ou outro editor que salve arquivos de texto simples. Não é necessário utilizar um programa específico.
 
-O editor mais utilizado por programadores hoje é o **Visual Studio Code (VS Code)**. Ele é gratuito, leve e funciona em Windows, Mac e Linux.
+## Criando o arquivo
 
-1. Acesse o site oficial: [code.visualstudio.com](https://code.visualstudio.com/)
-2. Clique no botão de download e instale o programa no seu computador.
+1. Crie uma pasta chamada **estudos-html**.
+2. Abra seu editor e crie um arquivo.
+3. Escreva o código abaixo.
+4. Salve o arquivo como **index.html** dentro da pasta.
 
-## Passo 2: Criando sua Pasta de Trabalho
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Página de estudos</title>
+</head>
+<body>
+    <h1>Aprendendo HTML</h1>
+    <p>Este arquivo foi criado no meu computador.</p>
+</body>
+</html>
+```
 
-A organização é muito importante na programação!
+Confira se o nome terminou em **.html**, sem uma extensão **.txt** depois dele. No Bloco de Notas, pode ser necessário selecionar **Todos os arquivos** ao salvar.
 
-1. Vá até a Área de Trabalho (Desktop) do seu computador.
-2. Crie uma nova pasta e dê o nome de `meu-primeiro-site` (evite usar espaços e acentos em nomes de pastas de programação).
-3. Abra o VS Code.
-4. No menu superior, clique em **File > Open Folder...** (Arquivo > Abrir Pasta...) e selecione a pasta que você acabou de criar.
+## Visualizando as alterações
 
-## Passo 3: Criando seu Primeiro Arquivo
+Abra o arquivo no navegador. Depois,, altere o texto do parágrafo no editor, salve e atualize a página com **F5**.
 
-1. Com a pasta aberta no VS Code, passe o mouse sobre o nome da pasta na barra lateral esquerda.
-2. Clique no ícone de "New File" (Novo Arquivo) ou clique com o botão direito e selecione "New File".
-3. Nomeie este arquivo como **`index.html`**. 
+O navegador apresenta a versão salva do arquivo. Por isso, uma alteração ainda não salva não aparecerá na página.
 
-*Atenção: A página inicial de qualquer site deve se chamar `index.html`. É o primeiro arquivo que os servidores procuram ao abrir um site.*
-
-## Passo 4: O Truque da Exclamação
-
-Com o arquivo `index.html` aberto, digite apenas um ponto de exclamação: **`!`** e aperte a tecla **Enter** (ou Tab).
-
-Mágica! O VS Code vai gerar toda a estrutura básica do HTML que aprendemos na aula anterior automaticamente. Agora você está pronto para começar a programar o conteúdo dentro da tag `<body>`!
+Esses exemplos de HTML podem ser abertos diretamente. Sistemas com recursos de servidor precisam ser iniciados conforme suas próprias instruções.

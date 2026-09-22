@@ -3,38 +3,40 @@ categoria: html
 topico: titulos-e-paragrafos
 ---
 
-# TÍTULOS E PARÁGRAFOS
+# Títulos e parágrafos
 
-Escrever textos é a base de qualquer site na internet. O HTML tem tags específicas para organizar a hierarquia das suas informações.
+Os títulos organizam as seções da página. O HTML possui níveis de **h1** até **h6**, que indicam a hierarquia do conteúdo.
 
-## Títulos (Headings)
+Uma organização comum é usar **h1** para o assunto principal, **h2** para suas seções e **h3** para subdivisões dessas seções.
 
-O HTML possui 6 níveis de títulos, que vão do `<h1>` ao `<h6>`.
-A letra "h" vem da palavra inglesa *Heading* (Cabeçalho/Título).
+## Organizando o texto
 
-* O `<h1>` é o título mais importante, geralmente o nome do seu site ou o assunto principal da página. Você deve tentar usar apenas um `<h1>` por página.
-* O `<h2>` é um subtítulo principal.
-* O `<h3>` é o subtítulo do subtítulo, e assim por diante.
-
-O navegador, por padrão, já deixa o `<h1>` com letras bem grandes e em negrito, diminuindo o tamanho até chegar no `<h6>`.
+Coloque este exemplo dentro do **body**:
 
 ```html
-<h1>Este é o Título Principal 1</h1>
-<h2>Este é o Subtítulo 2</h2>
-<h3>Este é o Subtítulo 3</h3>
-<h4>Este é o Subtítulo 4</h4>
-<h5>Este é o Subtítulo 5</h5>
-<h6>Este é o Subtítulo 6 (o menor)</h6>
+<h1>Guia de desenvolvimento web</h1>
+
+<p>Este guia apresenta os assuntos estudados durante o curso.</p>
+
+<h2>HTML</h2>
+
+<p>O HTML organiza os elementos de uma página.</p>
+
+<h3>Elementos de texto</h3>
+
+<p>Títulos e parágrafos ajudam a separar as informações.</p>
+
+<h2>CSS</h2>
+
+<p>O CSS permite alterar a apresentação desses elementos.</p>
 ```
 
-## Parágrafos
+Os títulos devem representar a organização do conteúdo. Não escolha um nível apenas pelo tamanho que ele apresenta no navegador, pois a aparência pode ser ajustada com CSS.
 
-Para escrever blocos de texto normais, usamos a tag `<p>` (de *Paragraph*). 
+## Escrevendo parágrafos
 
-O navegador sempre adiciona automaticamente um pequeno espaço em branco antes e depois de um parágrafo para que o texto não fique grudado no próximo elemento.
+Cada elemento **p** representa um parágrafo.
 
-```html
-<p>Este é um parágrafo longo onde eu posso escrever sobre qualquer assunto. O HTML cuidará de organizar esse bloco de texto de forma legível na tela do usuário.</p>
+Quebrar linhas ou inserir vários espaços no código não garante que esses espaços apareçam da mesma forma na página. No comportamento padrão, o navegador reúne os espaços em branco do texto.
 
-<p>Este é outro parágrafo. Note que haverá um pequeno espaço entre ele e o parágrafo de cima.</p>
-```
+Para começar outro parágrafo, escreva outro elemento **p**.

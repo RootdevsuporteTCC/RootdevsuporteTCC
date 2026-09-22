@@ -3,43 +3,54 @@ categoria: javascript
 topico: onde-colocar-o-js
 ---
 
-# ONDE COLOCAR O JAVASCRIPT
+# Onde colocar o JavaScript
 
-Assim como o CSS, o código JavaScript precisa ser inserido ou conectado ao seu arquivo HTML para funcionar. 
+O JavaScript pode ser escrito dentro do HTML ou em um arquivo separado.
 
-No HTML, o código JavaScript deve ser colocado entre as tags **`<script>`** e **`</script>`**.
+## Código dentro do HTML
 
-## 1. JavaScript Interno
-
-Você pode escrever o código JavaScript diretamente dentro do seu arquivo HTML. O local mais recomendado para colocar a tag `<script>` é no final da tag `<body>`, logo antes de fechá-la. Isso garante que todo o HTML carregue antes do JavaScript tentar modificá-lo.
+Utilize o elemento **script**:
 
 ```html
-<!DOCTYPE html>
-<html>
 <body>
+    <p id="mensagem">Texto inicial.</p>
 
-  <h1>Meu Site</h1>
-  <p>Bem-vindo!</p>
+    <script>
+        const mensagem = document.getElementById("mensagem")
 
-  <!-- O script vai aqui, no final do body -->
-  <script>
-    // Seu código JavaScript vem aqui!
-  </script>
-
+        mensagem.innerText = "Texto atualizado."
+    </script>
 </body>
-</html>
 ```
 
-## 2. JavaScript Externo (Recomendado)
+Nesse exemplo, o script aparece depois do parágrafo. Assim, o elemento já está disponível quando o código procura por ele.
 
-Assim como criamos pastas separadas para imagens, a melhor prática profissional é separar o código JS em seu próprio arquivo. Isso deixa o HTML mais limpo e permite reaproveitar o mesmo script em várias páginas.
+## Arquivo separado
 
-1. Crie um arquivo chamado **`script.js`** na sua pasta de trabalho.
-2. No seu arquivo HTML, chame o script usando o atributo `src` (source/origem):
+Crie um arquivo chamado **script.js**:
+
+```javascript
+const mensagem = document.getElementById("mensagem")
+
+mensagem.innerText = "Texto atualizado pelo arquivo externo."
+```
+
+No **head** do HTML, adicione:
 
 ```html
-<!-- Chamando o arquivo externo no final do body -->
-<script src="script.js"></script>
+<script src="script.js" defer></script>
 ```
 
-*Nota: O arquivo externo `.js` **não pode** conter a tag `<script>`. Lá dentro, você escreve apenas o código JavaScript puro.*
+Mantenha o parágrafo dentro do **body**:
+
+```html
+<p id="mensagem">Texto inicial.</p>
+```
+
+O **src** informa o caminho do arquivo.
+
+Para esse script externo, o **defer** permite que o navegador baixe o arquivo enquanto lê o HTML e execute o código depois que o documento terminar de ser analisado.
+
+Isso evita tentar selecionar elementos que ainda não foram criados.
+
+Dentro do arquivo **.js**, escreva apenas JavaScript, sem as tags **script**.

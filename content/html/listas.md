@@ -3,40 +3,57 @@ categoria: html
 topico: listas
 ---
 
-# LISTAS NO HTML
+# Listas
 
-Muitas vezes precisamos agrupar itens em formato de lista (como receitas, passos a seguir ou lista de compras). O HTML fornece duas tags principais para listas: as Não-Ordenadas e as Ordenadas.
+As listas agrupam informações relacionadas. No HTML, podemos representar itens sem uma sequência obrigatória ou etapas que precisam seguir uma ordem.
 
-## 1. Listas Não-Ordenadas (`<ul>`)
+## Lista não ordenada
 
-Usadas quando a ordem dos itens **não importa** (como uma lista de compras). Ela adiciona "bolinhas" (marcadores) antes de cada item.
-
-Criamos a lista usando a tag `<ul>` (Unordered List). Cada item dentro dela deve ser marcado com a tag `<li>` (List Item).
+O elemento **ul** representa uma lista em que a ordem dos itens não é essencial. Cada item fica dentro de um elemento **li**.
 
 ```html
-<h3>Ingredientes do Bolo:</h3>
+<h2>Materiais para estudar</h2>
+
 <ul>
-    <li>Farinha</li>
-    <li>Açúcar</li>
-    <li>Leite</li>
-    <li>Ovos</li>
+    <li>Editor de texto</li>
+    <li>Navegador</li>
+    <li>Caderno de anotações</li>
 </ul>
 ```
 
-## 2. Listas Ordenadas (`<ol>`)
+Por padrão, o navegador apresenta marcadores ao lado dos itens.
 
-Usadas quando a ordem dos itens **é importante** (como um passo a passo numérico). Ela adiciona números automaticamente (1, 2, 3...) antes de cada item.
+## Lista ordenada
 
-Criamos a lista usando a tag `<ol>` (Ordered List). Os itens também usam a tag `<li>`.
+O elemento **ol** representa uma sequência. Os itens também são escritos com **li**.
 
 ```html
-<h3>Como fazer o bolo:</h3>
+<h2>Como visualizar uma página</h2>
+
 <ol>
-    <li>Misture os ingredientes secos.</li>
-    <li>Adicione o leite e os ovos.</li>
-    <li>Bata tudo na batedeira.</li>
-    <li>Leve ao forno por 40 minutos.</li>
+    <li>Escrever o código HTML.</li>
+    <li>Salvar o arquivo.</li>
+    <li>Abrir o arquivo no navegador.</li>
 </ol>
 ```
 
-Dessa forma, se você adicionar ou remover um `<li>` do meio da lista, o HTML recalcula a numeração automaticamente para você, sem que você precise corrigir os números manualmente!
+Por padrão, os itens recebem uma numeração.
+
+## Listas dentro de listas
+
+Uma lista pode ficar dentro de um item de outra lista:
+
+```html
+<ul>
+    <li>
+        Conteúdos de HTML
+        <ul>
+            <li>Títulos</li>
+            <li>Parágrafos</li>
+        </ul>
+    </li>
+    <li>Conteúdos de CSS</li>
+</ul>
+```
+
+Observe que a lista interna está dentro do **li** correspondente a **Conteúdos de HTML**.

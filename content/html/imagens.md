@@ -3,42 +3,44 @@ categoria: html
 topico: imagens
 ---
 
-# IMAGENS NO HTML
+# Imagens
 
-As imagens tornam o design da sua página muito mais atraente. No HTML, inserimos imagens usando a tag **`<img>`**.
-
-A tag `<img>` é um **elemento vazio**, ou seja, ela contém apenas atributos e não possui uma tag de fechamento `</img>`.
-
-## Sintaxe da Imagem
-
-Para a imagem aparecer, precisamos de pelo menos dois atributos essenciais: o `src` e o `alt`.
+O elemento **img** apresenta uma imagem na página. Ele não possui tag de fechamento.
 
 ```html
-<img src="caminho/para/imagem.jpg" alt="Descrição da imagem">
+<img src="imagens/mesa.jpg" alt="Mesa de estudos com computador e caderno">
 ```
 
-### O Atributo `src` (Source)
-Diz ao navegador onde a imagem está salva. Existem duas formas de puxar uma imagem:
+O **src** indica o caminho do arquivo. Nesse exemplo, a imagem **mesa.jpg** precisa estar dentro da pasta **imagens**, localizada ao lado do arquivo HTML.
 
-1. **URL Absoluta:** Pegando uma imagem diretamente da internet.
-```html
-<img src="https://site.com/foto-de-paisagem.jpg" alt="Paisagem de montanha">
-```
+O **alt** descreve o conteúdo da imagem. Esse texto pode ser utilizado por leitores de tela e quando a imagem não consegue ser carregada.
 
-2. **Caminho Relativo (Mais recomendado):** Guardando a imagem em uma pasta dentro do seu próprio projeto (ex: criando uma pasta `img`).
-```html
-<img src="img/minha-foto.png" alt="Minha foto de perfil">
-```
+## Definindo as dimensões
 
-### O Atributo `alt` (Alternative Text)
-Como vimos nas aulas anteriores, ele é fundamental para a acessibilidade. Descreve o que tem na imagem caso ela não carregue ou para usuários que usam leitores de tela.
-
-## Controlando o tamanho no HTML
-
-Você pode usar os atributos `width` (largura) e `height` (altura) para definir o tamanho da imagem, informando os valores em pixels (não precisa escrever "px", apenas o número).
+Os atributos **width** e **height** informam a largura e a altura em pixels:
 
 ```html
-<img src="logo.png" alt="Logo do site" width="200" height="100">
+<img
+    src="imagens/mesa.jpg"
+    alt="Mesa de estudos com computador e caderno"
+    width="600"
+    height="400"
+>
 ```
 
-*Dica de Ouro:* Embora o HTML permita alterar o tamanho, o mais correto e profissional hoje em dia é usar o **CSS** para controlar as larguras e alturas das suas imagens!
+O exemplo considera uma imagem com proporção de **600 por 400**. Use dimensões que respeitem a proporção do seu arquivo para evitar distorções.
+
+## Adaptando à largura disponível
+
+No CSS, podemos impedir que a imagem ultrapasse seu espaço:
+
+```css
+img {
+    max-width: 100%;
+    height: auto;
+}
+```
+
+A largura máxima acompanha o elemento que contém a imagem. A altura automática mantém sua proporção.
+
+Se a imagem não aparecer, confira o caminho, a extensão e o uso de letras maiúsculas e minúsculas no nome.

@@ -3,52 +3,56 @@ categoria: javascript
 topico: eventos
 ---
 
-# EVENTOS JAVASCRIPT
+# Eventos
 
-A interatividade acontece quando o seu site consegue "reagir" às ações do usuário. Essas ações são chamadas de **Eventos**.
+Os eventos permitem executar código quando algo acontece na página, como um clique, uma alteração em um campo ou o envio de um formulário.
 
-Alguns exemplos de eventos comuns:
-* O usuário clica em um botão.
-* O usuário passa o mouse sobre uma imagem.
-* O usuário digita algo no teclado.
-* A página termina de carregar.
+## Respondendo a um clique
 
-## O Evento de Clique (`onclick`)
-
-O JavaScript consegue "escutar" esses eventos no HTML e rodar um código quando eles acontecem. O jeito mais simples de fazer isso é adicionando um atributo de evento diretamente na tag HTML.
-
-Vamos usar o atributo `onclick` em um botão para executar uma função quando ele for clicado.
-
-### No HTML:
+No **body** do HTML, coloque:
 
 ```html
-<!-- Quando clicar, chama a função mostrarAlerta() -->
-<button onclick="mostrarAlerta()">Clique em mim!</button>
+<button id="botao-contar" type="button">Registrar clique</button>
+<p id="contador">Cliques: 0</p>
 ```
 
-### No JavaScript:
-
-```javascript
-function mostrarAlerta() {
-  alert("Você clicou no botão! O evento funcionou.");
-}
-```
-
-## Alterando o HTML com Eventos
-
-Uma das coisas mais legais é mudar a aparência da página com um clique.
+No **head**, carregue o JavaScript:
 
 ```html
-<!-- Um parágrafo com um ID para o JS achá-lo -->
-<p id="texto-secreto">Este texto vai mudar.</p>
-
-<!-- Um botão que muda o texto -->
-<button onclick="mudarTexto()">Revelar Segredo</button>
+<script src="script.js" defer></script>
 ```
+
+No arquivo **script.js**, escreva:
 
 ```javascript
-function mudarTexto() {
-  // Acha o parágrafo pelo ID e muda o conteúdo interno dele
-  document.getElementById("texto-secreto").innerHTML = "A programação é incrível!";
+const botao = document.getElementById("botao-contar")
+const contador = document.getElementById("contador")
+
+let quantidade = 0
+
+function registrarClique() {
+    quantidade = quantidade + 1
+
+    contador.innerText = "Cliques: " + quantidade
 }
+
+botao.addEventListener("click", registrarClique)
 ```
+
+## Como funciona
+
+O código seleciona o botão e o parágrafo.
+
+O **addEventListener** registra a função que será executada quando acontecer o evento **click**.
+
+A cada clique, **registrarClique** aumenta a quantidade e atualiza o texto.
+
+Na última linha, o nome da função aparece sem **()**. Estamos passando a função para ser executada quando o evento ocorrer, em vez de executá-la naquele momento.
+
+O **defer** garante, nesse script externo, que os elementos do HTML estejam disponíveis antes da execução.
+
+## Outros eventos
+
+- **input:** ocorre quando o usuário altera o valor de um campo.
+- **submit:** ocorre quando um formulário é enviado.
+- **change:** ocorre quando uma alteração é confirmada em determinados controles.

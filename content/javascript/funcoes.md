@@ -3,43 +3,56 @@ categoria: javascript
 topico: funcoes
 ---
 
-# FUNÇÕES NO JAVASCRIPT
+# Funções
 
-Uma função em JavaScript é um bloco de código projetado para executar uma tarefa específica. 
+Uma função reúne instruções para realizar uma tarefa. Depois de definida, ela pode ser chamada em diferentes partes do código.
 
-Pense nela como uma "receita" de bolo: você escreve as instruções uma vez e, depois, toda vez que quiser fazer o bolo, basta mandar "executar a receita", sem precisar escrever tudo de novo.
-
-## Como criar uma Função?
-
-Usamos a palavra `function`, seguida do **nome** que queremos dar, **parênteses `()`**, e chaves **`{}`**. O código que deve ser executado fica dentro das chaves.
+## Criando uma função
 
 ```javascript
-// Criando a função
-function darBoasVindas() {
-  console.log("Seja bem-vindo ao ROOT DEV!");
-  console.log("Aproveite as aulas!");
-}
-```
-
-## Como chamar (invocar) uma Função?
-
-O código dentro de uma função não roda sozinho. Ele fica "adormecido" até que você chame a função pelo nome dela, usando os parênteses.
-
-```javascript
-// Chamando a função
-darBoasVindas(); // Isso fará as mensagens aparecerem no console
-```
-
-## Funções com Parâmetros
-
-A verdadeira mágica das funções é que você pode enviar informações para dentro delas através dos parênteses. Essas informações são chamadas de parâmetros ou argumentos.
-
-```javascript
-// Esta função recebe um "nome"
-function saudarUsuario(nome) {
-  alert("Olá, " + nome + "!");
+function calcularRestantes(total, concluidas) {
+    return total - concluidas
 }
 
-saudarUsuario("Gabriel"); // A tela exibirá: Olá, Gabriel!
-saudarUsuario("Leonardo"); // A tela exibirá: Olá, Leonardo!
+const restantes = calcularRestantes(8, 3)
+
+console.log(restantes)
 ```
+
+O resultado apresentado no console será **5**.
+
+## Entendendo o exemplo
+
+- **function:** inicia a declaração da função.
+- **calcularRestantes:** é o nome escolhido.
+- **total** e **concluidas:** são os parâmetros que recebem os valores.
+- **return:** devolve o resultado para o código que chamou a função.
+
+Na chamada **calcularRestantes(8, 3)**, os valores **8** e **3** são os argumentos.
+
+O valor retornado é guardado na variável **restantes**.
+
+## Reutilizando a função
+
+```javascript
+console.log(calcularRestantes(12, 7))
+console.log(calcularRestantes(6, 6))
+```
+
+A mesma função calcula resultados para valores diferentes.
+
+## Função sem retorno explícito
+
+Uma função também pode executar uma ação sem utilizar **return**:
+
+```javascript
+function mostrarAviso() {
+    console.log("Salve suas anotações antes de sair.")
+}
+
+mostrarAviso()
+```
+
+A declaração prepara a função. A chamada com **()** executa suas instruções.
+
+Quando não há um retorno explícito, o valor retornado é **undefined**.

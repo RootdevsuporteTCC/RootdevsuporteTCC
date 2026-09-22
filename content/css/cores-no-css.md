@@ -3,49 +3,66 @@ categoria: css
 topico: cores-no-css
 ---
 
-# CORES NO CSS
+# Cores no CSS
 
-No CSS, dar vida aos elementos através das cores é uma das tarefas mais divertidas. Você pode mudar a cor do texto, a cor do fundo, a cor da borda, entre outras.
+As cores podem ser aplicadas ao texto, ao fundo e às bordas de um elemento.
 
-## Propriedades Principais
+No HTML:
 
-* `color`: Muda a cor do **texto**.
-* `background-color`: Muda a cor do **fundo** de um elemento.
+```html
+<p class="aviso">Seu progresso foi salvo.</p>
+```
 
-## Como definir as cores?
+No CSS:
 
-Existem três formas principais de escrever a cor que você deseja:
+```css
+.aviso {
+    color: #ffffff;
+    background-color: #650080;
+    border: 2px solid #330040;
+}
+```
 
-### 1. Nomes das Cores
-O CSS suporta 140 nomes de cores padrão em inglês.
+Nesse exemplo:
+
+- **color:** altera a cor do texto.
+- **background-color:** altera a cor do fundo.
+- **border:** define a espessura, o estilo e a cor da borda.
+
+## Formas de representar cores
+
+O CSS aceita diferentes formatos:
 
 ```css
 h1 {
-  background-color: Tomato;
-  color: White;
+    color: purple;
+}
+
+h2 {
+    color: #650080;
+}
+
+h3 {
+    color: rgb(101, 0, 128);
 }
 ```
-*(Alguns exemplos: Red, Blue, Green, Yellow, Orange, Purple, Black, White)*
 
-### 2. Cores HEX (Hexadecimais)
-É o formato mais usado no desenvolvimento web. Começa com um `#` seguido por 6 letras/números que representam a mistura de Vermelho, Verde e Azul (RGB).
+O primeiro exemplo utiliza um nome de cor.
+
+O formato hexadecimal começa com **#**. Na forma com 6 dígitos, os pares representam vermelho, verde e azul.
+
+No formato **rgb**, esses componentes podem ser informados com valores de **0** a **255**.
+
+## Transparência
+
+O formato **rgba** acrescenta um valor de transparência:
 
 ```css
-p {
-  color: #ff0000; /* Vermelho puro */
-  background-color: #f1f1f1; /* Cinza claro */
+.caixa {
+    background-color: rgba(101, 0, 128, 0.2);
 }
 ```
 
-### 3. Valores RGB e RGBA
-O `rgb()` define a intensidade de Vermelho (Red), Verde (Green) e Azul (Blue) usando números de 0 a 255.
-O `rgba()` é igual, mas o "A" significa *Alpha* (transparência), que vai de 0.0 (totalmente transparente) a 1.0 (totalmente sólido).
+O último valor vai de **0**, totalmente transparente, até **1**, totalmente opaco.
 
-```css
-.caixa-transparente {
-  /* Vermelho com 50% de transparência */
-  background-color: rgba(255, 0, 0, 0.5); 
-}
-```
-
-Experimente misturar cores usando o formato HEX para deixar o design do seu site com uma cara super profissional!
+Ao combinar cores, verifique se o texto continua fácil de ler sobre o fundo escolhido.

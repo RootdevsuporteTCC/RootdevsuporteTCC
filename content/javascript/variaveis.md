@@ -3,38 +3,58 @@ categoria: javascript
 topico: variaveis
 ---
 
-# VARIÁVEIS NO JAVASCRIPT
+# Variáveis
 
-Pense nas variáveis como **caixas** onde você guarda informações (dados) para usar depois. Cada caixa precisa de uma "etiqueta" (um nome) para você saber o que tem lá dentro.
+As variáveis permitem guardar valores e utilizá-los durante a execução do código.
 
-Existem três palavras especiais no JavaScript para criar essas caixas: `let`, `const` e `var`.
+## Usando let
 
-## 1. Criando com `let`
-
-O `let` cria uma variável cujo valor **pode ser alterado** no futuro. É a forma mais comum de criar variáveis hoje em dia.
+Utilize **let** quando precisar atribuir outro valor à variável:
 
 ```javascript
-// Criamos a variável "nome" e guardamos "Gabriel" nela
-let nome = "Gabriel";
+let aulasConcluidas = 2
 
-// Podemos mudar o valor depois!
-nome = "Leonardo"; 
+aulasConcluidas = 3
+
+console.log(aulasConcluidas)
 ```
 
-## 2. Criando com `const`
+O console apresenta **3**, que é o valor atribuído por último.
 
-O `const` (constante) cria uma variável cujo valor **NUNCA pode ser alterado**. Se você tentar mudar, o JavaScript vai dar um erro. Use para valores fixos.
+## Usando const
+
+Utilize **const** quando não precisar substituir o valor atribuído à variável:
 
 ```javascript
-const cpf = "123.456.789-00";
-// cpf = "000.000.000-00"; -> ISSO DARÁ ERRO!
+const nomeDoCurso = "Desenvolvimento web"
+
+console.log(nomeDoCurso)
 ```
 
-## 3. O antigo `var`
+Uma variável declarada com **const** precisa receber um valor na declaração. Tentar atribuir outro valor a ela provoca um erro.
 
-O `var` é a forma antiga de criar variáveis (antes de 2015). Você vai ver muito isso em códigos antigos na internet. Hoje em dia, os programadores preferem usar apenas `let` e `const` porque o `var` pode causar alguns bugs confusos.
+## Const e objetos
 
-### Regras para nomes de variáveis:
-* Podem conter letras, números, sublinhados (`_`) e cifrões (`$`).
-* **Devem** começar com uma letra (ou `$` / `_`). Nunca comece com um número!
-* São sensíveis a maiúsculas e minúsculas (a variável `idade` é diferente de `Idade`).
+O **const** não torna um objeto imutável:
+
+```javascript
+const perfil = {
+    nome: "Ana"
+}
+
+perfil.nome = "Marina"
+
+console.log(perfil.nome)
+```
+
+A propriedade **nome** foi alterada, mas a variável continua apontando para o mesmo objeto.
+
+O que não seria permitido é substituir **perfil** por outro objeto.
+
+## Nomes das variáveis
+
+Use nomes que indiquem o conteúdo guardado, como **nomeDoCurso** ou **aulasConcluidas**.
+
+Os nomes diferenciam letras maiúsculas de minúsculas e não podem começar com um número.
+
+Também existe **var**, comum em códigos antigos, mas nos exemplos utilizaremos **let** e **const**.

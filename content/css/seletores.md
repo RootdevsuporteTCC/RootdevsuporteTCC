@@ -3,68 +3,64 @@ categoria: css
 topico: seletores
 ---
 
-# SELETORES CSS
+# Seletores
 
-Os seletores são usados para "encontrar" (ou selecionar) os elementos HTML que você deseja estilizar. Pense neles como o endereço que o CSS usa para saber quem vai receber a pintura nova.
+O seletor indica quais elementos serão atingidos por uma regra CSS.
 
-Existem vários tipos de seletores, vamos conhecer os mais básicos:
+Considere este HTML:
 
-## 1. Seletor de Elemento (ou Tag)
+```html
+<h1 id="titulo-principal">Meus estudos</h1>
+<p class="aviso">Uma nova aula está disponível.</p>
+<p>Escolha um assunto para continuar.</p>
+```
 
-Seleciona todos os elementos HTML de um tipo específico. Por exemplo, se você quiser que todos os parágrafos (`<p>`) do site fiquem azuis.
+## Selecionando pelo elemento
 
 ```css
 p {
-  color: blue;
-  text-align: center;
+    line-height: 1.5;
 }
 ```
 
-## 2. Seletor de ID
+A regra é aplicada aos elementos **p**. Nesse caso, ela altera o espaçamento entre as linhas dos parágrafos.
 
-O ID é usado para selecionar um **único** elemento específico na página. Para selecionar um elemento com um ID específico, escreva o caractere **hash (`#`)** seguido do ID do elemento.
+## Selecionando pela classe
 
-**No HTML:**
-```html
-<h1 id="titulo-principal">Bem-vindo ao ROOT DEV</h1>
+```css
+.aviso {
+    color: #650080;
+}
 ```
 
-**No CSS:**
+O **.** antes do nome indica uma classe. A regra atinge os elementos que possuem **class="aviso"**.
+
+## Selecionando pelo id
+
 ```css
 #titulo-principal {
-  color: purple;
-  font-size: 40px;
+    font-size: 32px;
 }
 ```
-*Lembre-se: O ID deve ser único! Não use o mesmo ID para dois elementos.*
 
-## 3. Seletor de Classe
+O **#** indica um **id**. Esse identificador deve ser único na página.
 
-Como vimos na aula de classes, seleciona elementos HTML que possuem um atributo de classe específico. Usa-se um **ponto (`.`)**.
+## Agrupando seletores
 
 ```css
-.destaque {
-  background-color: yellow;
+h1, h2 {
+    font-family: Arial, sans-serif;
 }
 ```
 
-## 4. Seletor Universal
+A **,** permite aplicar as mesmas declarações aos títulos **h1** e **h2**.
 
-O seletor universal é representado por um **asterisco (`*`)** e seleciona **todos** os elementos da página. É muito usado para resetar margens.
+## Seletor universal
 
 ```css
 * {
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
 }
 ```
 
-## Agrupando Seletores
-
-Se você tem elementos diferentes que terão o mesmo estilo, pode agrupá-los separando por **vírgulas**, para não repetir código.
-
-```css
-h1, h2, p {
-  color: green;
-}
-```
+O **\*** seleciona todos os elementos. No exemplo, ele define uma forma de calcular suas dimensões, assunto apresentado na aula de Box Model.

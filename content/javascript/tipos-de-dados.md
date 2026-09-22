@@ -3,41 +3,57 @@ categoria: javascript
 topico: tipos-de-dados
 ---
 
-# TIPOS DE DADOS
+# Tipos de dados
 
-Quando guardamos informações em variáveis, o JavaScript reconhece automaticamente qual é o **tipo** daquele dado. Entender os tipos é crucial para que a programação funcione corretamente.
+Os valores utilizados no JavaScript possuem tipos. Eles influenciam as operações que podem ser realizadas.
 
-Os três tipos de dados mais fundamentais para iniciantes são:
-
-## 1. Strings (Textos)
-
-Uma String é uma sequência de caracteres (texto). Para o JavaScript entender que algo é um texto, o valor **deve estar entre aspas** (simples `''` ou duplas `""`).
+## Texto, número e booleano
 
 ```javascript
-let nome = "Matheus"; // Aspas duplas
-let sobrenome = 'Madeira'; // Aspas simples (também funciona)
-let idadeFalsa = "18"; // Cuidado! Como tem aspas, o JS acha que é um texto, não um número.
+const titulo = "Introdução ao HTML"
+const quantidade = 8
+const progresso = 37.5
+const concluido = false
 ```
 
-## 2. Numbers (Números)
+- **String:** representa texto, como o valor de **titulo**.
+- **Number:** representa números, incluindo valores com casas decimais.
+- **Boolean:** representa **true** ou **false**.
 
-No JavaScript, números são escritos **sem aspas**. Diferente de outras linguagens, o JS usa o mesmo tipo para números inteiros (10, 20) e números com vírgula/decimais (10.5).
-*Importante: na programação, usamos ponto `.` em vez de vírgula `,` para separar casas decimais.*
+No código, os números decimais utilizam **.**.
+
+## Undefined e null
 
 ```javascript
-let idade = 18;
-let preco = 99.90; // Usando ponto!
+let aulaSelecionada
 
-// Você pode fazer matemática com Numbers:
-let total = 10 + 5; // O total será 15
+const resultado = null
 ```
 
-## 3. Booleans (Verdadeiro ou Falso)
+A variável **aulaSelecionada** está com o valor **undefined**, pois ainda não recebeu um valor.
 
-Um Booleano só pode ter dois valores: `true` (verdadeiro) ou `false` (falso). 
-Eles são escritos sem aspas. São muito usados para criar condições lógicas e testar coisas (ex: "o usuário está logado?").
+O **null** pode ser utilizado para indicar intencionalmente a ausência de um valor.
+
+## Objetos e arrays
 
 ```javascript
-let luzLigada = true;
-let maiorDeIdade = false;
+const aula = {
+    titulo: "Listas",
+    categoria: "HTML"
+}
+
+const categorias = ["HTML", "CSS", "JavaScript"]
 ```
+
+O objeto reúne propriedades. O array organiza uma sequência de valores e é um tipo de objeto.
+
+## Texto não é número
+
+```javascript
+console.log(20 + 4)
+console.log("20" + 4)
+```
+
+O primeiro resultado é **24**. O segundo é o texto **"204"**, pois o operador **+** também pode juntar textos.
+
+Por isso, confira o tipo dos dados antes de fazer cálculos.

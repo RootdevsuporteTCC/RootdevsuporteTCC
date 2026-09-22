@@ -100,7 +100,7 @@ function buscarUsuarios(req, res) {
         pagina = Number(req.query.pagina)
     }
 
-    const limite = 50
+    const limite = 10
 
     // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina - 1) * limite
@@ -310,7 +310,7 @@ function buscarComentarios(req, res) {
         pagina = Number(req.query.pagina)
     }
 
-    const limite = 50
+    const limite = 10
 
     // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina -1) * limite
@@ -398,7 +398,7 @@ function buscarLogs(req, res) {
         pagina = Number(req.query.pagina)
     }
 
-    const limite = 50
+    const limite = 10
     
     // calcula quantos registros serão pulados antes da página solicitada
     const deslocamento = (pagina - 1) * limite
