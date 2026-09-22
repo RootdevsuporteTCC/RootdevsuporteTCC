@@ -20,7 +20,7 @@ A consulta e a exclusão pela página do admin são explicadas em **DOC_ADMIN.md
 
 **Print da área de comentários:**
 
-![alt text](image-70.png)
+![alt text](./img/image-70.png)
 
 ## Arquivos que participam do funcionamento
 
@@ -65,7 +65,7 @@ Essa consulta da página de aula não possui paginação. A paginação dos come
 
 **Print da consulta dos comentários da aula:**
 
-![alt text](image-71.png)
+![alt text](./img/image-71.png)
 
 ## Como a permissão de exclusão é informada
 
@@ -93,7 +93,7 @@ O controller responde com o texto da aula e a lista de comentários no mesmo JSO
 
 **Print da identificação dos comentários do autor:**
 
-![alt text](image-72.png)
+![alt text](./img/image-72.png)
 
 ## Como os comentários são montados na página
 
@@ -132,7 +132,7 @@ Por fim, **areaComentarios.appendChild(bloco)** acrescenta o comentário à áre
 
 **Print da estrutura e do preenchimento do comentário:**
 
-![alt text](image-73.png)
+![alt text](./img/image-73.png)
 
 ## Como a lixeira recebe sua ação
 
@@ -172,11 +172,11 @@ Essas condições trabalham juntas. Estar conectado não faz o formulário apare
 
 **Print da verificação de login dos comentários:**
 
-![alt text](image-74.png)
+![alt text](./img/image-74.png)
 
 **Print da área sem login:**
 
-![alt text](image-75.png)
+![alt text](./img/image-75.png)
 
 ## Como o comentário é preparado para envio
 
@@ -198,7 +198,7 @@ Durante o envio, **ocupado** recebe verdadeiro, e o campo e o botão ficam desab
 
 **Print das verificações antes do envio:**
 
-![alt text](image-76.png)
+![alt text](./img/image-76.png)
 
 ## Como o comentário é enviado
 
@@ -224,7 +224,7 @@ Se o status for 401, o script esconde o formulário e apresenta o aviso de login
 
 **Print da requisição de publicação:**
 
-![alt text](image-77.png)
+![alt text](./img/image-77.png)
 
 ## Como a rota limita as publicações
 
@@ -266,7 +266,7 @@ A rota de exclusão não utiliza esse limitador no código atual.
 
 **Print do limitador de comentários:**
 
-![alt text](image-78.png)
+![alt text](./img/image-78.png)
 
 ## Como o servidor verifica a publicação
 
@@ -292,7 +292,7 @@ Nesse trecho, o código atual chama **dados.texto.trim()** diretamente. Portanto
 
 **Print das verificações da publicação no servidor:**
 
-![alt text](image-79.png)
+![alt text](./img/image-79.png)
 
 ## Como a existência da aula é conferida
 
@@ -316,7 +316,7 @@ O código dessa publicação verifica a existência do arquivo, mas não repete 
 
 **Print da verificação do arquivo da aula:**
 
-![alt text](image-80.png)
+![alt text](./img/image-80.png)
 
 ## Como o autor é definido
 
@@ -362,7 +362,7 @@ Falhas de gravação ou um resultado diferente do esperado recebem status 500.
 
 **Print do INSERT do comentário:**
 
-![alt text](image-81.png)
+![alt text](./img/image-81.png)
 
 ## Como a publicação é registrada nos logs
 
@@ -382,7 +382,7 @@ O status 201 indica que o registro foi criado.
 
 **Print do registro da publicação e da resposta:**
 
-![alt text](image-82.png)
+![alt text](./img/image-82.png)
 
 ## Como a página atualiza os comentários após publicar
 
@@ -403,7 +403,7 @@ Se houver falha de comunicação, a mensagem orienta conferir os comentários an
 
 **Print do comentário publicado:**
 
-![alt text](image-83.png)
+![alt text](./img/image-83.png)
 
 ## Como a exclusão é solicitada
 
@@ -425,7 +425,7 @@ Essa requisição informa o id no link. O autor continua sendo identificado pela
 
 **Print da solicitação de exclusão:**
 
-![alt text](image-84.png)
+![alt text](./img/image-84.png)
 
 ## Como o controller verifica a exclusão
 
@@ -453,7 +453,7 @@ Esses valores são enviados ao model para conferir também a autoria.
 
 **Print das verificações da exclusão:**
 
-![alt text](image-85.png)
+![alt text](./img/image-85.png)
 
 ## Como o model impede a exclusão de outro autor
 
@@ -475,7 +475,7 @@ Em **controller/comentarioController.js**, se **resultado.affectedRows** for 0, 
 
 **Print da exclusão com verificação de autoria:**
 
-![alt text](image-86.png)
+![alt text](./img/image-86.png)
 
 ## Como a exclusão é registrada e apresentada
 
@@ -493,7 +493,7 @@ Em caso de falha de comunicação, apresenta uma mensagem para atualizar a pági
 
 **Print do log da exclusão:**
 
-![alt text](image-87.png)
+![alt text](./img/image-87.png)
 
 ## Diferença entre exclusão pelo autor e pelo admin
 
@@ -534,7 +534,7 @@ A organização geral da página está explicada em **DOC_CONTEUDOS.md**.
 
 **Print dos comentários em tela de celular:**
 
-![alt text](image-88.png)
+![alt text](./img/image-88.png)
 
 ## Como manter a funcionalidade
 

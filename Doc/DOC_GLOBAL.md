@@ -98,7 +98,7 @@ Os arquivos de **private/admin** não são disponibilizados por essa configuraç
 
 **Print da preparação do servidor:**
 
-![alt text](image-21.png)
+![alt text](./img/image-21.png)
 
 ## Como as rotas são separadas
 
@@ -128,7 +128,7 @@ Por fim, **app.listen** inicia o servidor na porta configurada.
 
 **Print do encaminhamento das rotas e da inicialização:**
 
-![alt text](image-22.png)
+![alt text](./img/image-22.png)
 
 ## Como uma operação percorre os arquivos
 
@@ -217,7 +217,7 @@ Se a conta não existir mais, a função encerra a sessão e informa que não h�
 
 **Print da atualização da sessão:**
 
-![alt text](image-23.png)
+![alt text](./img/image-23.png)
 
 ## Como o header funciona
 
@@ -235,7 +235,7 @@ Por isso, ao alterar um link ou controle compartilhado, é necessário atualizar
 
 **Print da estrutura do header:**
 
-![alt text](image-24.png)
+![alt text](./img/image-24.png)
 
 ## Como o header muda depois do login
 
@@ -268,11 +268,11 @@ A função atualiza a interface. Ela não realiza o login e não cria a sessão.
 
 **Print da consulta de sessão pelo header:**
 
-![alt text](image-25.png)
+![alt text](./img/image-25.png)
 
 **Print do preenchimento dos avatares:**
 
-![alt text](image-26.png)
+![alt text](./img/image-26.png)
 
 ## Como o menu do header abre e fecha
 
@@ -293,7 +293,7 @@ Esse menu pertence ao header. Ele é separado do menu de tópicos da página de 
 
 **Print do controle do menu:**
 
-![alt text](image-27.png)
+![alt text](./img/image-27.png)
 
 ## Como o footer funciona
 
@@ -313,11 +313,11 @@ Em **private/admin/admin.html**, o contato chama **emailToClipboard**, mas o scr
 
 **Print da função de copiar o contato:**
 
-![alt text](image-28.png)
+![alt text](./img/image-28.png)
 
 **Print do footer:**
 
-![alt text](image-29.png)
+![alt text](./img/image-29.png)
 
 ## Como a prévia do avatar é reaproveitada
 
@@ -339,7 +339,7 @@ Cada função trabalha com os elementos de sua página. Não é necessário carr
 
 **Print da prévia do cadastro:**
 
-![alt text](image-30.png)
+![alt text](./img/image-30.png)
 
 ## Por que a ordem dos scripts importa
 
@@ -463,15 +463,15 @@ As regras podem se somar quando a largura atende a vários limites.
 
 **Print da responsividade do header:**
 
-![alt text](image-31.png)
+![alt text](./img/image-31.png)
 
 **Print da responsividade do footer:**
 
-![alt text](image-32.png)
+![alt text](./img/image-32.png)
 
 **Print do menu em tela de celular:**
 
-![alt text](image-33.png)
+![alt text](./img/image-33.png)
 
 ## Responsividade dos formulários compartilhados
 
@@ -487,7 +487,7 @@ A aplicação de cada regra depende das classes e dos ids presentes no HTML.
 
 **Print da organização dos campos em telas menores:**
 
-![alt text](image-34.png)
+![alt text](./img/image-34.png)
 
 ## Responsividade da página inicial
 

@@ -20,7 +20,7 @@ Mostrar o formulário da nova senha no navegador não autoriza a alteração por
 
 **Print da página inicial da recuperação:**
 
-![alt text](image-126.png)
+![alt text](./img/image-126.png)
 
 ## Arquivos que participam do funcionamento
 
@@ -61,7 +61,7 @@ Cada função utiliza **preventDefault()** para impedir o envio comum do HTML. A
 
 **Print dos eventos dos formulários:**
 
-![alt text](image-127.png)
+![alt text](./img/image-127.png)
 
 ## Como o envio de e-mail é configurado
 
@@ -93,7 +93,7 @@ As instruções para executar o projeto estão no **README.md**.
 
 **Print da configuração do Nodemailer:**
 
-![alt text](image-128.png)
+![alt text](./img/image-128.png)
 
 ## Como as rotas são organizadas
 
@@ -109,7 +109,7 @@ Cada rota possui limitadores antes da função do controller.
 
 **Print das rotas de recuperação:**
 
-![alt text](image-129.png)
+![alt text](./img/image-129.png)
 
 ## Como os limites de tentativas funcionam
 
@@ -145,7 +145,7 @@ A opção **skip** evita usar um e-mail ausente ou inadequado como identificador
 
 **Print do limitador por e-mail:**
 
-![alt text](image-130.png)
+![alt text](./img/image-130.png)
 
 ## Como o e-mail é enviado pelo formulário
 
@@ -173,7 +173,7 @@ Ao receber uma resposta de sucesso, a função:
 
 **Print da solicitação no navegador:**
 
-![alt text](image-131.png)
+![alt text](./img/image-131.png)
 
 ## Como o servidor valida a solicitação
 
@@ -219,7 +219,7 @@ Como a resposta já foi enviada, falhas posteriores no banco ou no envio não s�
 
 **Print da geração do código e da resposta inicial:**
 
-![alt text](image-132.png)
+![alt text](./img/image-132.png)
 
 ## Como a recuperação é salva
 
@@ -255,7 +255,7 @@ Como **rec_codigo** guarda o hash, seu tamanho no banco é **varchar(255)**, mes
 
 **Print da gravação da recuperação:**
 
-![alt text](image-133.png)
+![alt text](./img/image-133.png)
 
 ## Como a mensagem é montada
 
@@ -281,7 +281,7 @@ O callback informa o resultado da tentativa de envio. Ele não confirma que o de
 
 **Print da montagem do e-mail:**
 
-![alt text](image-134.png)
+![alt text](./img/image-134.png)
 
 ## Como o resultado do envio é registrado
 
@@ -298,7 +298,7 @@ A recuperação é salva antes da tentativa de envio. Uma falha no e-mail não r
 
 **Print do resultado do envio nos logs:**
 
-![alt text](image-135.png)
+![alt text](./img/image-135.png)
 
 ## Como o código informado é enviado
 
@@ -319,11 +319,11 @@ O servidor recebe o código junto com o e-mail utilizado na solicitação.
 
 **Print do envio do código:**
 
-![alt text](image-136.png)
+![alt text](./img/image-136.png)
 
 **Print da etapa de código:**
 
-![alt text](image-137.png)
+![alt text](./img/image-137.png)
 
 ## Como o controller verifica o formato do código
 
@@ -371,7 +371,7 @@ Depois que outra recuperação é gravada para a mesma conta, o código anterior
 
 **Print da busca da recuperação mais recente:**
 
-![alt text](image-138.png)
+![alt text](./img/image-138.png)
 
 ## Como o uso e a expiração são conferidos
 
@@ -397,7 +397,7 @@ A expiração é conferida novamente depois da comparação, pois essa operaçã
 
 **Print da verificação do prazo e do código:**
 
-![alt text](image-139.png)
+![alt text](./img/image-139.png)
 
 ## Como a autorização de recuperação é criada
 
@@ -428,7 +428,7 @@ A nova sessão não recebe **req.session.usuario** nesse fluxo. Validar o códig
 
 **Print da autorização na sessão:**
 
-![alt text](image-140.png)
+![alt text](./img/image-140.png)
 
 ## Como o formulário de nova senha aparece
 
@@ -448,7 +448,7 @@ O prazo também não é reiniciado. A autorização mantém a expiração da rec
 
 **Print da etapa de nova senha:**
 
-![alt text](image-141.png)
+![alt text](./img/image-141.png)
 
 ## Como a nova senha é enviada
 
@@ -473,7 +473,7 @@ O navegador não envia o id do usuário nem o id da recuperação nessa etapa. E
 
 **Print do envio da nova senha:**
 
-![alt text](image-142.png)
+![alt text](./img/image-142.png)
 
 ## Como o servidor autoriza a alteração da senha
 
@@ -499,7 +499,7 @@ Os detalhes dessa validação estão em **DOC_CADASTRO_LOGIN.md**.
 
 **Print da autorização para redefinir a senha:**
 
-![alt text](image-143.png)
+![alt text](./img/image-143.png)
 
 ## Como a alteração é preparada no model
 
@@ -556,7 +556,7 @@ Essa conferência no banco é necessária porque o estado pode mudar depois da v
 
 **Print da atualização da senha e do uso do código:**
 
-![alt text](image-144.png)
+![alt text](./img/image-144.png)
 
 ## Como o resultado da alteração é interpretado
 
@@ -589,11 +589,11 @@ Esse trecho encerra a sessão utilizada na recuperação. Ele não percorre nem 
 
 **Print do encerramento da recuperação:**
 
-![alt text](image-145.png)
+![alt text](./img/image-145.png)
 
 **Print da recuperação concluída:**
 
-![alt text](image-146.png)
+![alt text](./img/image-146.png)
 
 ## Como o botão Voltar funciona
 
@@ -623,7 +623,7 @@ O header e o footer utilizam **public/styles/global.css**, explicado em **DOC_GL
 
 **Print da recuperação em tela de celular:**
 
-![alt text](image-147.png)
+![alt text](./img/image-147.png)
 
 ## Como manter o funcionamento
 

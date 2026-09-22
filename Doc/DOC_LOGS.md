@@ -18,7 +18,7 @@ O relatório atual é uma listagem na página. O código não possui exportaçã
 
 **Print da consulta de relatórios:**
 
-![alt text](image-113.png)
+![alt text](./img/image-113.png)
 
 ## Arquivos que participam do funcionamento
 
@@ -99,7 +99,7 @@ O callback recebe o erro ou o resultado da gravação. O model não envia uma re
 
 **Print da gravação de logs:**
 
-![alt text](image-114.png)
+![alt text](./img/image-114.png)
 
 ## Quais ações dos usuários são registradas
 
@@ -115,7 +115,7 @@ Na exclusão do próprio perfil, a conta já não existe quando o log é gravado
 
 **Print do registro de exclusão do próprio perfil:**
 
-![alt text](image-115.png)
+![alt text](./img/image-115.png)
 
 ## Quais ações do admin são registradas
 
@@ -198,7 +198,7 @@ Quando funciona, lê o JSON e atualiza **paginaLogsAtual** e **pesquisaLogsAtual
 
 **Print da solicitação dos relatórios:**
 
-![alt text](image-116.png)
+![alt text](./img/image-116.png)
 
 ## Como a consulta é protegida
 
@@ -246,7 +246,7 @@ Depois, a função solicita **limite + 1** registros para descobrir se existe um
 
 **Print da validação da consulta de logs:**
 
-![alt text](image-117.png)
+![alt text](./img/image-117.png)
 
 ## Como os logs são consultados no banco
 
@@ -271,7 +271,7 @@ Se o nome da conta mudar, os logs ainda vinculados a ela passam a mostrar o nome
 
 **Print da consulta com usuários opcionais:**
 
-![alt text](image-118.png)
+![alt text](./img/image-118.png)
 
 ## Como a pesquisa dos logs funciona
 
@@ -318,7 +318,7 @@ A função entrega o erro ou a lista encontrada pelo callback.
 
 **Print dos filtros e da paginação no SQL:**
 
-![alt text](image-119.png)
+![alt text](./img/image-119.png)
 
 ## Como o controller informa a próxima página
 
@@ -352,7 +352,7 @@ O navegador recebe a página atual e a indicação de que pode avançar. Não ex
 
 **Print da resposta paginada:**
 
-![alt text](image-120.png)
+![alt text](./img/image-120.png)
 
 ## Como os registros aparecem na página
 
@@ -384,7 +384,7 @@ Se a lista estiver vazia, a consulta mostra **Nenhum registro encontrado**.
 
 **Print do preenchimento dos registros:**
 
-![alt text](image-121.png)
+![alt text](./img/image-121.png)
 
 ## Como os registros sem usuário são apresentados
 
@@ -407,7 +407,7 @@ A descrição da ação ajuda a interpretar o registro. O valor **null**, sozinh
 
 **Print de um log sem usuário vinculado:**
 
-![alt text](image-122.png)
+![alt text](./img/image-122.png)
 
 ## Como a pesquisa e a navegação são controladas
 
@@ -430,7 +430,7 @@ A lista não é atualizada automaticamente quando outra ação gera um log. É n
 
 **Print das funções de navegação dos logs:**
 
-![alt text](image-123.png)
+![alt text](./img/image-123.png)
 
 ## Por que os logs não possuem edição ou exclusão
 
@@ -485,7 +485,7 @@ Não é necessário criar outra função de model para cada tipo de ação. **re
 
 **Print do exemplo de integração:**
 
-![alt text](image-124.png)
+![alt text](./img/image-124.png)
 
 ## Como escolher o usuário e a descrição
 
@@ -521,7 +521,7 @@ As regras compartilhadas estão explicadas em **DOC_ADMIN.md**.
 
 **Print dos relatórios em tela de celular:**
 
-![alt text](image-125.png)
+![alt text](./img/image-125.png)
 
 ## Principais situações da consulta
 

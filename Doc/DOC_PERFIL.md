@@ -19,7 +19,7 @@ A alteração da senha é realizada pelo sistema de recuperação, explicado em 
 
 **Print da página de perfil:**
 
-![alt text](image-51.png)
+![alt text](./img/image-51.png)
 
 ## Arquivos que participam do funcionamento
 
@@ -49,7 +49,7 @@ No mesmo HTML, **public/scripts/perfil.js** é carregado com **defer**. O script
 
 **Print dos controles iniciais do perfil:**
 
-![alt text](image-52.png)
+![alt text](./img/image-52.png)
 
 ## Como os elementos são encontrados
 
@@ -85,7 +85,7 @@ O clique em Excluir conta chama **excluirPerfil**. A digitação do avatar chama
 
 **Print da ligação dos eventos:**
 
-![alt text](image-53.png)
+![alt text](./img/image-53.png)
 
 ## Como as rotas do perfil são organizadas
 
@@ -119,7 +119,7 @@ Os bloqueios dos botões no navegador evitam envios repetidos durante uma opera�
 
 **Print do limite de tentativas e das rotas:**
 
-![alt text](image-54.png)
+![alt text](./img/image-54.png)
 
 ## Como os dados são solicitados
 
@@ -145,7 +145,7 @@ Quando a consulta funciona, o script preenche os campos, atualiza a prévia do a
 
 **Print da consulta do perfil:**
 
-![alt text](image-55.png)
+![alt text](./img/image-55.png)
 
 ## Como o servidor identifica a conta
 
@@ -197,7 +197,7 @@ Se a conta não existir mais, o controller encerra a sessão, limpa o cookie e r
 
 **Print da consulta sem o campo de senha:**
 
-![alt text](image-56.png)
+![alt text](./img/image-56.png)
 
 ## Como a prévia do avatar é atualizada
 
@@ -253,7 +253,7 @@ Durante o envio:
 
 **Print da preparação das alterações:**
 
-![alt text](image-57.png)
+![alt text](./img/image-57.png)
 
 ## Como as alterações são enviadas
 
@@ -306,7 +306,7 @@ O perfil não recebe um tipo de conta para atualizar. Por essa operação, o usu
 
 **Print das verificações iniciais da edição:**
 
-![alt text](image-58.png)
+![alt text](./img/image-58.png)
 
 ## Como a senha atual é conferida
 
@@ -334,7 +334,7 @@ Se a consulta ou a comparação falhar, responde com status 500. Se a conta não
 
 **Print da comparação da senha atual:**
 
-![alt text](image-59.png)
+![alt text](./img/image-59.png)
 
 ## Como a duplicidade é verificada na edição
 
@@ -372,7 +372,7 @@ Quando o resultado é 0, o código responde com status 404. As falhas de gravaç
 
 **Print da atualização no banco:**
 
-![alt text](image-60.png)
+![alt text](./img/image-60.png)
 
 ## Como a sessão e o log são atualizados
 
@@ -400,7 +400,7 @@ Por fim, o controller responde com a mensagem **Perfil atualizado com sucesso.**
 
 **Print da atualização da sessão e do log:**
 
-![alt text](image-61.png)
+![alt text](./img/image-61.png)
 
 ## Como a página mostra o resultado da edição
 
@@ -422,11 +422,11 @@ Se houver uma falha de comunicação, a página informa que não foi possível c
 
 **Print do resultado do salvamento no script:**
 
-![alt text](image-62.png)
+![alt text](./img/image-62.png)
 
 **Print do perfil atualizado:**
 
-![alt text](image-63.png)
+![alt text](./img/image-63.png)
 
 ## Como a exclusão é solicitada
 
@@ -442,7 +442,7 @@ Cancelar essa confirmação encerra a função sem enviar a requisição.
 
 **Print da preparação da exclusão:**
 
-![alt text](image-64.png)
+![alt text](./img/image-64.png)
 
 ## Como a requisição de exclusão é enviada
 
@@ -462,7 +462,7 @@ Nenhum id de usuário é enviado para escolher a conta que será removida.
 
 **Print do envio da exclusão:**
 
-![alt text](image-65.png)
+![alt text](./img/image-65.png)
 
 ## Como o servidor autoriza a exclusão
 
@@ -484,7 +484,7 @@ A confirmação exibida pelo navegador ajuda a evitar cliques acidentais. A auto
 
 **Print da confirmação da senha para excluir:**
 
-![alt text](image-66.png)
+![alt text](./img/image-66.png)
 
 ## Como a conta é removida no banco
 
@@ -503,7 +503,7 @@ Em **controller/userController.js**, uma falha na exclusão recebe status 500. Q
 
 **Print da exclusão no model:**
 
-![alt text](image-67.png)
+![alt text](./img/image-67.png)
 
 ## O que acontece com os registros vinculados
 
@@ -550,7 +550,7 @@ A conta removida não volta a existir por causa de uma falha na gravação do lo
 
 **Print do log e do encerramento da sessão:**
 
-![alt text](image-68.png)
+![alt text](./img/image-68.png)
 
 ## Como a página termina a exclusão
 
@@ -580,7 +580,7 @@ O header e o footer utilizam **public/styles/global.css**, explicado em **DOC_GL
 
 **Print do perfil em tela de celular:**
 
-![alt text](image-69.png)
+![alt text](./img/image-69.png)
 
 ## Como manter a funcionalidade
 

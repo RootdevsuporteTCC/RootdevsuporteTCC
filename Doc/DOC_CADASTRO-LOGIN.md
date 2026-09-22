@@ -46,11 +46,11 @@ Em **index.js**, **express.urlencoded** lê os campos enviados e os disponibiliz
 
 **Print dos campos do cadastro:**
 
-![alt text](image-35.png)
+![alt text](./img/image-35.png)
 
 **Print da página de cadastro:**
 
-![alt text](image-36.png)
+![alt text](./img/image-36.png)
 
 ## Como a prévia do avatar funciona
 
@@ -100,7 +100,7 @@ Esse limitador pertence à rota de cadastro. A rota de login não utiliza esse m
 
 **Print do limitador de cadastro:**
 
-![alt text](image-37.png)
+![alt text](./img/image-37.png)
 
 ## Como o controller prepara os dados
 
@@ -135,7 +135,7 @@ A confirmação é utilizada para conferir a digitação. Ela não é enviada ao
 
 **Print da preparação do cadastro:**
 
-![alt text](image-38.png)
+![alt text](./img/image-38.png)
 
 ## Como nome, e-mail e avatar são verificados
 
@@ -193,7 +193,7 @@ A contagem de **length** do JavaScript pode considerar alguns emojis como mais d
 
 **Print da validação dos dados pessoais:**
 
-![alt text](image-39.png)
+![alt text](./img/image-39.png)
 
 ## O que a validação devolve
 
@@ -253,7 +253,7 @@ Em **controller/userController.js**, **criarUsuario** responde com status 400 qu
 
 **Print da validação da senha:**
 
-![alt text](image-40.png)
+![alt text](./img/image-40.png)
 
 ## Como o sistema procura cadastros duplicados
 
@@ -296,7 +296,7 @@ Em **controller/userController.js**, uma coincidência gera status 409. Uma falh
 
 **Print da consulta de duplicidade:**
 
-![alt text](image-41.png)
+![alt text](./img/image-41.png)
 
 ## Como a conta é salva
 
@@ -339,7 +339,7 @@ A função entrega o erro ou o resultado da gravação pelo callback.
 
 **Print da gravação do usuário:**
 
-![alt text](image-42.png)
+![alt text](./img/image-42.png)
 
 ## Por que a duplicidade também é tratada no INSERT
 
@@ -378,7 +378,7 @@ O cadastro não cria a sessão de login automaticamente. O usuário é encaminha
 
 **Print da conclusão do cadastro:**
 
-![alt text](image-43.png)
+![alt text](./img/image-43.png)
 
 ## Como o formulário de login envia os dados
 
@@ -399,7 +399,7 @@ router.post('/login', userController.loginUsuario)
 
 **Print da página de login:**
 
-![alt text](image-44.png)
+![alt text](./img/image-44.png)
 
 ## Como a conta é localizada no login
 
@@ -433,7 +433,7 @@ Em **controller/userController.js**:
 
 **Print da busca no login:**
 
-![alt text](image-45.png)
+![alt text](./img/image-45.png)
 
 ## Como a senha do login é comparada
 
@@ -480,11 +480,11 @@ Em **public/scripts/navbar-auth.js**, a página consulta a sessão e passa a mos
 
 **Print da confirmação da senha e da sessão:**
 
-![alt text](image-46.png)
+![alt text](./img/image-46.png)
 
 **Print do site após o login:**
 
-![alt text](image-47.png)
+![alt text](./img/image-47.png)
 
 ## Como as páginas consultam o estado do login
 
@@ -543,11 +543,11 @@ O logout não exclui a conta. Ele encerra o acesso daquela sessão.
 
 **Print do encerramento da sessão:**
 
-![alt text](image-48.png)
+![alt text](./img/image-48.png)
 
 **Print do registro da saída:**
 
-![alt text](image-49.png)
+![alt text](./img/image-49.png)
 
 ## Como as mensagens aparecem
 
@@ -572,7 +572,7 @@ A responsividade do header e do footer está em **public/styles/global.css** e �
 
 **Print do cadastro em tela de celular:**
 
-![alt text](image-50.png)
+![alt text](./img/image-50.png)
 
 ## Como manter as regras do cadastro
 

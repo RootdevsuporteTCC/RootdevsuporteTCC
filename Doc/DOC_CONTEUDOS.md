@@ -19,7 +19,7 @@ Em **public/scripts/conteudo.js**, selecionar um tópico pelo menu atualiza a au
 
 **Print da página de conteúdo:**
 
-![alt text](image.png)
+![alt text](./img/image.png)
 
 ## Arquivos que participam do funcionamento
 
@@ -66,7 +66,7 @@ Essas funções usam a variável declarada no início do script, sem precisar re
 
 **Print da leitura da categoria:**
 
-![alt text](image-1.png)
+![alt text](./img/image-1.png)
 
 ## Como uma aula pode ser indicada no link
 
@@ -82,7 +82,7 @@ Se o tópico existir no link, o script chama **carregarConteudo(topicoInicial)**
 
 **Print da abertura pelo link:**
 
-![alt text](image-2.png)
+![alt text](./img/image-2.png)
 
 ## Como o JavaScript encontra as áreas da página
 
@@ -138,7 +138,7 @@ Em **controller/conteudoController.js**, as funções recebem **req**, que cont�
 
 **Print das rotas de conteúdo:**
 
-![alt text](image-3.png)
+![alt text](./img/image-3.png)
 
 ## Como os tópicos são consultados
 
@@ -178,7 +178,7 @@ Uma resposta simplificada tem este formato:
 
 **Print da listagem de tópicos no servidor:**
 
-![alt text](image-4.png)
+![alt text](./img/image-4.png)
 
 ## Como os tópicos aparecem no menu
 
@@ -200,7 +200,7 @@ A listagem considera os nomes dos arquivos, mas não valida o cabeçalho de cada
 
 **Print da montagem do menu:**
 
-![alt text](image-5.png)
+![alt text](./img/image-5.png)
 
 ## Como o carregamento da aula é controlado
 
@@ -282,7 +282,7 @@ No callback, **erroArquivo** informa uma possível falha e **conteudo** contém 
 
 **Print da leitura da aula:**
 
-![alt text](image-6.png)
+![alt text](./img/image-6.png)
 
 ## Como os metadados são separados
 
@@ -318,7 +318,7 @@ No mesmo arquivo, **buscarConteudo** compara os metadados com a categoria e o t�
 
 **Print da separação dos metadados:**
 
-![alt text](image-7.png)
+![alt text](./img/image-7.png)
 
 ## Como os comentários acompanham a aula
 
@@ -372,11 +372,11 @@ No mesmo script, **exibirComentarios(comentarios)** monta uma estrutura fixa par
 
 **Print da conversão do Markdown:**
 
-![alt text](image-8.png)
+![alt text](./img/image-8.png)
 
 **Print da aula renderizada:**
 
-![alt text](image-9.png)
+![alt text](./img/image-9.png)
 
 ## Como a pesquisa funciona no navegador
 
@@ -423,11 +423,11 @@ A pesquisa considera todas as categorias, independentemente da categoria aberta 
 
 **Print da comparação da pesquisa:**
 
-![alt text](image-10.png)
+![alt text](./img/image-10.png)
 
 **Print dos resultados no site:**
 
-![alt text](image-11.png)
+![alt text](./img/image-11.png)
 
 ## Como a pesquisa é registrada nos logs
 
@@ -465,7 +465,7 @@ Arquivos com nome ou cabeçalho inválido são ignorados no cache e geram uma me
 
 **Print do carregamento do cache:**
 
-![alt text](image-12.png)
+![alt text](./img/image-12.png)
 
 ## Diferença entre listar, abrir e pesquisar
 
@@ -501,11 +501,11 @@ Quando essas operações funcionam, a aula é carregada novamente para atualizar
 
 **Print da página sem tópico:**
 
-![alt text](image-13.png)
+![alt text](./img/image-13.png)
 
 **Print dos comentários sem login:**
 
-![alt text](image-14.png)
+![alt text](./img/image-14.png)
 
 ## Como adicionar uma aula
 
@@ -567,7 +567,7 @@ O formulário dentro do bloco será apresentado como exemplo de código, não co
 
 **Print do arquivo da nova aula:**
 
-![alt text](image-15.png)
+![alt text](./img/image-15.png)
 
 ### Abrir a nova aula
 
@@ -588,11 +588,11 @@ Não é necessário inserir a aula no banco. Seus comentários serão associados
 
 **Print da nova aula no site:**
 
-![alt text](image-16.png)
+![alt text](./img/image-16.png)
 
 **Print da pesquisa pela nova aula:**
 
-![alt text](image-17.png)
+![alt text](./img/image-17.png)
 
 ### Alterar, renomear ou remover aulas
 
@@ -645,15 +645,15 @@ A responsividade do header e do footer está em **DOC_GLOBAL.md**.
 
 **Print das regras de responsividade:**
 
-![alt text](image-18.png)
+![alt text](./img/image-18.png)
 
 **Print da página em tela larga:**
 
-![alt text](image-19.png)
+![alt text](./img/image-19.png)
 
 **Print da página em tela de celular:**
 
-![alt text](image-20.png)
+![alt text](./img/image-20.png)
 
 ## Mensagens e situações que podem ocorrer
 

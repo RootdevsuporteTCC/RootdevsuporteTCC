@@ -57,7 +57,7 @@ No final do arquivo, **module.exports** permite que os models utilizem a mesma c
 
 **Print do código de conexão:**
 
-![alt text](image-148.png)
+![alt text](./img/image-148.png)
 
 ## Identificação e relacionamento dos registros
 
@@ -128,7 +128,7 @@ O símbolo **<>** significa diferente. Nesse caso, a consulta procura outra cont
 
 **Print da consulta de duplicidade:**
 
-![alt text](image-149.png)
+![alt text](./img/image-149.png)
 
 ## Cadastro e armazenamento da senha
 
@@ -158,7 +158,7 @@ A confirmação de senha não é armazenada. Ela serve apenas para verificar se 
 
 **Print do cadastro no banco:**
 
-![alt text](image-150.png)
+![alt text](./img/image-150.png)
 
 ## Tabela tb_comentarios
 
@@ -191,7 +191,7 @@ O ID do autor deve vir da sessão autenticada. Ele não deve ser escolhido livre
 
 **Print da inserção de comentários:**
 
-![alt text](image-151.png)
+![alt text](./img/image-151.png)
 
 ### Alterações nos arquivos das aulas
 
@@ -241,7 +241,7 @@ O campo **rec_usado** utiliza o valor padrão **0**, definido na tabela.
 
 **Print da criação da recuperação:**
 
-![alt text](image-152.png)
+![alt text](./img/image-152.png)
 
 ### Consulta da recuperação mais recente
 
@@ -279,7 +279,7 @@ Fazer as alterações no mesmo comando evita atualizar a senha separadamente da 
 
 **Print da conclusão da recuperação:**
 
-![alt text](image-153.png)
+![alt text](./img/image-153.png)
 
 ## Tabela tb_logs_acesso
 
@@ -304,7 +304,7 @@ A gravação de logs depende das chamadas feitas pelo back-end. A tabela não re
 
 **Print do registro de logs:**
 
-![alt text](image-154.png)
+![alt text](./img/image-154.png)
 
 ### Nome do usuário nos relatórios
 
@@ -363,13 +363,13 @@ Essas regras também se aplicam quando a exclusão do usuário é executada dire
 
 **Print dos relacionamentos no MER:**
 
-![alt text](image-155.png)
+![alt text](./img/image-155.png)
 
 **Print das regras de exclusão:**
 
-![alt text](image-156.png)
-![alt text](image-157.png)
-![alt text](image-158.png)
+![alt text](./img/image-156.png)
+![alt text](./img/image-157.png)
+![alt text](./img/image-158.png)
 
 ## Como os valores são enviados nas consultas
 
@@ -414,7 +414,7 @@ Essa diferença é necessária porque um log pode continuar existindo sem um usu
 
 **Print da consulta de logs com usuários:**
 
-![alt text](image-159.png)
+![alt text](./img/image-159.png)
 
 ## Pesquisa e paginação
 
@@ -467,7 +467,7 @@ O **ORDER BY** define a ordem dos resultados antes da aplicação do limite.
 
 **Print da pesquisa e paginação no model:**
 
-![alt text](image-160.png)
+![alt text](./img/image-160.png)
 
 ## Cuidados ao alterar a estrutura
 

@@ -25,7 +25,7 @@ O funcionamento dos relatórios está detalhado em **DOC_LOGS.md**.
 
 **Print da página inicial do admin:**
 
-![alt text](image-89.png)
+![alt text](./img/image-89.png)
 
 ## Arquivos que participam do funcionamento
 
@@ -54,7 +54,7 @@ A criação do 1º admin é explicada no **README.md**. Essa página de login n�
 
 **Print do login do admin:**
 
-![alt text](image-90.png)
+![alt text](./img/image-90.png)
 
 ## Como as credenciais são verificadas
 
@@ -80,7 +80,7 @@ A função **buscarPorEmail** entrega o resultado pelo callback. É dentro desse
 
 **Print da verificação de acesso do admin:**
 
-![alt text](image-91.png)
+![alt text](./img/image-91.png)
 
 ## Como o acesso é concluído
 
@@ -94,7 +94,7 @@ Se a gravação do log falhar, o erro é mostrado no terminal e o redirecionamen
 
 **Print da sessão e do redirecionamento do admin:**
 
-![alt text](image-92.png)
+![alt text](./img/image-92.png)
 
 ## Como as rotas são protegidas
 
@@ -120,7 +120,7 @@ O middleware utiliza o tipo guardado na sessão. Ele não consulta o banco novam
 
 **Print da proteção das rotas:**
 
-![alt text](image-93.png)
+![alt text](./img/image-93.png)
 
 ## Como o HTML e o script protegidos são enviados
 
@@ -137,7 +137,7 @@ Em **private/admin/admin.html**, o script é carregado pelo link **/adm/admin.js
 
 **Print das rotas do admin:**
 
-![alt text](image-94.png)
+![alt text](./img/image-94.png)
 
 ## Como as áreas da página são controladas
 
@@ -158,7 +158,7 @@ Essas funções alteram a interface. Elas não consultam o banco nem enviam resp
 
 **Print do controle das áreas da página:**
 
-![alt text](image-95.png)
+![alt text](./img/image-95.png)
 
 ## Como a consulta de usuários começa
 
@@ -180,7 +180,7 @@ Os valores de pesquisa e página ficam guardados em **pesquisaUsuariosAtual** e 
 
 **Print da solicitação de usuários:**
 
-![alt text](image-96.png)
+![alt text](./img/image-96.png)
 
 ## Como o controller prepara a paginação
 
@@ -207,7 +207,7 @@ Valores recusados recebem status 400.
 
 **Print da validação da paginação:**
 
-![alt text](image-97.png)
+![alt text](./img/image-97.png)
 
 ## Como a consulta usa o limite no banco
 
@@ -271,7 +271,7 @@ Esse modelo não calcula o total de páginas. Ele informa somente se existem mai
 
 **Print da identificação da próxima página:**
 
-![alt text](image-98.png)
+![alt text](./img/image-98.png)
 
 ## Como os usuários são exibidos
 
@@ -299,11 +299,11 @@ Se a lista estiver vazia, a tabela apresenta a mensagem de que nenhum usuário f
 
 **Print do preenchimento das linhas:**
 
-![alt text](image-99.png)
+![alt text](./img/image-99.png)
 
 **Print da consulta de usuários:**
 
-![alt text](image-100.png)
+![alt text](./img/image-100.png)
 
 ## Como a navegação e a pesquisa funcionam
 
@@ -327,7 +327,7 @@ Uma nova pesquisa começa na página 1 para não reutilizar uma posição de out
 
 **Print das funções de pesquisa de usuários:**
 
-![alt text](image-101.png)
+![alt text](./img/image-101.png)
 
 ## Como o formulário de edição é aberto
 
@@ -367,11 +367,11 @@ No mesmo arquivo, **atualizarPreviewAvatarAdm()** lê **edit-avatar** e preenche
 
 **Print da ligação da prévia do avatar:**
 
-![alt text](image-102.png)
+![alt text](./img/image-102.png)
 
 **Print da edição de usuário:**
 
-![alt text](image-103.png)
+![alt text](./img/image-103.png)
 
 ## Como a edição é enviada
 
@@ -392,7 +392,7 @@ Se o avatar estiver vazio, o script envia **:D**.
 
 **Print do envio da edição:**
 
-![alt text](image-104.png)
+![alt text](./img/image-104.png)
 
 ## Como o controller valida a edição
 
@@ -415,7 +415,7 @@ O controller também trata **ER_DUP_ENTRY** caso o banco identifique duplicidade
 
 **Print da validação dos campos e do tipo:**
 
-![alt text](image-105.png)
+![alt text](./img/image-105.png)
 
 ## Como a edição é gravada e concluída
 
@@ -455,7 +455,7 @@ Depois das verificações, o controller chama **excluirUsuario**, de **model/use
 
 **Print das verificações para excluir um usuário:**
 
-![alt text](image-106.png)
+![alt text](./img/image-106.png)
 
 ## Como os vínculos afetam a exclusão
 
@@ -527,11 +527,11 @@ A lógica é equivalente à consulta de usuários, mas utiliza variáveis própr
 
 **Print do preenchimento dos comentários:**
 
-![alt text](image-107.png)
+![alt text](./img/image-107.png)
 
 **Print da consulta de comentários:**
 
-![alt text](image-108.png)
+![alt text](./img/image-108.png)
 
 ## Como o admin exclui um comentário
 
@@ -551,7 +551,7 @@ No navegador, a consulta é carregada novamente mantendo o filtro e a página.
 
 **Print da solicitação de exclusão de comentário:**
 
-![alt text](image-109.png)
+![alt text](./img/image-109.png)
 
 ## Como os relatórios são acessados
 
@@ -582,12 +582,12 @@ Até 700 pixels, o formulário de pesquisa passa a se organizar em coluna. O for
 
 **Print das regras de rolagem:**
 
-![alt text](image-110.png)
+![alt text](./img/image-110.png)
 
 **Print da consulta em tela de celular:**
 
-![alt text](image-111.png)
-![alt text](image-112.png)
+![alt text](./img/image-111.png)
+![alt text](./img/image-112.png)
 
 ## Como manter as consultas
 
