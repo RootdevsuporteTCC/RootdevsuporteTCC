@@ -57,7 +57,7 @@ No final do arquivo, **module.exports** permite que os models utilizem a mesma c
 
 **Print do código de conexão:**
 
-No arquivo **config/database.js**, tire um print das linhas **12 a 22**, mostrando a chamada de **conexao.connect()**, o tratamento do erro e a exportação da conexão.
+![alt text](image-148.png)
 
 ## Identificação e relacionamento dos registros
 
@@ -128,7 +128,7 @@ O símbolo **<>** significa diferente. Nesse caso, a consulta procura outra cont
 
 **Print da consulta de duplicidade:**
 
-No arquivo **model/userModel.js**, tire um print das linhas **186 a 201**, mostrando a função **buscarUsuarioDuplicado()** completa.
+![alt text](image-149.png)
 
 ## Cadastro e armazenamento da senha
 
@@ -158,7 +158,7 @@ A confirmação de senha não é armazenada. Ela serve apenas para verificar se 
 
 **Print do cadastro no banco:**
 
-No arquivo **model/userModel.js**, tire um print das linhas **5 a 27**, mostrando a função **criarUsuario()**, a criação do hash e o comando de inserção.
+![alt text](image-150.png)
 
 ## Tabela tb_comentarios
 
@@ -191,7 +191,7 @@ O ID do autor deve vir da sessão autenticada. Ele não deve ser escolhido livre
 
 **Print da inserção de comentários:**
 
-No arquivo **model/comentarioModel.js**, tire um print das linhas **34 a 48**, mostrando a função **salvarComentario()** e os valores enviados para o banco.
+![alt text](image-151.png)
 
 ### Alterações nos arquivos das aulas
 
@@ -241,7 +241,7 @@ O campo **rec_usado** utiliza o valor padrão **0**, definido na tabela.
 
 **Print da criação da recuperação:**
 
-No arquivo **model/recuperacaoModel.js**, tire um print das linhas **5 a 24**, mostrando a função **criarRecuperacao()**, a criação do hash e o cálculo da expiração.
+![alt text](image-152.png)
 
 ### Consulta da recuperação mais recente
 
@@ -279,7 +279,7 @@ Fazer as alterações no mesmo comando evita atualizar a senha separadamente da 
 
 **Print da conclusão da recuperação:**
 
-No arquivo **model/recuperacaoModel.js**, tire um print das linhas **57 a 77**, mostrando o comando **UPDATE**, os relacionamentos e as condições do **WHERE**.
+![alt text](image-153.png)
 
 ## Tabela tb_logs_acesso
 
@@ -304,7 +304,7 @@ A gravação de logs depende das chamadas feitas pelo back-end. A tabela não re
 
 **Print do registro de logs:**
 
-No arquivo **model/logModel.js**, tire um print das linhas **4 a 15**, mostrando a função **registrarLog()** completa.
+![alt text](image-154.png)
 
 ### Nome do usuário nos relatórios
 
@@ -363,11 +363,13 @@ Essas regras também se aplicam quando a exclusão do usuário é executada dire
 
 **Print dos relacionamentos no MER:**
 
-Abra o MER no programa usado para editar o banco e enquadre as tabelas **tb_usuarios**, **tb_comentarios**, **tb_recuperacoes** e **tb_logs_acesso**. O print deve mostrar os nomes dos campos e as ligações entre as tabelas.
+![alt text](image-155.png)
 
 **Print das regras de exclusão:**
 
-No editor do MER, abra as configurações das chaves estrangeiras. Tire prints mostrando **ON DELETE CASCADE** em comentários e recuperações e **ON DELETE SET NULL** em logs. Inclua o nome da tabela em cada print para identificar a configuração.
+![alt text](image-156.png)
+![alt text](image-157.png)
+![alt text](image-158.png)
 
 ## Como os valores são enviados nas consultas
 
@@ -412,7 +414,7 @@ Essa diferença é necessária porque um log pode continuar existindo sem um usu
 
 **Print da consulta de logs com usuários:**
 
-No arquivo **model/logModel.js**, tire um print das linhas **18 a 31**, mostrando os campos consultados e o **LEFT JOIN** com **tb_usuarios**.
+![alt text](image-159.png)
 
 ## Pesquisa e paginação
 
@@ -465,7 +467,7 @@ O **ORDER BY** define a ordem dos resultados antes da aplicação do limite.
 
 **Print da pesquisa e paginação no model:**
 
-No arquivo **model/userModel.js**, tire um print das linhas **134 a 158**, mostrando a montagem dos filtros, o **ORDER BY**, o **LIMIT**, o **OFFSET** e o envio dos valores para a consulta.
+![alt text](image-160.png)
 
 ## Cuidados ao alterar a estrutura
 
