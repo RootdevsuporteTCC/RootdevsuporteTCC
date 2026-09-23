@@ -177,9 +177,10 @@ tbody td:hover, tbody th:hover {
 
 
 .form-pesquisa form {
-    justify-self: center;
-    display: block;
-    margin: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem auto;
 }
 
 .form-pesquisa input {

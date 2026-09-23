@@ -9,7 +9,7 @@ select {
 }
 
 #form-box {
-    margin: 2rem;
+    margin: 2rem auto;
     border-radius: 30px;
     justify-self: center;
     padding: 2rem;
