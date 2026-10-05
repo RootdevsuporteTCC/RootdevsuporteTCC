@@ -4,6 +4,8 @@ const express = require('express')
 const path = require('path')
 const session = require('express-session')
 
+const conexao = require("./config/database")
+
 const userRoutes = require('./routes/userRoutes')
 const admRoutes = require('./routes/admRoutes')
 const conteudoRoutes = require('./routes/conteudoRoutes')
@@ -13,7 +15,15 @@ const recuperacaoRoutes = require("./routes/recuperacaoRoutes")
 const conteudoController = require("./controller/conteudoController")
 
 const app = express()
-const port = 8000
+const port = Number(process.env.PORT || 8000)
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error("PORT deve ser uma porta válida.");
+}
+
+if (!process.env.SESSION_SECRET) {
+    throw new Error("Configure SESSION_SECRET no arquivo .env")
+}
 
 // disponibiliza em req.body os dados enviados por formulários e json
 app.use(express.urlencoded({ extended: true }))
@@ -24,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 // configura a sessão usada pelas rotas para identificar o usuário
 app.use(session({
-    secret: "chave-legal-do-root-dev",  // chave usada para assinar o cookie da sessão
+    secret: process.env.SESSION_SECRET,  // chave usada para assinar o cookie da sessão
     resave: false,                      // evita salvar novamente uma sessão que não foi alterada
     saveUninitialized: false            // evita salvar sessões novas que ainda não receberam dados
 }))
@@ -36,16 +46,23 @@ app.use('/conteudo', conteudoRoutes)
 app.use('/comentarios', comentarioRoutes)
 app.use("/recuperacao", recuperacaoRoutes)
 
+// confere o acesso ao banco antes de iniciar o servidor
+conexao.query("SELECT 1", (erro) => {
+    if (erro) {
+        console.log("Não foi possível iniciar: falha na conexão com o banco.", erro.code)
 
-// responde ao acesso da página inicial com o arquivo index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'))
-})
+        conexao.end(() => {
+            process.exitCode = 1
+        })
 
-// carrega as aulas na memória para a pesquisa antes de iniciar o servidor
-conteudoController.carregarCacheConteudos()
+        return
+    }
 
-// liga o server e começa a receber requisições na porta configurada
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`)
+    console.log("Banco conectado com sucesso!")
+
+    conteudoController.carregarCacheConteudos()
+
+    app.listen(port, () => {
+        console.log(`Servidor rodando em http://localhost:${port}`)
+    })
 })
