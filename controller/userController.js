@@ -83,8 +83,18 @@ function criarUsuario(req, res) {
 
 // recebe nome ou email e senha, cria a sessão após conferir os dados e redireciona ao início
 function loginUsuario(req, res) {
-    const login = req.body.login
-    const senha = req.body.senha
+    const dados = req.body || {}
+
+    if (typeof dados.login !== "string" || typeof dados.senha !== "string") {
+        return res.status(400).send("Informe o nome ou e-mail e a senha.")
+    }
+
+    const login = dados.login.trim()
+    const senha = dados.senha
+
+    if (login.length === 0 || senha.length === 0) {
+        return res.status(400).send("Informe o nome ou e-mail e a senha.")
+    }
 
     userModel.buscarPorLogin(login, async (erro, usuario) => {
         if (erro) {

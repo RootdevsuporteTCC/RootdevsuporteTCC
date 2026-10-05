@@ -27,13 +27,18 @@ function salvarComentario(req, res) {
 
     const nomeValido = /^[a-zA-Z0-9_-]+$/ // regex que permite os caracteres "a-z", "A-Z", "0-9", "_", "-"
 
-    if (!nomeValido.test(topico)) {
+    if (typeof topico !== "string" || !nomeValido.test(topico)) {
 
         // status 400 - requisição inválida
         return res.status(400).json({ erro: "Tópico inválido." })
     }
     
+    if (typeof dados.texto !== "string") {
+        return res.status(400).json({ erro: "Informe um comentário válido." })
+    }
+
     const texto = dados.texto.trim()
+    
     if (texto.length === 0 || texto.length > 1000) {
 
         // status 400 - requisição inválida

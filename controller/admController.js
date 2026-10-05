@@ -10,12 +10,25 @@ const usuarioValidacao = require("../validacoes/usuarioValidacao")
 // funções gerais
 
 // recebe email e senha, verifica o tipo da conta e redireciona ao painel após criar a sessão
-async function loginAdm(req, res) {
+function loginAdm(req, res) {
 
-        const email = req.body.email;
-        const senha = req.body.senha;
+        const dados = req.body || {}
 
-        const user = await userModel.buscarPorEmail(email, async (erro, user) => {
+        if (
+            typeof dados.email !== "string" ||
+            typeof dados.senha !== "string"
+        ) {
+            return res.status(400).send("Informe o e-mail e a senha.")
+        }
+
+        const email = dados.email.trim()
+        const senha = dados.senha
+
+        if (email.length === 0 || senha.length === 0) {
+            return res.status(400).send("Informe o e-mail e a senha.")
+        }
+
+        userModel.buscarPorEmail(email, async (erro, user) => {
             // erro no banco
             if (erro) {
                 console.log(erro);
