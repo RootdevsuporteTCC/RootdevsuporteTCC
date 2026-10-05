@@ -42,6 +42,19 @@ function voltarInicio() {
     form.formEdicao.innerHTML = ""
 }
 
+async function lerRespostaAdmin(resposta) {
+    const dados = await resposta.json()
+
+    if (resposta.status === 401 || resposta.status === 403) {
+        alert(dados.erro || "Você não possui acesso ao painel.")
+
+        window.location.assign("/admin/loginAdm.html")
+        return null
+    }
+
+    return dados
+}
+
 //funções de usuario
 
 // le o avatar do formulário de edição e atualiza a prévia
@@ -71,14 +84,17 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     
     try {
         const endereco = `/adm/usuarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
-
         const resposta = await fetch(endereco)
+        const dados = await lerRespostaAdmin(resposta)
 
-        if (!resposta.ok) {
-            throw new Error("Erro ao consultar usuários.");
+        if (!dados) {
+            return
         }
 
-        const dados = await resposta.json()
+        if (!resposta.ok) {
+            throw new Error(dados.erro || "Não foi possível realizar a consulta.")
+        }
+
         const usuarios = dados.usuarios
 
         paginaUsuariosAtual = dados.pagina
@@ -190,7 +206,10 @@ async function excluirUsuario(id) {
 
     try {
         const resposta = await fetch(`/adm/usuarios/${id}`, { method: "DELETE" })
-        const dados = await resposta.json()
+        const dados = await lerRespostaAdmin(resposta)
+        if (!dados) {
+            return
+        }
         
         if (!resposta.ok) {
             alert(dados.erro)
@@ -210,7 +229,10 @@ async function editarUsuario(id) {
 
     try {
         const resposta = await fetch(`/adm/usuarios/${id}`)
-        const usuario = await resposta.json()
+        const usuario = await lerRespostaAdmin(resposta)
+        if (!usuario) {
+            return
+        }
 
         if (!resposta.ok) {
             form.formEdicao.innerHTML = `
@@ -311,7 +333,10 @@ async function salvarEdicao(event, id) {
             body: JSON.stringify(usuarioAtualizado) // transforma o objeto json em uma string json para ser enviado
         })
 
-        const dados = await resposta.json()
+        const dados = await lerRespostaAdmin(resposta)
+        if (!dados) {
+            return
+        }
 
         if (!resposta.ok) {
             alert(dados.erro)
@@ -380,12 +405,16 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
     try {
         const endereco = `/adm/comentarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
         const resposta = await fetch(endereco)
+        const dados = await lerRespostaAdmin(resposta)
 
-        if (!resposta.ok) {
-            throw new Error("Erro ao consultar comentários");
+        if (!dados) {
+            return
         }
 
-        const dados = await resposta.json()
+        if (!resposta.ok) {
+            throw new Error(dados.erro || "Não foi possível realizar a consulta.")
+        }
+
         const comentarios = dados.comentarios
 
         paginaComentariosAtual = dados.pagina
@@ -500,14 +529,10 @@ async function excluirComentarioAdmin(id) {
             method: "DELETE"
         })
 
-        // status 401 - autenticação ausente ou inválida
-        // status 403 - acesso negado
-        if (resposta.status === 401 || resposta.status === 403) {
-            alert("É necessário estar conectado como admin.")
+        const dados = await lerRespostaAdmin(resposta)
+        if (!dados) {
             return
         }
-
-        const dados = await resposta.json()
 
         if (!resposta.ok) {
             alert(dados.erro)
@@ -560,14 +585,16 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
     try {
         const endereco = `/adm/logs?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
         const resposta = await fetch(endereco)
+        const dados = await lerRespostaAdmin(resposta)
 
-        if (!resposta.ok) {
-            const mensagem = await resposta.text()
-
-            throw new Error(`HTTP ${resposta.status}: ${mensagem}`);
+        if (!dados) {
+            return
         }
 
-        const dados = await resposta.json()
+        if (!resposta.ok) {
+            throw new Error(dados.erro || "Não foi possível realizar a consulta.")
+        }
+        
         const logs = dados.logs
 
         paginaLogsAtual = dados.pagina

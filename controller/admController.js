@@ -150,23 +150,30 @@ function buscarUsuarios(req, res) {
     });
 }
 
-// recebe o id pela rota e devolve os dados do usuário encontrado em json
-function buscarUsuarioPorId(req, res) {
-    const id = req.params.id
+function buscarUsuarioPorId(req, res, next) {
+    const idRecebido = req.params.id
+
+    // aceita apenas digitos no parâmetro da rota
+    if (!/^\d+$/.test(idRecebido)) {
+        return res.status(400).json({ erro: "ID de usuário inválido." })
+    }
+
+    const id = Number(idRecebido)
+
+    // o ID precisa ser um número inteiro positivo e seguro
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({ erro: "ID de usuário inválido." })
+    }
+
     userModel.buscarPorId(id, (erro, usuario) => {
         if (erro) {
-            console.log(erro)
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Erro ao buscar usuário" })
+            return next(erro)
         }
 
         if (!usuario) {
-            // status 404 - recurso não encontrado
-            return res.status(404).json({ erro: "Usuário não encontrado" })
+            return res.status(404).json({ erro: "Usuário não encontrado." })
         }
 
-        // status 200 - requisição bem-sucedida
         return res.status(200).json(usuario)
     })
 }

@@ -6,6 +6,9 @@ const session = require('express-session')
 
 const conexao = require("./config/database")
 
+const tratarErros = require("./middleware/tratarErros")
+const alertaErros = require("./middleware/alertaErros")
+
 const userRoutes = require('./routes/userRoutes')
 const admRoutes = require('./routes/admRoutes')
 const conteudoRoutes = require('./routes/conteudoRoutes')
@@ -24,6 +27,8 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 if (!process.env.SESSION_SECRET) {
     throw new Error("Configure SESSION_SECRET no arquivo .env")
 }
+
+app.use(alertaErros)
 
 // disponibiliza em req.body os dados enviados por formulários e json
 app.use(express.urlencoded({ extended: true }))
@@ -45,6 +50,9 @@ app.use('/adm', admRoutes)
 app.use('/conteudo', conteudoRoutes)
 app.use('/comentarios', comentarioRoutes)
 app.use("/recuperacao", recuperacaoRoutes)
+
+// trata os erros encaminhados pelas rotas e middlewares
+app.use(tratarErros)
 
 // confere o acesso ao banco antes de iniciar o servidor
 conexao.query("SELECT 1", (erro) => {

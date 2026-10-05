@@ -1,20 +1,42 @@
-// recebe a requisição e verifica o usuário guardado na sessão
-// responde com erro ou libera a próxima função da rota
-function verificarAdmin(req, res, next) {
-    if (!req.session.usuario) {
+const userModel = require("../model/userModel")
 
-        // status 401 - autenticação ausente ou inválida
-        return res.status(401).send("Você precisa fazer login.")
-    }
-
-    if (req.session.usuario.tipo !== 'admin') {
-
-        // status 403 - acesso negado
-        return res.status(403).send("Acesso negado.")
-    }
-
-    // continua o fluxo da requisição depois de verificar o acesso
-    next()
+function negarAcessoAdmin(req, res, status, mensagem) {
+    return res.status(status).json({ erro: mensagem })
 }
 
-module.exports = verificarAdmin;
+function verificarAdmin(req, res, next) {
+    if (!req.session.usuario) {
+        return negarAcessoAdmin(req, res, 401, "Você precisa fazer login.")
+    }
+
+    const id = req.session.usuario.id
+
+    // confere no banco se o usuário ainda possui acesso
+    userModel.buscarPorId(id, (erro, usuario) => {
+        if (erro) {
+            return next(erro)
+        }
+
+        if (!usuario) {
+            delete req.session.usuario
+            
+            return negarAcessoAdmin(req, res, 401, "Faça login novamente.")
+        }
+
+        // atualiza a sessão com os dados atuais do usuário.
+        req.session.usuario = {
+            id: usuario.user_id,
+            nome: usuario.user_name,
+            tipo: usuario.user_tipo,
+            avatar: usuario.user_avatar
+        }
+
+        if (usuario.user_tipo !== "admin") {
+            return negarAcessoAdmin(req, res, 403, "Acesso negado")
+        }
+
+        return next()
+    })
+}
+
+module.exports = verificarAdmin
