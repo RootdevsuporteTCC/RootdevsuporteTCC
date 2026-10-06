@@ -1,6 +1,8 @@
 const crypto = require("crypto")
 const bcrypt = require("bcrypt")
 
+const { encerrarSessao } = require("../utils/sessao")
+
 const userModel = require("../model/userModel")
 const recuperacaoModel = require("../model/recuperacaoModel")
 const logModel = require("../model/logModel")
@@ -266,12 +268,10 @@ function redefinirSenha(req, res) {
 
         delete req.session.recuperacao
 
-        req.session.destroy((erroSessao) => {
+        encerrarSessao(req, res, (erroSessao) => {
             if (erroSessao) {
                 console.log("Erro ao encerrar sessão de recuperação:", erroSessao.message)
             }
-
-            res.clearCookie("connect.sid")
 
             return res.json({ mensagem: "Senha alterada com sucesso. Faça login com sua nova senha." })
         })

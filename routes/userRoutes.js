@@ -32,7 +32,7 @@ router.post('/login', userController.loginUsuario) // manda os dados de login pa
 router.get('/sessao', userController.verificarSessao) // manda a consulta da sessão para devolver o estado do login
 router.post('/logout', userController.logoutUsuario) // manda a solicitação de encerramento da sessão
 router.get('/perfil', userController.buscarPerfil) // manda a consulta dos dados do usuário conectado
-router.post('/perfil', limitarEdicaoPerfil, userController.atualizarPerfil) // limita as tentativas antes de mandar a edição do perfil
+router.patch('/perfil', limitarEdicaoPerfil, userController.atualizarPerfil) // limita as tentativas antes de mandar a edição do perfil
 router.delete('/perfil', limitarEdicaoPerfil, userController.excluirPerfil) // limita as tentativas antes de encaminhar a exclusão do perfil
 
 module.exports = router

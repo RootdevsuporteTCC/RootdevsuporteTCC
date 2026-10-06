@@ -6,6 +6,11 @@ const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
+const {
+    lerConsulta,
+    montarPagina
+} = require("../utils/paginacao")
+
 //----------------------------------------------------------------------------------------------
 // funções gerais
 
@@ -104,50 +109,25 @@ function enviarAdminJs(req, res) {
 // funções de usuários
 
 // recebe pesquisa e página pela url e devolve usuários e dados da paginação em json
-function buscarUsuarios(req, res) {
-    const pesquisa = req.query.pesquisa || ''
+function buscarUsuarios(req, res, next) {
+    const consulta = lerConsulta(req.query)
 
-    let pagina = 1
-
-    if (req.query.pagina !== undefined) {
-        pagina = Number(req.query.pagina)
+    if (!consulta) {
+        return res.status(400).json({ erro: "Página ou pesquisa inválida." })
     }
 
-    const limite = 10
-
-    // calcula quantos registros serão pulados antes da página solicitada
-    const deslocamento = (pagina - 1) * limite
-
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
-    if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
-        
-        // status 400 - requisição inválida
-        return res.status(400).json({ erro: "Página ou pesquisa inválida" })
-    }
+    const { pesquisa, limite, deslocamento } = consulta
 
     // consulta um registro extra para descobrir se existe uma próxima página
     userModel.buscarTodosUsuarios(pesquisa, limite + 1, deslocamento, (erro, usuarios) => {
         if (erro) {
-            console.log("Erro ao buscar usuários:", erro);
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Não foi possível buscar os usuários." });
+            return next(erro)
         }
 
-        const temProxima = usuarios.length > limite
-
-        // remove o registro extra antes de enviar a página ao navegador
-        if (temProxima) {
-            usuarios.pop()
-        }
-
-        // status 200 - requisição bem-sucedida
-        return res.status(200).json({
-            usuarios: usuarios,
-            pagina: pagina,
-            temProxima: temProxima
-        });
-    });
+        return res.json(
+            montarPagina("usuarios", usuarios, consulta)
+        )
+    })
 }
 
 function buscarUsuarioPorId(req, res, next) {
@@ -321,48 +301,24 @@ function atualizarUsuario(req, res) {
 //funções de comentários
 
 // recebe pesquisa e página pela url e devolve comentários e dados da paginação em json
-function buscarComentarios(req, res) {
-    const pesquisa = req.query.pesquisa || ""
+function buscarComentarios(req, res, next) {
+    const consulta = lerConsulta(req.query)
 
-    let pagina = 1
-
-    if (req.query.pagina !== undefined) {
-        pagina = Number(req.query.pagina)
+    if (!consulta) {
+        return res.status(400).json({ erro: "Página ou pesquisa inválida." })
     }
 
-    const limite = 10
-
-    // calcula quantos registros serão pulados antes da página solicitada
-    const deslocamento = (pagina -1) * limite
-
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
-    if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
-        
-        // status 400 - requisição inválida
-        return res.status(400).json({ erro: "Página ou pesquisa inválida" })
-    }
+    const { pesquisa, limite, deslocamento } = consulta
 
     // consulta um registro extra para descobrir se existe uma próxima página
     comentarioModel.buscarTodosComentarios(pesquisa, limite + 1, deslocamento, (erro, comentarios) => {
         if (erro) {
-            console.log("Erro ao buscar comentarios:", erro)
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
+            return next(erro)
         }
 
-        const temProxima = comentarios.length > limite
-
-        // remove o registro extra antes de enviar a página ao navegador
-        if (temProxima) {
-            comentarios.pop()
-        }
-
-        return res.json({
-            comentarios: comentarios,
-            pagina: pagina,
-            temProxima: temProxima
-        })
+        return res.json(
+            montarPagina("comentarios", comentarios, consulta)
+        )
     })
 }
 
@@ -409,49 +365,25 @@ function excluirComentarioAdmin(req, res) {
 // função de log
 
 // recebe pesquisa e página pela url e devolve logs e dados da paginação em json
-function buscarLogs(req, res) {
-    const pesquisa = req.query.pesquisa || ""
+function buscarLogs(req, res, next) {
+    const consulta = lerConsulta(req.query)
 
-    let pagina = 1
-
-    if (req.query.pagina !== undefined) {
-        pagina = Number(req.query.pagina)
+    if (!consulta) {
+        return res.status(400).json({ erro: "Página ou pesquisa inválida." })
     }
 
-    const limite = 10
-    
-    // calcula quantos registros serão pulados antes da página solicitada
-    const deslocamento = (pagina - 1) * limite
+    const { pesquisa, limite, deslocamento } = consulta
 
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
-    if (!Number.isSafeInteger(pagina) || pagina < 1 || !Number.isSafeInteger(deslocamento) || typeof pesquisa !== "string") {
-        
-        // status 400 - requisição inválida
-        return res.status(400).json({ erro: "Página ou pesquisa inválida" })
-    }
-
-    // consulta um registro extra para descobrir se existe uma próxima página
     logModel.buscarTodosLogs(pesquisa, limite + 1, deslocamento, (erro, logs) => {
-        if (erro) {
-            console.log("Erro ao buscar logs:", erro)
+            if (erro) {
+                return next(erro)
+            }
 
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Não foi possível buscar os logs" })
+            return res.json(
+                montarPagina("logs", logs, consulta)
+            )
         }
-
-        const temProxima = logs.length > limite
-
-        // remove o registro extra antes de enviar a página ao navegador
-        if (temProxima) {
-            logs.pop()
-        }
-
-        return res.json({
-            logs: logs,
-            pagina: pagina,
-            temProxima: temProxima
-        })
-    })
+    )
 }
 
 module.exports = {

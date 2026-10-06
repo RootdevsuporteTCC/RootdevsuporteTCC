@@ -16,7 +16,7 @@ function atualizarPreviaPerfil() {
 // consulta o perfil pelo fetch e preenche o formulário com os dados recebidos
 async function carregarPerfil() {
     try {
-        const resposta = await fetch("usuarios/perfil")
+        const resposta = await fetch("/usuarios/perfil")
 
         // status 401 - autenticação ausente ou inválida
         if (resposta.status === 401) {
@@ -85,7 +85,7 @@ async function salvarPerfil(evento) {
 
     try {
         const resposta = await fetch("/usuarios/perfil", {
-            method: "post",
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json"  // diz que os dados estão em formato json
             },

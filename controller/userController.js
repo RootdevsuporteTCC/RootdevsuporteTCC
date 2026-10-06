@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt")
 
+const { encerrarSessao } = require("../utils/sessao")
+
 const userModel = require('../model/userModel')
 const logModel = require('../model/logModel')
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
@@ -155,15 +157,13 @@ function logoutUsuario(req, res) {
     const usuario = req.session.usuario
 
     // apaga a sessão do usuario no servidor
-    req.session.destroy((erroSessao) => {
+    encerrarSessao(req, res, (erroSessao) => {
         if (erroSessao) {
             console.log("Erro ao encerrar a sessão:", erroSessao)
 
             // status 500 - erro interno do servidor
             return res.status(500).send("Erro ao fazer logout")
         }
-
-        res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
         if (!usuario) {
             return res.redirect("/")
@@ -205,15 +205,13 @@ function verificarSessao(req, res) {
         if (!usuario) {
 
             // apaga a sessão do usuario no servidor
-            return req.session.destroy((erroSessao) => {
+            return encerrarSessao(req, res, (erroSessao) => {
                 if (erroSessao) {
                     console.log("Erro ao encerrar sessão:", erroSessao)
 
                     // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
                 }
-
-                res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
                 return res.json({ logado: false })
             })
@@ -259,15 +257,13 @@ function buscarPerfil(req, res) {
         if (!usuario) {
 
             // apaga a sessão do usuario no servidor
-            return req.session.destroy((erroSessao) => {
+            return encerrarSessao(req, res, (erroSessao) => {
                 if (erroSessao) {
                     console.log("Erro ao encerrar sessão:", erroSessao.message)
                 
                     // status 500 - erro interno do servidor
                     return res.status(500).json({ erro: "Não foi possível encerrar a sessão" })
                 }
- 
-                res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
                 // status 401 - autenticação ausente ou inválida
                 return res.status(401).json({ erro: "Sua conta não está mais disponível" })
@@ -507,12 +503,10 @@ function excluirPerfil(req, res) {
                 }
 
                 // apaga a sessão do usuario no servidor
-                req.session.destroy((erroSessao) => {
+                encerrarSessao(req, res, (erroSessao) => {
                     if (erroSessao) {
                         console.log("Erro ao encerrar sessão após exclusão:", erroSessao.message)
                     }
-
-                    res.clearCookie("connect.sid") // remove o cookie de sessão do usuário
 
                     return res.json({ mensagem: "Sua conta foi excluida." })
                 })
