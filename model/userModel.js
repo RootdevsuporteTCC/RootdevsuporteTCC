@@ -1,29 +1,19 @@
-const bcrypt = require('bcrypt')
 const conexao = require('../config/database')
 
-// recebe os dados do cadastro, salva a senha com hash e manda o resultado pelo callback
-async function criarUsuario(user, callback) {
+// salva os dados do cadastro com a senha ja protegida
+function criarUsuario(usuario, callback) {
+    const sql = `
+        INSERT INTO tb_usuarios
+        (user_name, user_email, user_pass, user_avatar)
+        VALUES (?, ?, ?, ?)
+    `
 
-    try {
-        // gera o hash para evitar o armazenamento da senha original
-        const senhaHash = await bcrypt.hash(user.senha, 10);
-
-        const sql = `
-            INSERT INTO tb_usuarios
-            (user_name, user_email, user_pass, user_avatar)
-            VALUES (?, ?, ?, ?)
-        `
-
-        conexao.query(sql, [
-            user.nome,
-            user.email,
-            senhaHash,
-            (user.avatar || ":D")
-        ], callback)
-    
-    } catch (erro) {
-        callback(erro);
-    }
+    conexao.query(sql, [
+        usuario.nome,
+        usuario.email,
+        usuario.senhaHash,
+        usuario.avatar
+    ], callback)
 }
 
 // recebe o id, exclui a conta e manda o resultado pelo callback

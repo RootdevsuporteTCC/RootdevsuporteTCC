@@ -1,4 +1,5 @@
-const bcrypt = require("bcrypt")
+const usuarioService = require("../service/usuarioService")
+const { compararHash } = require("../service/criptografiaService")
 
 const { encerrarSessao } = require("../utils/sessao")
 
@@ -52,7 +53,7 @@ function criarUsuario(req, res) {
             return res.status(409).send("O nome de usuário ou e-mail já está cadastrado.")
         }
 
-        userModel.criarUsuario(usuario, (erro, resultado) => {
+        usuarioService.criarUsuario(usuario, (erro, resultado) => {
             if (erro) {
                 // trata também a duplicidade encontrada pelo banco na gravação
                 if (erro.code === "ER_DUP_ENTRY") {
@@ -114,7 +115,7 @@ function loginUsuario(req, res) {
 
         try {
             // compara a senha recebida com o hash armazenado no banco
-            const senhaCorreta = await bcrypt.compare(senha, usuario.user_pass)
+            const senhaCorreta = await compararHash(senha, usuario.user_pass)
 
             if (!senhaCorreta) {
 
@@ -341,7 +342,7 @@ function atualizarPerfil(req, res) {
 
         try {
             // compara a senha recebida com o hash armazenado no banco
-            senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+            senhaCorreta = await compararHash(senhaAtual, conta.user_pass)
 
         } catch (erroSenha) {
             console.log("Erro ao verificar senha:", erroSenha.message)
@@ -462,7 +463,7 @@ function excluirPerfil(req, res) {
 
         try {
             // compara a senha recebida com o hash armazenado no banco
-            senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+            senhaCorreta = await compararHash(senhaAtual, conta.user_pass)
 
         } catch (erroSenha) {
             console.log("Erro ao verificar senha:", erroSenha.message)

@@ -1,5 +1,6 @@
-const bcrypt = require("bcrypt")
 const path = require('path')
+
+const { compararHash } = require("../service/criptografiaService")
 
 const userModel = require("../model/userModel")
 const comentarioModel = require("../model/comentarioModel")
@@ -51,7 +52,7 @@ function loginAdm(req, res) {
 
             try {
                 // função do bcrypt para comparar hashs
-                const senhaCorreta = await bcrypt.compare(senha, user.user_pass)
+                const senhaCorreta = await compararHash(senha, user.user_pass)
                 
                 if (!senhaCorreta) {
                     // se a senha não coincidir

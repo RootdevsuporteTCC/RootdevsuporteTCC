@@ -1,5 +1,7 @@
 const crypto = require("crypto")
-const bcrypt = require("bcrypt")
+
+const { compararHash } = require("../service/criptografiaService")
+const recuperacaoService = require("../service/recuperacaoService")
 
 const { encerrarSessao } = require("../utils/sessao")
 
@@ -53,7 +55,7 @@ function solicitarRecuperacao(req, res) {
             codigo: codigo
         }
 
-        recuperacaoModel.criarRecuperacao(recuperacao, (erro) => {
+        recuperacaoService.criarRecuperacao(recuperacao, (erro) => {
             if (erro) {
                 console.log("Erro ao salvar recuperação:", erro.code)
                 return
@@ -152,7 +154,7 @@ function verificarCodigo(req, res) {
             }
 
             // compara o código recebido com o hash salvo no banco
-            bcrypt.compare(codigo, recuperacao.rec_codigo, (erro, codigoCorreto) => {
+            compararHash(codigo, recuperacao.rec_codigo, (erro, codigoCorreto) => {
                 if (erro) {
                     console.log("Erro ao comparar código:", erro.message)
 
@@ -241,7 +243,7 @@ function redefinirSenha(req, res) {
     }
 
     // manda o model conferir novamente a validade e alterar a senha
-    recuperacaoModel.concluirRecuperacao(recuperacao, dados.senha, (erro, resultado) => {
+    recuperacaoService.concluirRecuperacao(recuperacao, dados.senha, (erro, resultado) => {
         if (erro) {
             console.log("Erro ao redefinir senha:", erro.code)
 
