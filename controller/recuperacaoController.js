@@ -138,17 +138,8 @@ function verificarCodigo(req, res) {
             }
 
             // se rec_usado for diferente de 0 significa que a recuperação já foi usada
-            if (!recuperacao || recuperacao.rec_usado !== 0) {
+            if (!recuperacao || recuperacao.rec_usado !== 0 || recuperacao.rec_valida !== 1) {
 
-                // status 400 - requisição inválida
-                return res.status(400).json({ erro: mensagemInvalida })
-            }
-
-            // converte a data de expiração para comparar com o horário atual
-            const expiracao = new Date(recuperacao.rec_expiracao).getTime()
-
-            if (!Number.isFinite(expiracao) || expiracao <= Date.now()) {
-                
                 // status 400 - requisição inválida
                 return res.status(400).json({ erro: mensagemInvalida })
             }
@@ -162,7 +153,7 @@ function verificarCodigo(req, res) {
                     return res.status(500).json({ erro: "Não foi possível verificar o código." })
                 }
 
-                if (!codigoCorreto || expiracao <= Date.now()) {
+                if (!codigoCorreto) {
 
                     // status 400 - requisição inválida
                     return res.status(400).json({ erro: mensagemInvalida })
@@ -179,8 +170,7 @@ function verificarCodigo(req, res) {
                     req.session.recuperacao = {
                         recId: recuperacao.rec_id,
                         userId: usuario.user_id,
-                        email: usuario.user_email,
-                        expiracao: expiracao
+                        email: usuario.user_email
                     }
 
                     // salva a autorização antes de liberar o próximo passo no navegador
@@ -227,7 +217,7 @@ function redefinirSenha(req, res) {
     
     const recuperacao = req.session.recuperacao
 
-    if (!recuperacao || !Number.isFinite(recuperacao.expiracao) || recuperacao.expiracao <= Date.now()) {
+    if (!recuperacao) {
         delete req.session.recuperacao
 
         // status 401 - autenticação ausente ou inválida

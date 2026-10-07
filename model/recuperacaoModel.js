@@ -15,15 +15,15 @@ function criarRecuperacao(recuperacao, callback) {
     ], callback)
 }
 
-// recebe o id do usuário e entrega a recuperação mais recente ou undefined pelo callback
+
 function buscarUltimaRecuperacao(userId, callback) {
     const sql = `
         SELECT
             rec_id,
             tb_usuarios_user_id,
             rec_codigo,
-            rec_expiracao,
-            rec_usado
+            rec_usado,
+            (rec_expiracao > NOW()) AS rec_valida
         FROM tb_recuperacoes
         WHERE tb_usuarios_user_id = ?
         ORDER BY rec_id DESC
