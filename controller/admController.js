@@ -1,99 +1,55 @@
 const path = require('path')
 
-const { compararHash } = require("../service/criptografiaService")
+const autenticacaoService = require("../service/autenticacaoService")
 
 const userModel = require("../model/userModel")
 const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
 const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
-const {
-    lerConsulta,
-    montarPagina
-} = require("../utils/paginacao")
+const { lerConsulta, montarPagina } = require("../utils/paginacao")
+const { iniciarSessao } = require("../utils/sessao")
 
 //----------------------------------------------------------------------------------------------
 // funções gerais
 
 // recebe email e senha, verifica o tipo da conta e redireciona ao painel após criar a sessão
 function loginAdm(req, res) {
+    const dados = req.body || {}
 
-        const dados = req.body || {}
-
-        if (
-            typeof dados.email !== "string" ||
-            typeof dados.senha !== "string"
-        ) {
-            return res.status(400).send("Informe o e-mail e a senha.")
-        }
-
-        const email = dados.email.trim()
-        const senha = dados.senha
-
-        if (email.length === 0 || senha.length === 0) {
-            return res.status(400).send("Informe o e-mail e a senha.")
-        }
-
-        userModel.buscarPorEmail(email, async (erro, user) => {
-            // erro no banco
+    autenticacaoService.autenticar(
+        dados.email,
+        dados.senha,
+        true,
+        (erro, resultado) => {
             if (erro) {
-                console.log(erro);
-
-                // status 500 - erro interno do servidor
-                return res.status(500).send("Erro ao buscar usuário")
+                return next(erro)
             }
 
-            // se usuario não existir
-            if (!user) {
-                
-                // status 401 - autenticação ausente ou inválida
-                return res.status(401).send("Email ou senha incorretos")
+            if (resultado.erro) {
+                return res.status(resultado.status).json({ erro: resultado.erro })
             }
 
-            try {
-                // função do bcrypt para comparar hashs
-                const senhaCorreta = await compararHash(senha, user.user_pass)
-                
-                if (!senhaCorreta) {
-                    // se a senha não coincidir
-                    // status 401 - autenticação ausente ou inválida
-                    return res.status(401).send("Email ou senha incorretos")
-                }
-            
-                if (user.user_tipo !== 'admin') {
-                    // se não for admin
-                    // status 403 - acesso negado
-                    return res.status(403).send("Você não é um administrador")
-                }
-
-                // se passar por todas as verificações
-
-                req.session.usuario = {
-                    id: user.user_id,
-                    nome: user.user_name,
-                    tipo: user.user_tipo,
-                    avatar: user.user_avatar
+            iniciarSessao(req, resultado.usuario, (erroSessao) => {
+                if (erroSessao) {
+                    return next(erroSessao)
                 }
 
                 const log = {
-                    userId: req.session.usuario.id,
+                    userId: resultado.usuario.id,
                     acao: "Login realizado no acesso do admin"
                 }
 
-                return logModel.registrarLog(log, (erroLog) => {
+                logModel.registrarLog(log, (erroLog) => {
                     if (erroLog) {
-                        console.log("Erro ao registrar o login do admin:", erroLog)
+                        console.log("Erro ao registrar o login do admin:", erroLog.code)
                     }
 
-                    return res.redirect('/adm/painel')
+                    return res.redirect("/adm/painel")
                 })
-            } catch (erro) {
-                console.log(erro)
-                
-                // status 500 - erro interno do servidor
-                return res.status(500).send("Erro ao verificar senha")
-            }
-        })
+            })
+        }
+    )
 } 
 
 // responde a rota protegida com o arquivo da página do admin

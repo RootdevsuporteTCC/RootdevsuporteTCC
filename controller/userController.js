@@ -1,7 +1,8 @@
 const usuarioService = require("../service/usuarioService")
 const { compararHash } = require("../service/criptografiaService")
+const autenticacaoService = require("../service/autenticacaoService")
 
-const { encerrarSessao } = require("../utils/sessao")
+const { encerrarSessao, iniciarSessao } = require("../utils/sessao")
 
 const userModel = require('../model/userModel')
 const logModel = require('../model/logModel')
@@ -85,72 +86,42 @@ function criarUsuario(req, res) {
 }
 
 // recebe nome ou email e senha, cria a sessão após conferir os dados e redireciona ao início
-function loginUsuario(req, res) {
+function loginUsuario(req, res, next) {
     const dados = req.body || {}
 
-    if (typeof dados.login !== "string" || typeof dados.senha !== "string") {
-        return res.status(400).send("Informe o nome ou e-mail e a senha.")
-    }
-
-    const login = dados.login.trim()
-    const senha = dados.senha
-
-    if (login.length === 0 || senha.length === 0) {
-        return res.status(400).send("Informe o nome ou e-mail e a senha.")
-    }
-
-    userModel.buscarPorLogin(login, async (erro, usuario) => {
-        if (erro) {
-            console.log(erro)
-
-            // status 500 - erro interno do servidor
-            return res.status(500).send("Erro ao buscar usuário")
-        }
-
-        if (!usuario) {
-
-            // status 401 - autenticação ausente ou inválida
-            return res.status(401).send("Nome, e-mail ou senha incorretos")
-        }
-
-        try {
-            // compara a senha recebida com o hash armazenado no banco
-            const senhaCorreta = await compararHash(senha, usuario.user_pass)
-
-            if (!senhaCorreta) {
-
-                // status 401 - autenticação ausente ou inválida
-                return res.status(401).send("Nome, e-mail ou senha incorretos")
+    autenticacaoService.autenticar(
+        dados.login,
+        dados.senha,
+        false,
+        (erro, resultado) => {
+            if (erro) {
+                return next(erro)
             }
 
-            // guarda os dados necessários para identificar o usuário nas próximas requisições
-            req.session.usuario = {
-                id: usuario.user_id,
-                nome: usuario.user_name,
-                tipo: usuario.user_tipo,
-                avatar: usuario.user_avatar
+            if (resultado.erro) {
+                return res.status(resultado.status).json({ erro: resultado.erro })
             }
 
-            const log = {
-                userId: req.session.usuario.id,
-                acao: "Login realizado"
-            }
-
-            return logModel.registrarLog(log, (erroLog) => {
-                if (erroLog) {
-                    console.log("Erro ao registrar o login:", erroLog)
+            iniciarSessao(req, resultado.usuario, (erroSessao) => {
+                if (erroSessao) {
+                    return next(erroSessao)
                 }
 
-                return res.redirect("/")
+                const log = {
+                    userId: resultado.usuario.id,
+                    acao: "Login realizado"
+                }
+
+                logModel.registrarLog(log, (erroLog) => {
+                    if (erroLog) {
+                        console.log("Erro ao registrar o login:", erroLog.code)
+                    }
+
+                    return res.redirect("/")
+                })
             })
-
-        } catch (erro) {
-            console.log(erro)
-
-            // status 500 - erro interno do servidor
-            return res.status(500).send("Erro ao verificar senha")
         }
-    })
+    )
 }
 
 // recebe a sessão atual, encerra o login, registra a saída e redireciona ao início

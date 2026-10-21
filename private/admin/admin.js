@@ -129,7 +129,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
             </div>
 
             <div class="paginacao">
-                <button type="button", id="pagina-anterior" onclick="mudarPaginaUsuarios(-1)">Anterior</button>
+                <button type="button" id="pagina-anterior" onclick="mudarPaginaUsuarios(-1)">Anterior</button>
                 <p id="pagina-atual"></p>
                 <button type="button" id="proxima-pagina" onclick="mudarPaginaUsuarios(1)">Próxima</button>
             </div>
@@ -219,8 +219,8 @@ async function excluirUsuario(id) {
 
         mostrarUsuarios(pesquisaUsuariosAtual, paginaUsuariosAtual)
     } catch (erro) {
-        console.error(erro)
-        alert("Erro ao excluir usuário", erro)
+        console.error("Erro ao excluir usuário:", erro)
+        alert("Não foi possível confirmar a exclusão. Atualize a consulta para conferir.")
     }
 }
 

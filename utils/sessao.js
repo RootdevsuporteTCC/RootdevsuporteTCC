@@ -10,6 +10,29 @@ function encerrarSessao(req, res, callback) {
     })
 }
 
+function iniciarSessao(req, usuario, callback) {
+    req.session.regenerate((erro) => {
+        if (erro) {
+            callback(erro)
+            return
+        }
+
+        req.session.usuario = usuario
+
+        req.session.save((erroSalvar) => {
+            if (erroSalvar) {
+                delete req.session.usuario
+
+                callback(erroSalvar)
+                return
+            }
+
+            callback(null)
+        })
+    })
+}
+
 module.exports = {
-    encerrarSessao
+    encerrarSessao,
+    iniciarSessao
 }
