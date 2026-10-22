@@ -9,6 +9,7 @@ const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
 const { lerConsulta, montarPagina } = require("../utils/paginacao")
 const { iniciarSessao } = require("../utils/sessao")
+const { normalizarUsuario } = require("../utils/normalizarUsuario")
 
 //----------------------------------------------------------------------------------------------
 // funções gerais
@@ -183,12 +184,12 @@ function atualizarUsuario(req, res) {
         return res.status(400).json({ erro: "ID de usuário inválido" })
     }
 
-    const usuario = {
+    const usuario = normalizarUsuario({
         nome: dados.nome,
         email: dados.email,
         tipo: dados.tipo,
         avatar: dados.avatar
-    }
+    })
 
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 

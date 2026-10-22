@@ -344,7 +344,7 @@ async function salvarEdicao(event, id) {
         }
 
         // atualiza a navegação caso os dados da conta conectada tenham sido alterados
-        await verificarLogin()
+        document.dispatchEvent(new Event("perfil-atualizado"))
 
         alert(dados.mensagem)
 

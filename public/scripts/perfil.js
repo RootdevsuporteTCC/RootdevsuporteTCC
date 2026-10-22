@@ -3,7 +3,6 @@ const campoNomePerfil       =    document.getElementById("nome")
 const campoEmailPerfil      =    document.getElementById("email")
 const campoAvatarPerfil     =    document.getElementById("avatar")
 const previaAvatarPerfil    =    document.getElementById("avatar-previa")
-const mensagemPerfil        =    document.getElementById("mensagem-perfil")
 const campoSenhaAtual       =    document.getElementById("senha-atual")
 const botaoSalvarPerfil     =    document.getElementById("botao-salvar-perfil")
 const botaoExcluirPerfil    =    document.getElementById("botao-excluir-perfil")
@@ -27,7 +26,7 @@ async function carregarPerfil() {
         const dados = await resposta.json()
 
         if (!resposta.ok) {
-            mensagemPerfil.innerText = dados.erro || "Não foi possível carregar seu perfil."
+            window.alert(dados.erro || "Não foi possível carregar seu perfil.")
             return
         }
 
@@ -37,7 +36,6 @@ async function carregarPerfil() {
 
         atualizarPreviaPerfil()
 
-        mensagemPerfil.hidden = true
         formPerfil.hidden = false
         botaoSalvarPerfil.disabled = false
         botaoExcluirPerfil.disabled = false
@@ -45,7 +43,7 @@ async function carregarPerfil() {
     } catch (erro) {
         console.log("Erro ao carregar perfil:", erro)
 
-        mensagemPerfil.innerText = "Não foi possível carregar seu perfil. Tente novamente."
+        window.alert("Não foi possível carregar seu perfil. Tente novamente.")
     }
 }
 
@@ -80,9 +78,6 @@ async function salvarPerfil(evento) {
         campo.readOnly = true
     })
 
-    mensagemPerfil.hidden = false
-    mensagemPerfil.innerText = "Salvando as alterações..."
-
     try {
         const resposta = await fetch("/usuarios/perfil", {
             method: "PATCH",
@@ -101,7 +96,7 @@ async function salvarPerfil(evento) {
         const dados = await resposta.json()
 
         if (!resposta.ok) {
-            mensagemPerfil.innerText = dados.erro || "Não foi possível salvar seu perfil."
+            window.alert(dados.erro || "Não foi possível salvar seu perfil.")
             return
         }
 
@@ -112,14 +107,14 @@ async function salvarPerfil(evento) {
 
         atualizarPreviaPerfil()
 
-        mensagemPerfil.innerText = dados.mensagem
+        window.alert(dados.mensagem || "Perfil atualizado com sucesso.")
 
         // consulta novamente a sessão para atualizar o avatar da navegação
-        await verificarLogin()
+        document.dispatchEvent(new Event("perfil-atualizado"))
     } catch (erro) {
         console.log("Erro ao salvar perfil:", erro)
 
-        mensagemPerfil.innerText = "Não foi possível confirmar o salvamento. Recarregue a página para conferir."
+        window.alert("Não foi possível confirmar o salvamento. Recarregue a página para conferir.")
     } finally {
         botaoSalvarPerfil.disabled = false
         botaoSalvarPerfil.innerText = "SALVAR ALTERAÇÕES"
@@ -139,8 +134,8 @@ async function excluirPerfil() {
     const senhaAtual = campoSenhaAtual.value
 
     if (senhaAtual.length === 0) {
-        mensagemPerfil.hidden = false
-        mensagemPerfil.innerText = "Informe sua senha atual para excluir a conta."
+        window.alert("Informe sua senha atual para excluir a conta.")
+
         campoSenhaAtual.focus()
         return
     }
@@ -175,9 +170,6 @@ async function excluirPerfil() {
         campo.readOnly = true
     })
 
-    mensagemPerfil.hidden = false
-    mensagemPerfil.innerText = "Excluindo conta..."
-
     try {
         const resposta = await fetch("/usuarios/perfil", {
             method: "delete",
@@ -198,7 +190,7 @@ async function excluirPerfil() {
         const dados = await resposta.json()
 
         if (!resposta.ok) {
-            mensagemPerfil.innerText = dados.erro || "Não foi possível excluir sua conta"
+            window.alert(dados.erro || "Não foi possível excluir sua conta")
             return
         }
 
@@ -213,9 +205,8 @@ async function excluirPerfil() {
     } catch (erro) {
         console.log("Erro ao excluir perfil:", erro)
 
-        mensagemPerfil.innerText = "Não foi possível confirmar a exclusão. Recarregue a página para verificar sua conta."
+        window.alert("Não foi possível confirmar a exclusão. Recarregue a página para verificar sua conta.")
     } finally {
-
         // libera os controles somente quando a exclusão não foi confirmada
         if (!contaExcluida) {
             botaoExcluirPerfil.disabled = false

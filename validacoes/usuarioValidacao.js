@@ -5,17 +5,9 @@ function validarDadosUsuario(usuario) {
         return "Informe o nome de usuário e o e-mail."
     }
 
-    if (usuario.avatar === undefined) {
-        usuario.avatar = ""
-    }
-
     if (typeof usuario.avatar !== "string") {
         return "O avatar deve ser um texto."
     }
-
-    usuario.nome = usuario.nome.trim()
-    usuario.email = usuario.email.trim()
-    usuario.avatar = usuario.avatar.trim()
 
     if (usuario.nome.length < 3 || usuario.nome.length > 80) {
         return "O nome de usuário deve ter entre 3 e 80 caracteres."
@@ -33,10 +25,6 @@ function validarDadosUsuario(usuario) {
 
     if (usuario.avatar.length > 10) {
         return "O avatar deve ter até 10 caracteres."
-    }
-
-    if (usuario.avatar === "") {
-        usuario.avatar = ":D"
     }
 
     return null

@@ -297,13 +297,8 @@ async function carregarTopicos() {
 // consulta a sessão pelo fetch e mostra o formulário ou o aviso de login
 async function verificarLoginComentario() {
     try {
-        const resposta = await fetch("/usuarios/sessao")
-
-        if (!resposta.ok) {
-            throw new Error("Erro ao verificar a sessão");
-        }
-
-        const dados = await resposta.json()
+        const { consultarSessao } = await import("/scripts/sessao-cliente.js")
+        const dados = await consultarSessao()
 
         mensagemComentario.innerText = ""
 

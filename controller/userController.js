@@ -3,6 +3,7 @@ const { compararHash } = require("../service/criptografiaService")
 const autenticacaoService = require("../service/autenticacaoService")
 
 const { encerrarSessao, iniciarSessao } = require("../utils/sessao")
+const { normalizarUsuario } = require("../utils/normalizarUsuario")
 
 const userModel = require('../model/userModel')
 const logModel = require('../model/logModel')
@@ -14,12 +15,12 @@ function criarUsuario(req, res) {
     // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
-    const usuario = {
+    const usuario = normalizarUsuario({
         nome: dados.nome,
         email: dados.email,
         senha: dados.senha,
         avatar: dados.avatar,
-    }
+    })
 
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 
@@ -272,11 +273,11 @@ function atualizarPerfil(req, res) {
     // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
-    const usuario = {
+    const usuario = normalizarUsuario({
         nome: dados.nome,
         email: dados.email,
         avatar: dados.avatar
-    }
+    })
 
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 

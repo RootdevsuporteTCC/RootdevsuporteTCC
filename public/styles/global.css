@@ -272,12 +272,12 @@ input::placeholder {
 }
 
 
-#avatar-usuario p {
+.avatar-usuario p {
     cursor: pointer;
     transition: 0.2s;
 }
 
-#avatar-usuario p:hover {
+.avatar-usuario p:hover {
     transform: scale(1.1);
 }
 
@@ -323,7 +323,7 @@ p.avatar {
     cursor: default;
 }
 
-header #sair {
+header .sair, #nav-drawer-menu .sair {
     background-color: rgb(255, 86, 86);
 }
 
