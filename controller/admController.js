@@ -117,7 +117,7 @@ function buscarUsuarioPorId(req, res, next) {
 }
 
 // recebe o id pela rota, exclui a conta pelo model, registra a ação e responde em json
-function excluirUsuario(req, res) {
+function excluirUsuario(req, res, next) {
     const id = Number(req.params.id)
 
     // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
@@ -136,16 +136,7 @@ function excluirUsuario(req, res) {
 
     userModel.excluirUsuario(id, (erro, resultado) => {
         if (erro) {
-            console.log("Erro ao excluir usuário:", erro)
-
-            if (erro.code === "ER_ROW_IS_REFERENCED_2") {
-
-                // status 409 - conflito nos dados
-                return res.status(409).json({ erro: "Esse usuário tem registros vinculados que impedem a exclusão." })
-            }
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Não foi possível excluir o usuário"})
+            return next(erro)
         }
 
         if (resultado.affectedRows === 0) {
@@ -161,11 +152,11 @@ function excluirUsuario(req, res) {
 
         return logModel.registrarLog(log, (erroLog) => {
             if (erroLog) {
-                console.log("Erroo ao registrar a exclusão do usuário:", erroLog)
+                console.log("Erro ao registrar a exclusão do usuário:", erroLog.code)
             }
 
             // status 200 - requisição bem-sucedida
-            return res.status(200).json({ mensagem: "Usuário excluido com sucesso"})
+            return res.json({ mensagem: "Usuário excluido com sucesso"})
         })
     })
 }

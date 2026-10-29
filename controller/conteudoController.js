@@ -2,7 +2,6 @@ const fs = require("fs")
 const path = require("path")
 
 const comentarioModel = require('../model/comentarioModel')
-const logModel = require("../model/logModel")
 
 // mantém as aulas na memória para atender as pesquisas
 const cacheConteudos = []
@@ -103,78 +102,38 @@ function carregarCacheConteudos() {
 
 // recebe categoria e tópico pela rota, le a aula e devolve o markdown e os comentários em json
 function buscarConteudo(req, res) {
-    const categoria = req.params.categoria
-    const topico = req.params.topico
+    const { categoria, topico } = req.params
 
-    if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
-        // status 400 - requisição inválida
-        return res.status(400).json({ erro: "Categoria inválida" })
+    if (!["html", "css", "javascript"].includes(categoria)) {
+        return res.status(400).json({ erro: "Categoria inválida." })
     }
 
-    //regex que permite apenas letras, numeros, hifen e underline
-    const nomeValido = /^[a-zA-Z0-9_-]+$/ 
-
-    if (!topico || !nomeValido.test(topico)) {
-
-        // status 400 - requisição inválida
-        return res.status(400).json({ erro: "Tópico inválido" })
+    if (typeof topico !== "string" || !/^[a-zA-Z0-9_-]+$/.test(topico)) {
+        return res.status(400).json({ erro: "Tópico inválido." })
     }
 
-    const caminhoArquivo = path.join(__dirname, "../content", categoria, `${topico}.md`)
+    const aula = cacheConteudos.find((item) => {
+        return item.categoria === categoria && item.topico === topico
+    })
 
-    fs.readFile(caminhoArquivo, "utf8", (erroArquivo, conteudo) => {
-        if (erroArquivo) {
+    if (!aula) {
+        return res.status(404).json({ erro: "Aula não encontrada." })
+    }
 
-            // o erro ENOENT da biblioteca fs significa "No such file or directory" (arquivo ou pasta não encontrado)
-            if (erroArquivo.code === "ENOENT") {
-
-                // status 404 - recurso não encontrado
-                return res.status(404).json({ erro: "Aula não encontrada" })
-            }
-            console.log("Erro ao ler a aula:", erroArquivo)
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Não foi possível ler a aula" })
+    comentarioModel.buscarPorTopico(categoria, topico, (erro, comentarios) => {
+        if (erro) {
+            return next(erro)
         }
 
+        comentarios.forEach((comentario) => {
+            comentario.podeExcluir = Boolean(
+                req.session.usuario && Number(comentario.com_user_id) === Number(req.session.usuario.id)
+            )
+        })
 
-        const aula = extrairMetadados(conteudo)
-
-        if (aula === null) {
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "O cabeçalho da aula está incompleto ou incorreto" })
-        }
-
-        if (aula.categoria !== categoria || aula.topico !== topico) {
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "O cabeçalho não corresponde à pasta e ao nome da aula" })
-        }
-
-
-        comentarioModel.buscarPorTopico(categoria, topico, (erroComentario, comentarios) => {
-            if (erroComentario) {
-                console.log("Erro ao buscar comentários:", erroComentario)
-
-                // status 500 - erro interno do servidor
-                return res.status(500).json({ erro: "Não foi possível buscar os comentários" })
-            }
-
-            // informa ao navegador quais comentários pertencem ao usuário conectado
-            comentarios.forEach((comentario) => {
-                comentario.podeExcluir = false
-
-                if (req.session.usuario) {
-                    comentario.podeExcluir = Number(comentario.com_user_id) === Number(req.session.usuario.id)
-                }
-            })
-
-            // status 200 - requisição bem-sucedida
-            return res.status(200).json({
-                conteudo: aula.conteudo,
-                comentarios: comentarios
-            })
+        return res.json({
+            conteudo: aula.conteudo,
+            comentarios
         })
     })
 }
@@ -183,45 +142,16 @@ function buscarConteudo(req, res) {
 function listarTopicos(req, res) {
     const categoria = req.params.categoria
 
-    if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
-        
-        // status 400 - requisição inválida
-        return res.status(400).json({ erro: "Categoria inválida" })
+    if (!["html", "css", "javascript"].includes(categoria)) {
+        return res.status(400).json({ erro: "Categoria inválida." })
     }
 
-    const pasta = path.join(__dirname, "../content", categoria)
+    const topicos = cacheConteudos
+        .filter((aula) => aula.categoria === categoria)
+        .map((aula) => aula.topico)
+        .sort()
 
-    // le o diretório inserido
-    fs.readdir(pasta, { withFileTypes: true }, (erro, arquivos) => {
-        if (erro) {
-
-            // o erro ENOENT da biblioteca fs significa "No such file or directory" (arquivo ou pasta não encontrado)
-            if (erro.code === "ENOENT") {
-                return res.json({ topicos: [] })
-            }
-
-            console.log("Erro ao listar tópicos:", erro)
-
-            // status 500 - erro interno do servidor
-            return res.status(500).json({ erro: "Não foi possível listar os tópicos" })
-        }
-
-        const topicos = []
-
-        arquivos.forEach((arquivo) => {
-            if (arquivo.isFile() && arquivo.name.endsWith(".md")) {
-
-                // encontra o arquivo em "arquivo.name" e retorna o nome do arquivo, sem o sufixo ".md"
-                const topico = path.basename(arquivo.name, ".md")
-
-                topicos.push(topico)
-            }
-        })
-
-        topicos.sort() // organiza o array de topicos
-
-        return res.json({ topicos: topicos })
-    })
+    return res.json({ topicos })
 }
 
 // recebe a pesquisa pela url, consulta o cache e devolve as categorias e os tópicos encontrados em json
@@ -260,27 +190,9 @@ function pesquisarConteudos(req, res) {
                 topico: aula.topico
             })
         }
-    });
-
-    // permite registrar pesquisas feitas por usuarios sem login
-    let userId = null
-
-    if (req.session.usuario) {
-        userId = req.session.usuario.id
-    }
-
-    const log = {
-        userId: userId,
-        acao: "Pesquisa de conteúdos realizada"
-    }
-
-    logModel.registrarLog(log, (erroLog) => {
-        if (erroLog) {
-            console.log("Erro ao registrar a pesquisa:", erroLog)
-        }
-
-        return res.json({ resultados: resultados })
     })
+
+    return res.json({ resultados })
 }
 
 module.exports = {

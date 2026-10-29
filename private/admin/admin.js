@@ -1,4 +1,4 @@
-const form = {
+const elementosPainel = {
     tabelaConsulta: document.getElementById("tabela-consulta"),
     admInicio: document.getElementById("adm-inicio"),
     botaoVoltar: document.getElementById("botao-voltar"),
@@ -20,26 +20,26 @@ let pesquisaLogsAtual = ""
 
 // prepara a area de consulta e esconde as opções iniciais do painel
 function abrirConsulta() {
-    form.botaoVoltar.classList.remove("remove")
-    form.admInicio.classList.add("remove")
+    elementosPainel.botaoVoltar.classList.remove("remove")
+    elementosPainel.admInicio.classList.add("remove")
 
-    form.tabelaConsulta.innerHTML = ""
-    form.formEdicao.innerHTML = ""
+    elementosPainel.tabelaConsulta.innerHTML = ""
+    elementosPainel.formEdicao.innerHTML = ""
 }
 
 // limpa as areas de consulta e edição antes de montar o formulário
 function abrirEdicao() {
-    form.tabelaConsulta.innerHTML = ""
-    form.formEdicao.innerHTML = ""
+    elementosPainel.tabelaConsulta.innerHTML = ""
+    elementosPainel.formEdicao.innerHTML = ""
 }
 
 // limpa as areas abertas e mostra as opções iniciais
 function voltarInicio() {
-    form.botaoVoltar.classList.add("remove")
-    form.admInicio.classList.remove("remove")
+    elementosPainel.botaoVoltar.classList.add("remove")
+    elementosPainel.admInicio.classList.remove("remove")
 
-    form.tabelaConsulta.innerHTML = ""
-    form.formEdicao.innerHTML = ""
+    elementosPainel.tabelaConsulta.innerHTML = ""
+    elementosPainel.formEdicao.innerHTML = ""
 }
 
 async function lerRespostaAdmin(resposta) {
@@ -80,7 +80,7 @@ function mudarPaginaUsuarios(direcao) {
 async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
-    form.tabelaConsulta.innerHTML = "<p>Carregando...</p>"
+    elementosPainel.tabelaConsulta.innerHTML = "<p>Carregando...</p>"
     
     try {
         const endereco = `/adm/usuarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
@@ -100,7 +100,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
         paginaUsuariosAtual = dados.pagina
         pesquisaUsuariosAtual = pesquisa
 
-        form.tabelaConsulta.innerHTML = `
+        elementosPainel.tabelaConsulta.innerHTML = `
             <h1 class="disket-font">Consulta de usuários</h1>
 
             <div class="form-pesquisa">
@@ -190,7 +190,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     } catch (erro) {
         console.log("Erro ao carregar usuários:", erro)
 
-        form.tabelaConsulta.innerHTML = `
+        elementosPainel.tabelaConsulta.innerHTML = `
             <p>Não foi possível carregar os usuários. Confira se você está logado como admin.</p>
         `
     }
@@ -235,7 +235,7 @@ async function editarUsuario(id) {
         }
 
         if (!resposta.ok) {
-            form.formEdicao.innerHTML = `
+            elementosPainel.formEdicao.innerHTML = `
                 <h1 class="disket-font">EDITAR USUÁRIO</h1>
                 <p>${usuario.erro}</p>
             `
@@ -244,7 +244,7 @@ async function editarUsuario(id) {
 
         abrirEdicao()
 
-        form.formEdicao.innerHTML = `
+        elementosPainel.formEdicao.innerHTML = `
 
             <div id="form-box">
                 <form onsubmit="salvarEdicao(event, ${usuario.user_id})" class="white-text" id="formCadastro">
@@ -302,7 +302,7 @@ async function editarUsuario(id) {
     } catch (erro) {
         console.log(erro)
 
-        form.formEdicao.innerHTML = `
+        elementosPainel.formEdicao.innerHTML = `
             <p>Erro ao carregar usuário.</p>
         `
     }
@@ -400,7 +400,7 @@ function limparPesquisaComentarios() {
 async function mostrarComentarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
-    form.tabelaConsulta.innerHTML = "<p>Carregando...</p>"
+    elementosPainel.tabelaConsulta.innerHTML = "<p>Carregando...</p>"
 
     try {
         const endereco = `/adm/comentarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
@@ -420,7 +420,7 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
         paginaComentariosAtual = dados.pagina
         pesquisaComentariosAtual = pesquisa
 
-        form.tabelaConsulta.innerHTML = `
+        elementosPainel.tabelaConsulta.innerHTML = `
             <h1 class="disket-font">Consulta de comentários</h1>
 
             <div class="form-pesquisa">
@@ -510,7 +510,7 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
     } catch (erro) {
         console.log("Erro ao carregar comentários:", erro)
 
-        form.tabelaConsulta.innerHTML = `
+        elementosPainel.tabelaConsulta.innerHTML = `
             <p>Não foi possível carregar os comentários. Confira se você está conectado como admin.</p>
         `
     }
@@ -580,7 +580,7 @@ function limparPesquisaLogs() {
 async function mostrarLogs(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
-    form.tabelaConsulta.innerHTML = "<p>Carregando..</p>"
+    elementosPainel.tabelaConsulta.innerHTML = "<p>Carregando..</p>"
 
     try {
         const endereco = `/adm/logs?pesquisa=${encodeURIComponent(pesquisa)}&pagina=${pagina}`
@@ -600,7 +600,7 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
         paginaLogsAtual = dados.pagina
         pesquisaLogsAtual = pesquisa
 
-        form.tabelaConsulta.innerHTML = `
+        elementosPainel.tabelaConsulta.innerHTML = `
             <h1 class="disket-font">Consulta de Relatórios</h1>
 
             <div class="form-pesquisa">
@@ -680,6 +680,6 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
     } catch (erro) {
         console.log("Erro ao carregar logs:", erro)
 
-        form.tabelaConsulta.innerText = erro.message
+        elementosPainel.tabelaConsulta.innerText = erro.message
     }
 }
