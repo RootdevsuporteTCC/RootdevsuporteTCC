@@ -26,13 +26,13 @@ O relatório atual é uma listagem na página. O código não possui exportaçã
 - **controller/userController.js:** registra ações de cadastro, login, logout e perfil.
 - **controller/admController.js:** registra operações do admin e atende a consulta dos relatórios.
 - **controller/comentarioController.js:** registra publicações e exclusões pelo autor.
-- **controller/conteudoController.js:** registra pesquisas de conteúdo.
 - **controller/recuperacaoController.js:** registra etapas da recuperação de senha.
 - **routes/admRoutes.js:** define a rota protegida de consulta dos logs.
 - **middleware/verificarAdmin.js:** verifica o acesso do admin.
 - **private/admin/admin.html:** contém a opção para abrir os relatórios.
 - **private/admin/admin.js:** envia a consulta e apresenta os resultados.
 - **public/admin/admin.css:** permite a adaptação da consulta a telas menores.
+- **utils/paginacao.js:** valida os parâmetros das consultas e organiza a resposta paginada.
 
 ## Como os registros ficam no banco
 
@@ -106,7 +106,7 @@ O callback recebe o erro ou o resultado da gravação. O model não envia uma re
 Em **controller/userController.js**, os registros são feitos nas seguintes funções:
 
 - **criarUsuario:** registra a criação da conta usando o id retornado pelo INSERT.
-- **loginUsuario:** registra o login depois da confirmação da senha.
+- **loginUsuario:** registra o login depois da autenticação e do salvamento da sessão.
 - **logoutUsuario:** registra a saída depois de encerrar a sessão, quando havia usuário conectado.
 - **atualizarPerfil:** registra a alteração dos dados após a atualização no banco.
 - **excluirPerfil:** registra a exclusão da própria conta depois de removê-la.
@@ -134,20 +134,20 @@ Isso diferencia quem realizou a operação de qual registro foi afetado.
 
 Em **controller/admController.js**, por exemplo, excluir um usuário não vincula o novo log à conta removida. O vínculo utiliza **req.session.usuario.id**, que identifica o admin.
 
-## Quais ações de comentários e conteúdos são registradas
+## Quais ações de comentários são registradas
 
 Em **controller/comentarioController.js**:
 
-- **salvarComentario:** registra a publicação com o id do comentário criado.
-- **excluirComentario:** registra a exclusão pelo autor com o id do comentário removido.
+- **salvarComentario:** registra a publicação com o ID do comentário criado.
+- **excluirComentario:** registra a exclusão pelo autor com o ID do comentário removido.
 
-Em **controller/conteudoController.js**, **pesquisarConteudos** registra **Pesquisa de conteúdos realizada** depois de uma pesquisa válida e não vazia.
+Esses registros são solicitados depois que o banco confirma a publicação ou a exclusão.
 
-Se a pesquisa for feita sem login, o log recebe **null** no vínculo com o usuário.
+A pesquisa de conteúdos, a abertura de aulas e a listagem de tópicos não geram logs no código atual.
 
-Essa função não inclui o termo pesquisado na descrição.
+Os registros são criados somente nos pontos em que o servidor chama **registrarLog**.
 
-A abertura de uma aula e a listagem de tópicos não geram logs nesse fluxo. Os registros são criados somente nos pontos em que o código chama **registrarLog**.
+Se o banco já possuir registros antigos de pesquisas, eles continuam disponíveis na consulta. A retirada dessa chamada do código não apaga o histórico existente.
 
 ## Quais etapas da recuperação são registradas
 
@@ -192,9 +192,25 @@ const resposta = await fetch(endereco)
 
 **encodeURIComponent** prepara o termo para ser inserido no link.
 
-Se **resposta.ok** for falso, a função lê a resposta como texto e cria uma mensagem com o status HTTP.
+Depois do fetch, a função utiliza **lerRespostaAdmin**:
 
-Quando funciona, lê o JSON e atualiza **paginaLogsAtual** e **pesquisaLogsAtual**.
+```js
+const dados = await lerRespostaAdmin(resposta)
+
+if (!dados) {
+    return
+}
+```
+
+Essa função compartilhada lê o JSON e trata os status **401** e **403**, mostrando um alerta e encaminhando o navegador para **/admin/loginAdm.html**.
+
+Quando isso acontece, retorna **null**, e **mostrarLogs** interrompe o processamento.
+
+Nos outros casos, **mostrarLogs** verifica **resposta.ok**. Se a resposta indicar erro, utiliza a mensagem recebida ou um texto padrão para criar um erro tratado pelo **catch**.
+
+Quando a consulta funciona, atualiza **paginaLogsAtual** e **pesquisaLogsAtual** e monta os resultados.
+
+Falhas de comunicação ou de leitura da resposta também são tratadas pelo **catch**, que registra o problema no console e apresenta a mensagem na área da consulta.
 
 **Print da solicitação dos relatórios:**
 
@@ -210,39 +226,60 @@ router.get("/logs", verificarAdmin, admController.buscarLogs)
 
 Em **index.js**, esse arquivo de rotas pertence ao grupo **/adm**. Por isso, o link completo é **GET /adm/logs**.
 
-Em **middleware/verificarAdmin.js**, a requisição precisa possuir uma sessão cujo tipo seja **admin**.
+Em **middleware/verificarAdmin.js**, a função exige um usuário na sessão e consulta sua conta no banco.
 
-- Sem sessão: status 401.
-- Com outro tipo de usuário: status 403.
-- Com acesso permitido: a execução continua para **buscarLogs**.
+Se a conta existir, atualiza ID, nome, tipo e avatar na sessão e verifica se o tipo atual é **admin**.
 
-A proteção acontece antes da consulta ao banco.
+Os resultados são:
+
+- Sem usuário na sessão: status **401**.
+- Conta não encontrada no banco: remove o usuário da sessão e responde com **401**.
+- Conta com tipo diferente de **admin**: status **403**.
+- Conta administrativa: permite continuar para **buscarLogs**.
+- Falha ao consultar a conta: encaminha o erro por **next(erro)**.
+
+Essa verificação acontece em cada requisição protegida. Ela não depende somente do tipo que estava guardado anteriormente na sessão.
+
+A consulta dos logs é executada depois que o middleware autoriza o acesso.
 
 ## Como o controller prepara a paginação
 
-Em **controller/admController.js**, **buscarLogs(req, res)** recebe pesquisa e página por **req.query**.
-
-Se a página não foi informada, utiliza 1.
-
-O cálculo é:
+Em **controller/admController.js**, **buscarLogs(req, res, next)** utiliza **lerConsulta**, de **utils/paginacao.js**:
 
 ```js
-const limite = 50
-const deslocamento = (pagina - 1) * limite
+const consulta = lerConsulta(req.query)
 ```
 
-**limite** define a quantidade exibida. **deslocamento** define quantos registros serão pulados.
+A função compartilhada prepara pesquisa, página, limite e deslocamento.
 
-O controller verifica:
+Quando não são informados, a pesquisa recebe texto vazio e a página recebe **1**.
 
-- Se a página é um inteiro seguro.
-- Se a página é maior ou igual a 1.
-- Se o deslocamento é um inteiro seguro.
-- Se a pesquisa é um texto.
+A validação exige:
 
-Valores inválidos recebem status 400.
+- Pesquisa em formato de texto.
+- Página recebida como texto formado somente por dígitos.
+- Número da página inteiro seguro e maior ou igual a **1**.
+- Deslocamento inteiro seguro.
 
-Depois, a função solicita **limite + 1** registros para descobrir se existe uma próxima página.
+Se algum parâmetro for recusado, **lerConsulta** retorna **null**, e o controller responde com status **400**.
+
+O limite é definido por **LIMITE_POR_PAGINA**, atualmente com valor **10**.
+
+O deslocamento é calculado por:
+
+```js
+const deslocamento = (pagina - 1) * LIMITE_POR_PAGINA
+```
+
+Assim:
+
+- Página **1**: deslocamento **0**.
+- Página **2**: deslocamento **10**.
+- Página **3**: deslocamento **20**.
+
+O controller utiliza os valores preparados para solicitar **limite + 1** registros ao model.
+
+O registro adicional permite identificar a existência de uma próxima página.
 
 **Print da validação da consulta de logs:**
 
@@ -263,7 +300,7 @@ LEFT JOIN tb_usuarios
 
 **LEFT JOIN** mantém os logs mesmo quando não existe um usuário correspondente.
 
-Isso permite apresentar registros de visitantes e registros cujo vínculo foi removido após a exclusão da conta.
+Isso permite apresentar registros gravados sem vínculo com uma conta e registros cujo vínculo foi removido após a exclusão do usuário.
 
 O nome exibido vem da consulta atual de **tb_usuarios**. Ele não é uma cópia do nome que o usuário possuía quando a ação aconteceu.
 
@@ -322,33 +359,29 @@ A função entrega o erro ou a lista encontrada pelo callback.
 
 ## Como o controller informa a próxima página
 
-Em **controller/admController.js**, **buscarLogs** pode receber até 51 registros para exibir no máximo 50.
+Em **controller/admController.js**, **buscarLogs** solicita até **11 registros** para exibir no máximo **10**.
 
-A função verifica:
-
-```js
-const temProxima = logs.length > limite
-
-if (temProxima) {
-    logs.pop()
-}
-```
-
-Quando existe o registro extra, **temProxima** recebe verdadeiro.
-
-**pop()** remove esse registro antes do envio ao navegador.
-
-A resposta contém:
+Quando recebe o resultado, utiliza **montarPagina**, de **utils/paginacao.js**:
 
 ```js
-return res.json({
-    logs: logs,
-    pagina: pagina,
-    temProxima: temProxima
-})
+return res.json(
+    montarPagina("logs", logs, consulta)
+)
 ```
 
-O navegador recebe a página atual e a indicação de que pode avançar. Não existe uma contagem do total de páginas nesse processo.
+A função compartilhada prepara:
+
+- **logs:** lista limitada aos primeiros 10 registros.
+- **pagina:** número da página consultada.
+- **temProxima:** verdadeiro quando a quantidade recebida ultrapassa o limite exibido.
+
+A lista é limitada com **slice**. O registro adicional não é enviado ao navegador.
+
+O navegador recebe os dados necessários para mostrar a página atual e controlar o botão Próxima.
+
+Não existe uma contagem do total de páginas nesse processo.
+
+Se o model devolver um erro, o controller o encaminha por **next(erro)** ao tratamento centralizado.
 
 **Print da resposta paginada:**
 
@@ -399,9 +432,9 @@ Quando o vínculo está vazio, a consulta mostra **-** no id e **Sem usuário vi
 
 Essa apresentação pode ocorrer em situações diferentes:
 
-- Uma pesquisa feita por visitante.
 - Um log antigo de uma conta excluída.
 - O registro da exclusão do próprio perfil.
+- Um registro histórico de pesquisa sem login, gerado antes da retirada desse registro do código.
 
 A descrição da ação ajuda a interpretar o registro. O valor **null**, sozinho, não informa por que não existe mais um vínculo.
 
@@ -427,6 +460,10 @@ Na montagem da consulta:
 - Próxima fica desabilitado quando **temProxima** é falso.
 
 A lista não é atualizada automaticamente quando outra ação gera um log. É necessário realizar outra consulta, como pesquisar, mudar de página ou abrir novamente os relatórios.
+
+O tamanho das páginas é definido no servidor por **utils/paginacao.js**.
+
+Alterar **LIMITE_POR_PAGINA** afeta as consultas administrativas de usuários, comentários e logs. Os controles do navegador utilizam **pagina** e **temProxima**, recebidos na resposta.
 
 **Print das funções de navegação dos logs:**
 

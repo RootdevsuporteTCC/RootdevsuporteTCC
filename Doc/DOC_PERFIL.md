@@ -23,7 +23,7 @@ A alteração da senha é realizada pelo sistema de recuperação, explicado em 
 
 ## Arquivos que participam do funcionamento
 
-- **public/perfil.html:** estrutura do formulário e das mensagens.
+- **public/perfil.html:** estrutura do formulário, dos campos e dos botões.
 - **public/scripts/perfil.js:** carregamento dos dados, prévia do avatar, envio das alterações e solicitação de exclusão.
 - **public/scripts/navbar-auth.js:** atualização do avatar e dos controles do header.
 - **routes/userRoutes.js:** rotas de consulta, alteração e exclusão do perfil.
@@ -32,6 +32,10 @@ A alteração da senha é realizada pelo sistema de recuperação, explicado em 
 - **validacoes/usuarioValidacao.js:** regras de nome, e-mail e avatar.
 - **model/logModel.js:** registro das alterações e da exclusão.
 - **public/styles/cadastro-login.css:** responsividade do formulário.
+- **utils/normalizarUsuario.js:** preparação de nome, e-mail e avatar antes da validação.
+- **service/criptografiaService.js:** comparação da senha atual com o hash armazenado.
+- **utils/sessao.js:** encerramento da sessão e remoção do cookie.
+- **public/scripts/sessao-cliente.js:** consulta compartilhada da sessão, utilizada para atualizar a navegação.
 
 A configuração geral de sessão e dos elementos compartilhados está em **DOC_GLOBAL.md**.
 
@@ -41,9 +45,11 @@ Em **public/perfil.html**, o formulário possui o id **form-perfil** e começa c
 
 Os botões Salvar alterações e Excluir conta também começam desabilitados.
 
-Enquanto os dados não chegam, o elemento **mensagem-perfil** apresenta **Carregando perfil...**
+O formulário permanece oculto e os botões ficam desabilitados até que a consulta dos dados seja concluída com sucesso.
 
-Isso evita que o usuário envie um formulário vazio antes de a consulta terminar.
+Isso evita que o usuário envie um formulário vazio antes do carregamento.
+
+As mensagens de erro são apresentadas por **window.alert**. A página não utiliza mais o elemento **mensagem-perfil**.
 
 No mesmo HTML, **public/scripts/perfil.js** é carregado com **defer**. O script pode encontrar os elementos porque sua execução aguarda a leitura do HTML.
 
@@ -60,7 +66,6 @@ Em **public/scripts/perfil.js**, as variáveis iniciais utilizam **document.getE
 - **campoEmailPerfil:** campo do e-mail.
 - **campoAvatarPerfil:** campo do avatar.
 - **previaAvatarPerfil:** elemento que mostra a prévia.
-- **mensagemPerfil:** área de mensagens.
 - **campoSenhaAtual:** campo de confirmação da senha.
 - **botaoSalvarPerfil:** botão de salvamento.
 - **botaoExcluirPerfil:** botão de exclusão.
@@ -89,21 +94,25 @@ O clique em Excluir conta chama **excluirPerfil**. A digitação do avatar chama
 
 ## Como as rotas do perfil são organizadas
 
-Em **routes/userRoutes.js**, existem 3 operações para o perfil:
+Em **routes/userRoutes.js**, existem três operações para o perfil:
 
 ```js
 router.get('/perfil', userController.buscarPerfil)
-router.post('/perfil', limitarEdicaoPerfil, userController.atualizarPerfil)
+router.patch('/perfil', limitarEdicaoPerfil, userController.atualizarPerfil)
 router.delete('/perfil', limitarEdicaoPerfil, userController.excluirPerfil)
 ```
 
-Como **index.js** liga esse arquivo ao início **/usuarios**, os links completos são:
+Como **index.js** liga esse arquivo ao início **/usuarios**, os endereços completos são:
 
-- **GET /usuarios/perfil:** consulta os dados.
-- **POST /usuarios/perfil:** salva nome, e-mail e avatar.
+- **GET /usuarios/perfil:** consulta os dados da conta.
+- **PATCH /usuarios/perfil:** altera nome, e-mail e avatar.
 - **DELETE /usuarios/perfil:** solicita a exclusão da conta.
 
-O método diferencia as operações, mesmo quando o link é igual.
+O método diferencia as operações, mesmo quando o endereço é igual.
+
+O método **PATCH** é utilizado porque a edição modifica parte dos dados da conta. Essa operação não altera a senha nem o tipo de usuário.
+
+Embora o formulário HTML possua **method="post"**, **salvarPerfil** impede o envio comum com **preventDefault()** e realiza a requisição por fetch com **PATCH**.
 
 ## Como o limite de tentativas funciona
 
@@ -123,15 +132,15 @@ Os bloqueios dos botões no navegador evitam envios repetidos durante uma opera�
 
 ## Como os dados são solicitados
 
-Em **public/scripts/perfil.js**, **carregarPerfil()** consulta o servidor:
+Em **public/scripts/perfil.js**, **carregarPerfil()** consulta:
 
 ```js
-const resposta = await fetch("usuarios/perfil")
+const resposta = await fetch("/usuarios/perfil")
 ```
 
-Na página **/perfil.html**, esse link relativo corresponde a **/usuarios/perfil**.
+A barra inicial faz o endereço partir da raiz do site.
 
-Se o servidor responder com status 401, o script executa:
+Se o servidor responder com status **401**, o script executa:
 
 ```js
 window.location.replace("/login.html")
@@ -139,9 +148,20 @@ window.location.replace("/login.html")
 
 O navegador passa para a página de login, pois a consulta exige uma sessão válida.
 
-Nas outras respostas, a função lê o JSON. Se **resposta.ok** for falso, apresenta o erro na área de mensagens.
+Nas outras respostas, a função lê o JSON.
 
-Quando a consulta funciona, o script preenche os campos, atualiza a prévia do avatar, mostra o formulário e habilita os botões.
+Se **resposta.ok** for falso, apresenta a mensagem recebida em **dados.erro** por **window.alert**. Quando não há uma mensagem disponível, utiliza um texto padrão.
+
+Quando a consulta funciona, o script:
+
+- Preenche nome, e-mail e avatar.
+- Atualiza a prévia do avatar.
+- Remove o estado **hidden** do formulário.
+- Habilita os botões de salvamento e exclusão.
+
+Se ocorrer uma falha de comunicação ou de leitura da resposta, o **catch** registra o erro no console e mostra um alerta.
+
+O formulário só é liberado depois do carregamento bem-sucedido.
 
 **Print da consulta do perfil:**
 
@@ -245,11 +265,12 @@ A senha atual não passa por essa alteração, pois precisa ser comparada confor
 Durante o envio:
 
 - O botão Salvar alterações fica desabilitado.
-- Seu texto muda para indicar o salvamento.
+- Seu texto muda para **SALVANDO...**.
 - Os campos ficam com **readOnly**.
-- A área de mensagens informa que a operação está em andamento.
 
 **readOnly** impede a edição dos campos enquanto a resposta é aguardada.
+
+A função de exclusão também verifica o estado do botão de salvamento. Assim, não inicia uma exclusão enquanto esse salvamento está em andamento.
 
 **Print da preparação das alterações:**
 
@@ -257,11 +278,11 @@ Durante o envio:
 
 ## Como as alterações são enviadas
 
-Ainda em **public/scripts/perfil.js**, **salvarPerfil** faz a requisição:
+Em **public/scripts/perfil.js**, **salvarPerfil** faz a requisição:
 
 ```js
 const resposta = await fetch("/usuarios/perfil", {
-    method: "post",
+    method: "PATCH",
     headers: {
         "Content-Type": "application/json"
     },
@@ -271,9 +292,13 @@ const resposta = await fetch("/usuarios/perfil", {
 
 **JSON.stringify** transforma o objeto em texto JSON.
 
-O cabeçalho **Content-Type** informa esse formato ao servidor.
+O cabeçalho **Content-Type** informa ao servidor o formato do corpo enviado.
 
-A resposta será usada para mostrar a mensagem de sucesso ou de erro na própria página.
+O objeto contém nome, e-mail, avatar e senha atual. Ele não inclui um ID para escolher a conta que será alterada.
+
+Se a resposta tiver status **401**, o script encaminha o navegador para **/login.html**.
+
+Nas outras respostas, lê o JSON e verifica **resposta.ok**. As mensagens de sucesso ou erro são apresentadas por **window.alert**.
 
 ## Como o servidor verifica a edição
 
@@ -288,19 +313,29 @@ Sem sessão, retorna 401. Se o formato do corpo não for aceito, retorna 415.
 
 A identificação da conta utiliza novamente o id da sessão.
 
-O controller cria um objeto somente com:
+O controller seleciona os campos editáveis e aplica **normalizarUsuario**, de **utils/normalizarUsuario.js**:
 
 ```js
-const usuario = {
+const usuario = normalizarUsuario({
     nome: dados.nome,
     email: dados.email,
     avatar: dados.avatar
-}
+})
 ```
 
-Esse objeto é enviado para **validarDadosUsuario**, de **validacoes/usuarioValidacao.js**.
+A função devolve um novo objeto com nome e e-mail sem espaços nas extremidades, quando os valores são textos.
 
-As regras são as mesmas utilizadas no cadastro e estão explicadas em **DOC_CADASTRO_LOGIN.md**.
+O avatar também é ajustado. Quando está ausente ou fica vazio depois da remoção dos espaços, recebe **:D**.
+
+Valores com tipos incorretos permanecem disponíveis para serem recusados pela validação.
+
+Depois, o controller chama **validarDadosUsuario**, de **validacoes/usuarioValidacao.js**.
+
+A normalização prepara os valores. A validação verifica as regras sem modificar o objeto recebido.
+
+Essa preparação também acontece no servidor porque as verificações feitas pelo JavaScript da página podem ser contornadas.
+
+As regras são compartilhadas com o cadastro e estão explicadas em **DOC_CADASTRO-LOGIN.md**.
 
 O perfil não recebe um tipo de conta para atualizar. Por essa operação, o usuário não altera **user_tipo**.
 
@@ -322,11 +357,15 @@ O controller chama **buscarSenhaPorId**, de **model/userModel.js**, que consulta
 
 O hash permanece no servidor. Ele não é enviado ao navegador.
 
-Em **controller/userController.js**, a comparação utiliza:
+Em **controller/userController.js**, a comparação utiliza **compararHash**, importada de **service/criptografiaService.js**:
 
 ```js
-senhaCorreta = await bcrypt.compare(senhaAtual, conta.user_pass)
+senhaCorreta = await compararHash(senhaAtual, conta.user_pass)
 ```
+
+A função compartilhada utiliza **bcrypt.compare** para conferir a senha recebida com o hash armazenado.
+
+O controller continua responsável por interpretar o resultado e definir a resposta da operação.
 
 Se a comparação for falsa, a função responde com status 403.
 
@@ -406,19 +445,37 @@ Por fim, o controller responde com a mensagem **Perfil atualizado com sucesso.**
 
 Em **public/scripts/perfil.js**, depois de receber uma resposta de sucesso, **salvarPerfil**:
 
-- Mantém os valores ajustados nos campos.
+- Mantém os valores preparados nos campos.
 - Limpa a senha atual.
 - Atualiza a prévia do avatar.
-- Mostra a mensagem recebida.
-- Chama **verificarLogin()**.
+- Mostra a mensagem de sucesso por **window.alert**.
+- Dispara o evento **perfil-atualizado**.
 
-A função **verificarLogin**, definida em **public/scripts/navbar-auth.js**, consulta a sessão novamente e atualiza o header.
+O evento é emitido com:
 
-Por isso, o novo avatar pode aparecer na navegação sem outro login.
+```js
+document.dispatchEvent(new Event("perfil-atualizado"))
+```
 
-No **finally** de **salvarPerfil**, os campos deixam de ser somente leitura e o botão volta ao estado normal.
+Em **public/scripts/navbar-auth.js**, um ouvinte recebe esse evento e solicita a atualização dos controles da navegação.
 
-Se houver uma falha de comunicação, a página informa que não foi possível confirmar o salvamento. A ausência de resposta não garante que o banco deixou de ser atualizado.
+Para isso, consulta a sessão utilizando **consultarSessao(true)**, de **public/scripts/sessao-cliente.js**. O argumento **true** solicita uma nova consulta, em vez de reutilizar o resultado anterior.
+
+Assim, o avatar da navegação pode ser atualizado sem realizar outro login.
+
+O script do perfil não chama diretamente **verificarLogin()**. A comunicação acontece pelo evento, e a função de atualização permanece no script da navegação.
+
+No **finally** de **salvarPerfil**:
+
+- Os campos deixam de ser somente leitura.
+- O botão de salvamento é habilitado.
+- Seu texto volta para **SALVAR ALTERAÇÕES**.
+
+Se o servidor devolver uma resposta de erro, o script mostra a mensagem recebida por alerta.
+
+Se ocorrer uma falha de comunicação ou de leitura da resposta, informa que não foi possível confirmar o salvamento e orienta a recarregar a página para conferir.
+
+A ausência de confirmação no navegador não garante que o banco deixou de ser atualizado.
 
 **Print do resultado do salvamento no script:**
 
@@ -434,7 +491,7 @@ Em **public/scripts/perfil.js**, **excluirPerfil()** é chamada pelo botão Excl
 
 A função começa verificando se os botões indicam alguma operação em andamento.
 
-Depois, lê a senha atual. Se o campo estiver vazio, mostra uma mensagem, posiciona o foco nele e encerra a chamada.
+Depois, lê a senha atual. Se o campo estiver vazio, mostra um **window.alert**, posiciona o foco no campo e encerra a chamada.
 
 Se houver senha, **window.confirm** pede confirmação para excluir a conta e seus comentários.
 
@@ -472,7 +529,7 @@ Depois, obtém o id por **req.session.usuario.id** e lê **senhaAtual** do corpo
 
 A função verifica o tipo, o preenchimento e o limite de bytes da senha.
 
-Em seguida, consulta o hash por **buscarSenhaPorId**, de **model/userModel.js**, e compara com **bcrypt.compare**.
+Em seguida, consulta o hash por **buscarSenhaPorId**, de **model/userModel.js**, e utiliza **compararHash**, de **service/criptografiaService.js**, para conferir a senha.
 
 - Sem sessão: 401.
 - Corpo fora do formato esperado: 415.
@@ -540,13 +597,23 @@ A função chama **registrarLog**, de **model/logModel.js**. Se a gravação fal
 
 ## Como a sessão é encerrada após a exclusão
 
-Ainda em **controller/userController.js**, **excluirPerfil** chama **req.session.destroy** e limpa o cookie **connect.sid**.
+Em **controller/userController.js**, depois da tentativa de registrar o log da exclusão, **excluirPerfil** chama:
 
-Depois, responde com a mensagem de confirmação.
+```js
+encerrarSessao(req, res, (erroSessao) => {
+```
 
-Se ocorrer uma falha ao encerrar a sessão nesse trecho, o código registra o erro no terminal, limpa o cookie e ainda envia a confirmação da exclusão.
+A função pertence a **utils/sessao.js** e centraliza o encerramento da sessão.
 
-A conta removida não volta a existir por causa de uma falha na gravação do log ou no encerramento da sessão.
+Quando existe uma sessão, utiliza **req.session.destroy** e solicita a remoção do cookie **connect.sid** com **res.clearCookie**.
+
+A remoção do cookie é solicitada mesmo quando a operação de encerramento retorna um erro.
+
+Se ocorrer uma falha nesse trecho, o controller registra o problema no terminal e ainda envia a confirmação da exclusão.
+
+Isso acontece porque a conta já foi removida do banco. Uma falha no log ou no encerramento da sessão não desfaz essa exclusão.
+
+O funcionamento da função compartilhada está detalhado em **DOC_GLOBAL.md**.
 
 **Print do log e do encerramento da sessão:**
 
@@ -558,8 +625,12 @@ Em **public/scripts/perfil.js**, depois de receber sucesso, **excluirPerfil**:
 
 - Marca **contaExcluida** como verdadeira.
 - Limpa o campo de senha.
-- Mostra a mensagem recebida.
+- Mostra a mensagem recebida por **window.alert**.
 - Encaminha o navegador para **/** usando **window.location.replace**.
+
+Se a resposta tiver status **401**, o navegador é encaminhado para a página de login.
+
+Nas outras respostas de erro, o script apresenta **dados.erro**, quando disponível, ou uma mensagem padrão.
 
 No **finally**, os controles só são liberados quando **contaExcluida** permanece falsa.
 
@@ -595,6 +666,8 @@ Para adicionar outro campo editável ao perfil, considere:
 - A leitura e a validação em **controller/userController.js**.
 - A consulta e o UPDATE em **model/userModel.js**.
 - O campo correspondente no banco e no MER.
+- A preparação do valor em **utils/normalizarUsuario.js**, quando necessária.
+- A regra correspondente em **validacoes/usuarioValidacao.js**.
 
 O id da conta deve continuar sendo obtido pela sessão. O tipo de usuário não faz parte dos campos editáveis dessa página.
 

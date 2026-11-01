@@ -17,9 +17,9 @@ As instruções para preparar o banco e cadastrar o 1º admin ficam no **README.
 
 ## Comunicação entre o código e o banco
 
-O arquivo **config/database.js** cria a conexão com o MySQL.
+O arquivo **config/database.js** cria um pool de conexões com o MySQL.
 
-Os arquivos da pasta **model** utilizam essa conexão para executar as consultas. Cada model concentra as operações relacionadas à sua parte do sistema:
+Os arquivos da pasta **model** utilizam esse pool para executar as consultas. Cada model concentra as operações relacionadas à sua parte do sistema:
 
 - **model/userModel.js:** cadastro, consulta, edição e exclusão de usuários.
 - **model/comentarioModel.js:** publicação, consulta e exclusão de comentários.
@@ -28,36 +28,116 @@ Os arquivos da pasta **model** utilizam essa conexão para executar as consultas
 
 O fluxo de uma solicitação funciona assim:
 
-1. O JavaScript da página envia uma requisição com **fetch**.
-2. A rota encaminha a requisição para o controller.
+1. O navegador envia uma requisição por um formulário HTML ou por **fetch**.
+2. A rota encaminha a requisição para o controller, passando pelos middlewares definidos.
 3. O controller verifica os dados recebidos e as permissões necessárias.
-4. O controller chama uma função do model.
-5. O model executa o comando SQL.
-6. O banco devolve o resultado ao model.
-7. O model entrega o resultado ao controller por uma **callback**.
-8. O controller envia a resposta para a página.
+4. Quando a operação exige uma preparação adicional, o controller utiliza um service antes de chamar o model.
+5. O model executa o comando SQL pelo pool.
+6. O banco devolve o resultado.
+7. O resultado retorna por callback ao código que solicitou a operação.
+8. O controller define a resposta enviada ao navegador.
 
-O model não responde diretamente ao navegador. Ele recebe os dados necessários para a consulta e devolve o resultado ao controller.
+Os services participam, por exemplo, da preparação dos hashes de senha e dos códigos de recuperação. Os models recebem esses valores preparados e executam as consultas.
+
+O model não responde diretamente ao navegador. Ele recebe os dados necessários para a consulta e devolve um erro ou resultado.
+
+As consultas utilizam a interface de callbacks do **mysql2**. A geração e a comparação de hashes também utilizam operações assíncronas, mas isso não transforma automaticamente as consultas SQL em Promises.
 
 ## Conexão com o MySQL
 
-No arquivo **config/database.js**, a função **mysql.createConnection()** recebe as configurações usadas para localizar e acessar o banco:
+Em **config/database.js**, o projeto utiliza **mysql.createPool()**, da biblioteca **mysql2**.
 
-- **host:** local onde o MySQL está funcionando.
-- **port:** porta usada na conexão.
-- **user:** usuário do MySQL.
-- **password:** senha desse usuário.
-- **database:** nome do banco utilizado pelo projeto.
+Um pool administra um conjunto de conexões que podem ser reutilizadas pelas consultas. Assim, os models compartilham o acesso ao banco sem criar uma conexão própria a cada operação.
+
+### Configurações recebidas do ambiente
+
+As configurações são lidas pelas variáveis:
+
+- **DB_HOST:** endereço onde o MySQL está funcionando.
+- **DB_PORT:** porta utilizada pelo MySQL; quando não informada, utiliza **3306**.
+- **DB_USER:** usuário do MySQL.
+- **DB_PASSWORD:** senha desse usuário.
+- **DB_NAME:** nome do banco utilizado pelo projeto.
 
 O usuário informado nessa configuração é uma conta do MySQL. Ele não é o mesmo que o usuário cadastrado na tabela **tb_usuarios**.
 
-Depois, **conexao.connect()** tenta estabelecer a conexão. Se ocorrer um erro, o código mostra esse erro no terminal. Quando a conexão funciona, uma mensagem informa que o banco foi conectado.
+O arquivo **index.js** carrega o **dotenv** antes de importar a configuração do banco, disponibilizando as variáveis do arquivo **.env** em **process.env**.
 
-No final do arquivo, **module.exports** permite que os models utilizem a mesma conexão.
+Em **config/database.js**, o código verifica se **DB_HOST**, **DB_USER**, **DB_PASSWORD** e **DB_NAME** foram definidas. Essa verificação identifica variáveis ausentes; a confirmação de que os valores permitem acessar o banco acontece na consulta inicial.
+
+A porta é convertida em número e precisa ser um inteiro entre **1** e **65535**.
+
+### Configurações do pool
+
+Além dos dados de acesso, o pool utiliza:
+
+```js
+charset: "utf8mb4_unicode_ci",
+waitForConnections: true,
+connectionLimit: 10,
+queueLimit: 100
+```
+
+Essas opções definem:
+
+- **charset:** configuração de caracteres da comunicação com o MySQL.
+- **waitForConnections:** permite aguardar uma conexão disponível quando todas estiverem ocupadas.
+- **connectionLimit:** limita o pool a **10 conexões**.
+- **queueLimit:** limita a **100** as solicitações que podem aguardar na fila do pool.
+
+O limite de conexões não representa o número máximo de usuários cadastrados ou conectados ao site. As conexões são utilizadas pelas operações com o banco e podem ser reaproveitadas.
+
+No final do arquivo, **module.exports = conexao** disponibiliza o pool para os models e para a verificação inicial do servidor.
+
+### Verificação antes de iniciar o servidor
+
+Criar o pool não confirma, sozinho, que o banco está acessível.
+
+Em **index.js**, o sistema executa:
+
+```js
+conexao.query("SELECT 1", (erro) => {
+```
+
+Essa consulta verifica se a aplicação consegue acessar o MySQL com a configuração informada.
+
+Quando funciona, o servidor carrega o cache dos conteúdos e executa **app.listen** para começar a receber requisições.
+
+Quando falha, o código:
+
+1. Mostra uma mensagem e o código do erro no terminal.
+2. Solicita o encerramento do pool com **conexao.end**.
+3. Define **process.exitCode = 1**.
+4. Não executa **app.listen**.
+
+Essa verificação evita iniciar o atendimento HTTP quando o acesso inicial ao banco não funciona. Falhas que ocorram depois da inicialização continuam sendo tratadas pelas operações que utilizam o banco.
 
 **Print do código de conexão:**
 
 ![alt text](./img/image-148.png)
+
+## Codificação dos textos
+
+O arquivo **comandoSQL.sql** define o banco **mydb** com:
+
+```sql
+DEFAULT CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci
+```
+
+As quatro tabelas também utilizam essa configuração.
+
+O conjunto de caracteres **utf8mb4** permite armazenar os caracteres Unicode utilizados pelo projeto, incluindo emojis.
+
+A configuração precisa ser compatível entre a comunicação da aplicação e as tabelas do banco. Configurar somente a conexão não altera automaticamente uma tabela criada anteriormente com outra codificação.
+
+A **collation** define regras de comparação e ordenação dos textos. Isso também influencia comparações realizadas nos campos de nome e e-mail e nas restrições de unicidade.
+
+O suporte a emojis não remove os limites dos campos. O avatar continua sujeito às regras da aplicação e à capacidade da coluna.
+
+A validação do JavaScript utiliza **length**, cuja contagem pode considerar alguns emojis como mais de uma unidade. Por isso, o limite de 10 não significa necessariamente 10 símbolos visíveis.
+
+O arquivo **comandoSQL.sql** contém a estrutura utilizada para preparar o banco. Como utiliza **CREATE TABLE IF NOT EXISTS**, executá-lo novamente não atualiza automaticamente a definição das tabelas que já existem.
 
 ## Identificação e relacionamento dos registros
 
@@ -107,12 +187,11 @@ Isso impede que o banco aceite registros duplicados nesses campos.
 
 O controller consulta a existência de outro usuário com os mesmos dados antes de salvar. Mesmo assim, a restrição no banco continua sendo necessária, pois protege os dados caso solicitações simultâneas tentem cadastrar o mesmo nome ou e-mail.
 
-No arquivo **model/userModel.js**, a função **buscarUsuarioDuplicado()** recebe:
+No arquivo **model/userModel.js**, a função **buscarUsuarioDuplicado(usuario, idIgnorado, callback)** recebe:
 
-- O nome informado.
-- O e-mail informado.
-- O ID que deve ser ignorado na consulta.
-- A callback que receberá o resultado.
+- **usuario:** objeto que contém o nome e o e-mail informados.
+- **idIgnorado:** ID da conta que não deve ser considerada na busca.
+- **callback:** função que receberá o erro ou o resultado.
 
 Na edição, o ID ignorado é o da própria conta. Assim, manter o nome ou o e-mail atual não é considerado uma duplicação.
 
@@ -132,17 +211,32 @@ O símbolo **<>** significa diferente. Nesse caso, a consulta procura outra cont
 
 ## Cadastro e armazenamento da senha
 
-No arquivo **model/userModel.js**, a função **criarUsuario()** recebe um objeto com os dados do cadastro e uma callback.
+A preparação da senha acontece antes da consulta SQL.
 
-Antes de inserir o usuário, ela utiliza:
+Em **controller/userController.js**, o cadastro passa pela normalização, pelas validações e pela consulta de duplicidade.
+
+Depois, o controller chama **criarUsuario**, de **service/usuarioService.js**.
+
+O service gera o hash utilizando **gerarHash**, de **service/criptografiaService.js**:
 
 ```js
-const senhaHash = await bcrypt.hash(user.senha, 10)
+senhaHash = await gerarHash(usuario.senha)
 ```
 
-O bcrypt transforma a senha em um hash. Esse hash é usado posteriormente para verificar a senha durante o login.
+A função compartilhada utiliza o bcrypt com custo de processamento **10**, definido por **RODADAS_HASH**.
 
-Depois, a função executa o comando:
+Se a geração do hash falhar, o service entrega o erro ao callback e não solicita a inserção.
+
+Quando funciona, prepara um objeto com:
+
+- **nome**
+- **email**
+- **senhaHash**
+- **avatar**
+
+Esse objeto é enviado para **criarUsuario**, de **model/userModel.js**.
+
+O model recebe o hash pronto e executa:
 
 ```sql
 INSERT INTO tb_usuarios
@@ -152,9 +246,13 @@ VALUES (?, ?, ?, ?)
 
 Os valores enviados são o nome, o e-mail, o hash da senha e o avatar.
 
-O **user_id** não aparece no comando porque é gerado pelo banco. O **user_tipo** também não aparece porque utiliza o valor padrão definido na tabela.
+A senha original não é encaminhada ao model para gravação. A confirmação da senha também não é armazenada.
 
-A confirmação de senha não é armazenada. Ela serve apenas para verificar se a pessoa digitou a senha desejada durante o preenchimento.
+O **user_id** não aparece no comando porque é gerado pelo banco. O **user_tipo** utiliza o valor padrão **usuario**, definido na tabela.
+
+No login, **service/autenticacaoService.js** utiliza **compararHash**, de **service/criptografiaService.js**, para conferir a senha recebida com o hash armazenado.
+
+Essa comparação não recupera a senha original.
 
 **Print do cadastro no banco:**
 
@@ -221,9 +319,32 @@ Ter **rec_usado = 0** não garante, sozinho, que uma solicitação possa ser uti
 
 ### Criação da recuperação
 
-No arquivo **model/recuperacaoModel.js**, a função **criarRecuperacao()** recebe o ID do usuário, o código gerado e a callback.
+Em **service/recuperacaoService.js**, **criarRecuperacao(recuperacao, callback)** recebe o ID do usuário e o código gerado pelo sistema.
 
-Ela cria o hash do código com bcrypt e executa a inserção.
+O service utiliza **gerarHash**, de **service/criptografiaService.js**, para produzir o hash do código.
+
+Se essa etapa falhar, entrega o erro ao callback e não chama o model.
+
+Quando funciona, prepara:
+
+```js
+const dadosRecuperacao = {
+    userId: recuperacao.userId,
+    codigoHash
+}
+```
+
+Depois, chama **criarRecuperacao**, de **model/recuperacaoModel.js**.
+
+O model recebe o hash pronto e executa:
+
+```sql
+INSERT INTO tb_recuperacoes
+    (tb_usuarios_user_id, rec_codigo, rec_expiracao)
+VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
+```
+
+O código original é utilizado no envio do e-mail. No banco, **rec_codigo** recebe somente seu hash.
 
 A data de expiração é calculada no SQL:
 
@@ -239,43 +360,75 @@ Nesse trecho:
 
 O campo **rec_usado** utiliza o valor padrão **0**, definido na tabela.
 
+O cálculo do prazo utiliza o relógio do MySQL, que também será utilizado nas verificações de validade.
+
 **Print da criação da recuperação:**
 
 ![alt text](./img/image-152.png)
 
 ### Consulta da recuperação mais recente
 
-No arquivo **model/recuperacaoModel.js**, a função **buscarUltimaRecuperacao()** consulta as solicitações do usuário.
+Em **model/recuperacaoModel.js**, **buscarUltimaRecuperacao(userId, callback)** consulta a solicitação mais recente da conta.
 
-Ela utiliza:
+A consulta utiliza:
 
 ```sql
 ORDER BY rec_id DESC
 LIMIT 1
 ```
 
-O **DESC** organiza os IDs do maior para o menor. O **LIMIT 1** faz a consulta devolver apenas o registro mais recente.
+O **DESC** organiza os IDs do maior para o menor. O **LIMIT 1** faz a consulta devolver apenas o registro com o maior ID daquele usuário.
 
-Uma nova solicitação pode tornar a anterior inutilizável pelo fluxo do sistema mesmo que o registro anterior ainda tenha **rec_usado = 0**.
+Além dos dados necessários para verificar o código, a consulta calcula:
+
+```sql
+(rec_expiracao > NOW()) AS rec_valida
+```
+
+**rec_valida** informa se o prazo ainda está aberto conforme a data e a hora do MySQL.
+
+Esse resultado é utilizado pelo controller junto com a verificação de **rec_usado** e a comparação do código recebido com o hash armazenado.
+
+A consulta procura primeiro a solicitação mais recente. Ela não procura uma solicitação antiga que ainda possa estar dentro do prazo.
+
+Por isso, criar uma nova recuperação impede o uso da anterior pelo fluxo do sistema, mesmo que o registro antigo ainda tenha **rec_usado = 0**.
 
 Os registros antigos não são apagados automaticamente apenas porque o prazo terminou.
 
 ### Alteração da senha e uso da recuperação
 
-No arquivo **model/recuperacaoModel.js**, a função **concluirRecuperacao()** recebe os dados da recuperação autorizada, a nova senha e a callback.
+Em **service/recuperacaoService.js**, **concluirRecuperacao(recuperacao, novaSenha, callback)** gera o hash da nova senha utilizando **gerarHash**.
 
-Ela cria o hash da nova senha e utiliza um comando **UPDATE** que altera as tabelas **tb_usuarios** e **tb_recuperacoes** na mesma operação.
+Se a geração falhar, o service devolve o erro sem solicitar a atualização no banco.
 
-Essa consulta:
+Quando funciona, chama:
+
+```js
+recuperacaoModel.concluirRecuperacao(recuperacao, senhaHash, callback)
+```
+
+Em **model/recuperacaoModel.js**, a função recebe os dados da recuperação autorizada e o hash já preparado.
+
+O comando **UPDATE** altera as tabelas **tb_usuarios** e **tb_recuperacoes** na mesma operação.
+
+A consulta:
 
 - Atualiza **user_pass** com o novo hash.
 - Altera **rec_usado** para **1**.
-- Confere o usuário, o e-mail e o ID da recuperação.
-- Exige que a recuperação ainda não tenha sido utilizada.
-- Exige que o prazo ainda não tenha terminado.
-- Verifica se não existe uma solicitação mais recente.
+- Confere o ID do usuário, o e-mail e o ID da recuperação.
+- Exige **rec_usado = 0**.
+- Exige que **rec_expiracao** seja maior que **NOW()**.
+- Exige que não exista uma solicitação mais recente para a conta.
 
-Fazer as alterações no mesmo comando evita atualizar a senha separadamente da marcação de uso da recuperação.
+O **INNER JOIN** relaciona o usuário à recuperação.
+
+O **LEFT JOIN** procura uma recuperação do mesmo usuário com ID maior. A condição **mais_recente.rec_id IS NULL** exige que essa recuperação posterior não exista.
+
+As condições são verificadas novamente no momento da atualização. Assim, uma recuperação que tenha expirado, sido utilizada ou sido substituída depois da verificação do código não autoriza a alteração da senha.
+
+Atualizar a senha e marcar a recuperação como utilizada no mesmo comando evita realizar essas duas mudanças separadamente.
+
+Se **affectedRows** for **0**, nenhuma atualização foi realizada. O controller trata esse resultado como uma recuperação que não pode mais ser concluída.
 
 **Print da conclusão da recuperação:**
 
@@ -381,10 +534,10 @@ Exemplo:
 
 ```js
 conexao.query(sql, [
-    user.nome,
-    user.email,
-    senhaHash,
-    user.avatar || ":D"
+    usuario.nome,
+    usuario.email,
+    usuario.senhaHash,
+    usuario.avatar
 ], callback)
 ```
 
@@ -441,29 +594,56 @@ Os valores da pesquisa continuam sendo enviados separadamente pelos **?**.
 
 ### Limite e deslocamento
 
-No arquivo **controller/admController.js**, as funções de consulta calculam o deslocamento:
+Em **utils/paginacao.js**, **lerConsulta(query)** prepara os parâmetros utilizados pelas consultas administrativas.
+
+Quando não são informados, a pesquisa recebe texto vazio e a página recebe **1**.
+
+A função verifica se:
+
+- A pesquisa é um texto.
+- A página recebida é um texto formado somente por dígitos.
+- O número da página é um inteiro seguro maior ou igual a **1**.
+- O deslocamento calculado também é um inteiro seguro.
+
+Se os parâmetros forem inválidos, retorna **null**, permitindo que o controller recuse a consulta.
+
+O limite é definido por:
 
 ```js
-const deslocamento = (pagina - 1) * limite
+const LIMITE_POR_PAGINA = 10
 ```
 
-Com **50 registros por página**:
+O deslocamento é calculado com:
+
+```js
+const deslocamento = (pagina - 1) * LIMITE_POR_PAGINA
+```
+
+Com **10 registros por página**:
 
 - A página **1** começa no deslocamento **0**.
-- A página **2** começa no deslocamento **50**.
-- A página **3** começa no deslocamento **100**.
+- A página **2** começa no deslocamento **10**.
+- A página **3** começa no deslocamento **20**.
 
-No arquivo **model/userModel.js**, a função **buscarTodosUsuarios()** aplica esses valores:
+O controller solicita ao model um registro além do limite, ou seja, até **11 registros**.
+
+O model aplica:
 
 ```sql
 LIMIT ? OFFSET ?
 ```
 
-O controller solicita **51 registros** para descobrir se existe uma próxima página. Quando recebe o registro adicional, remove esse item da resposta e informa que há mais resultados.
+Depois da consulta, **montarPagina(nomeCampo, registros, consulta)**, de **utils/paginacao.js**, organiza a resposta com:
 
-O navegador recebe até **50 registros por vez**, evitando montar toda a tabela de uma vez.
+- A lista limitada aos primeiros **10 registros**.
+- O número da página consultada.
+- **temProxima**, indicando se a consulta encontrou o registro adicional.
+
+O registro adicional é utilizado apenas para identificar a existência de uma próxima página. Ele não é incluído na lista enviada ao navegador.
 
 O **ORDER BY** define a ordem dos resultados antes da aplicação do limite.
+
+Essa preparação é compartilhada pelas consultas administrativas de usuários, comentários e logs.
 
 **Print da pesquisa e paginação no model:**
 

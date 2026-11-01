@@ -101,7 +101,7 @@ function carregarCacheConteudos() {
 }
 
 // recebe categoria e tópico pela rota, le a aula e devolve o markdown e os comentários em json
-function buscarConteudo(req, res) {
+function buscarConteudo(req, res, next) {
     const { categoria, topico } = req.params
 
     if (!["html", "css", "javascript"].includes(categoria)) {

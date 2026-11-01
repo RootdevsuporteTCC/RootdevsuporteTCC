@@ -37,27 +37,44 @@ O projeto funciona da forma correta em navegadores baseados em Chromium, como Ch
 
 O projeto utiliza a estrutura MVC:
 
-- **Model:** fazem as consultas no banco.
-- **View:** páginas e recursos da interface nas pastas public e private.
-- **Controller:**, recebe as solicitações, verifica os dados e organiza as respostas.
-
-A pasta routes encaminha as requisições para os controllers. As aulas ficam em content, e a documentação do código fica em Doc.
+- **model:** executa as consultas no banco.
+- **public e private:** contêm as páginas e os recursos da interface.
+- **controller:** recebe as solicitações, valida os dados e organiza
+  as respostas.
+- **service:** reúne autenticação, criptografia, preparação do cadastro,
+  recuperação de senha e envio de e-mail.
+- **utils:** reúne funções compartilhadas de sessão, paginação e
+  normalização dos dados.
+- **middleware:** verifica o acesso administrativo e trata os erros.
+- **routes:** encaminha as requisições aos controllers.
+- **content:** armazena as aulas em Markdown.
+- **Doc:** contém a documentação dos fluxos e códigos.
 
 ## Programas necessários
 
-- Node.js
-- MySQL Workbench
-- Navegador baseado em chromium
+- Node.js e npm.
+- MySQL Server.
+- MySQL Workbench para criar e consultar o banco.
+- Git para clonar o repositório.
+- Navegador atualizado com JavaScript habilitado.
 
 ## Instalação
 
 ### Baixando o projeto
 
-No repositório, clique no botão verde "Code", depois Download ZIP, baixe e extraia o arquivo.
+No terminal, execute:
 
-![alt text](./Imagens-readme/image-1.png)
+```
+git clone https://github.com/RootdevsuporteTCC/RootdevsuporteTCC.git
+cd RootdevsuporteTCC
+npm ci
+```
 
-A pasta principal é a que tem o arquivo **index.js**.
+O comando `npm ci` instala as dependências nas versões registradas em
+`package-lock.json` e cria a pasta `node_modules`.
+
+Também é possível baixar e extrair o ZIP do repositório. Nesse caso, abra
+o terminal na pasta que contém `package.json` e execute `npm ci`.
 
 ### Preparando o banco
 
@@ -69,23 +86,42 @@ A pasta principal é a que tem o arquivo **index.js**.
 
 O arquivo **MER tcc.mwb** contém o modelo do banco e pode ser aberto no Workbench para visualizar os relacionamentos.
 
-Em **config/database.js**, configure **host**, **port**, **user**, **password** e **database** conforme o MySQL do seu computador.
+Configure a conexão pelo arquivo `.env`, localizado na mesma pasta de
+`index.js`:
+
+- `DB_HOST`: endereço do MySQL; use `localhost` para instalação local.
+- `DB_PORT`: porta da conexão, normalmente `3306`.
+- `DB_USER`: usuário do MySQL.
+- `DB_PASSWORD`: senha desse usuário.
+- `DB_NAME`: nome do banco criado pelo SQL.
+
+Host, porta e usuário podem ser consultados em **Edit Connection** no
+MySQL Workbench. A senha é a definida para o usuário do banco.
+
+O banco utiliza `utf8mb4`, permitindo armazenar emojis. O servidor utiliza
+um pool de conexões e verifica o acesso ao banco antes de iniciar.
 
 **Print do banco:**
 
 ![alt text](./Imagens-readme/image-3.png)
 
-### Dependências e e-mail
+### Configuração e e-mail
 
-A pasta **node_modules** já vem com as bibliotecas instaladas. Se estiver faltando ou for necessário reinstalar as dependências, execute:
+A pasta `node_modules` não faz parte do repositório e deve ser criada
+com `npm ci`. Mantenha `package.json` e `package-lock.json`.
 
-```
-npm install
-```
+O arquivo `.env` também contém:
 
-O arquivo **.env** tem as configurações da conta criada para enviar os e-mails do projeto. Não é necessário criar outra conta para utilizar as credenciais.
+- `PORT`: porta do site, normalmente `8000`.
+- `SESSION_SECRET`: chave usada para assinar o identificador da sessão.
+- `SMTP_USER`: conta remetente dos e-mails de recuperação.
+- `SMTP_PASS`: senha de aplicativo dessa conta.
 
-O envio de e-mails e os recursos carregados por links externos precisam de internet.
+As configurações de e-mail fornecidas com o projeto podem ser mantidas
+para utilizar a conta remetente existente.
+
+O envio de e-mails e os recursos carregados por links externos precisam
+de acesso à internet.
 
 ## Iniciando o servidor
 
@@ -94,12 +130,21 @@ Abra um terminal na pasta principal do projeto (onde tem o arquivo **index.js**)
 Execute:
 
 ```
-node index.js
+npm start
 ```
 
 Mantenha o terminal aberto e acesse:
 
 http://localhost:8000
+
+Se `PORT` tiver outro valor no `.env`, utilize essa porta no endereço.
+
+O terminal deve permanecer aberto. Para encerrar o servidor, pressione
+Ctrl + C. Acesse o projeto pelo endereço do servidor; abrir o HTML
+diretamente ou pelo Live Server não disponibiliza o backend.
+
+As sessões ficam na memória do servidor. Reiniciar o Node encerra os
+logins ativos.
 
 Para fechar o servidor, pressione **Ctrl + C** no terminal. O site deve ser aberto por esse link, abrir o HTML direto ou pelo Live Server não se conecta ao back-end.
 
@@ -140,4 +185,8 @@ Abra a página de login do admin:
 
 A pasta **Doc** explica os códigos e os fluxos de cadastro, login, perfil, conteúdos, comentários, admin, logs, recuperação de senha e banco de dados.
 
-As instruções para adicionar aulas estão em **DOC_CONTEUDOS.md**. Após alterar as aulas, reinicie o servidor para atualizar o cache utilizado pela pesquisa.
+As instruções para adicionar aulas estão em `Doc/DOC_CONTEUDOS.md`.
+
+Após adicionar, alterar ou remover aulas, reinicie o servidor. O menu,
+a abertura das aulas e a pesquisa utilizam o mesmo cache, preenchido
+na inicialização apenas com aulas válidas.

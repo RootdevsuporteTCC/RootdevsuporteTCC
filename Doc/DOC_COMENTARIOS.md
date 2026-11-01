@@ -33,16 +33,23 @@ A consulta e a exclusão pela página do admin são explicadas em **DOC_ADMIN.md
 - **model/comentarioModel.js:** consultas, gravação e exclusão no banco.
 - **model/logModel.js:** registro das publicações e exclusões.
 - **public/styles/conteudo.css:** adaptações da área para diferentes tamanhos de tela.
+- **public/scripts/sessao-cliente.js:** compartilhamento da consulta da sessão com o script da navegação.
 
 ## Como os comentários são consultados
 
 Em **public/scripts/conteudo.js**, **carregarConteudo(topico)** solicita a aula pela rota **GET /conteudo/:categoria/:topico**.
 
-Em **controller/conteudoController.js**, **buscarConteudo(req, res)** lê e valida o Markdown. Depois, chama:
+Em **controller/conteudoController.js**, **buscarConteudo(req, res, next)** valida a categoria e o tópico e localiza a aula no cache.
+
+Quando encontra a aula, chama:
 
 ```js
-comentarioModel.buscarPorTopico(categoria, topico, (erroComentario, comentarios) => {
+comentarioModel.buscarPorTopico(categoria, topico, (erro, comentarios) => {
 ```
+
+O texto da aula vem da memória do servidor, mas os comentários são consultados no banco a cada requisição.
+
+Se essa consulta falhar, o controller encaminha o erro por **next(erro)** ao tratamento centralizado.
 
 A função recebe a categoria e o tópico da aula solicitada.
 
@@ -73,19 +80,22 @@ Em **controller/conteudoController.js**, depois da consulta, **buscarConteudo** 
 
 ```js
 comentarios.forEach((comentario) => {
-    comentario.podeExcluir = false
-
-    if (req.session.usuario) {
-        comentario.podeExcluir = Number(comentario.com_user_id) === Number(req.session.usuario.id)
-    }
+    comentario.podeExcluir = Boolean(
+        req.session.usuario && Number(comentario.com_user_id) === Number(req.session.usuario.id)
+    )
 })
 ```
 
-Cada comentário começa com **podeExcluir** falso.
+A expressão verifica duas condições:
 
-Se existir usuário na sessão, a função compara o id do autor com o id da conta conectada. Quando os valores são iguais, **podeExcluir** recebe verdadeiro.
+- Existe um usuário na sessão.
+- O ID desse usuário corresponde ao ID do autor do comentário.
 
-A conversão com **Number** permite comparar os ids como números.
+**Number** permite comparar os IDs como números.
+
+**Boolean** garante que o resultado final seja **true** ou **false**, inclusive quando não existe usuário na sessão.
+
+Assim, **podeExcluir** só recebe verdadeiro quando o comentário pertence à conta conectada.
 
 Essa informação controla a apresentação da lixeira. A autorização da exclusão também é conferida no servidor quando a operação é solicitada.
 
@@ -162,11 +172,24 @@ Em **public/conteudo.html**, o formulário fica dentro de uma área que começa 
 
 Em **public/scripts/conteudo.js**, **carregarConteudo** mostra essa área somente depois que uma aula é carregada com sucesso.
 
-No mesmo script, **verificarLoginComentario()** consulta **/usuarios/sessao** e decide o que mostrar:
+No mesmo script, **verificarLoginComentario()** utiliza o módulo compartilhado da sessão:
+
+```js
+const { consultarSessao } = await import("/scripts/sessao-cliente.js")
+const dados = await consultarSessao()
+```
+
+**import()** carrega o módulo e permite acessar sua função exportada.
+
+**consultarSessao()** consulta **/usuarios/sessao** quando necessário e compartilha a Promise com os outros scripts que utilizam o mesmo módulo na página.
+
+Isso permite que a navegação e os controles de comentários aproveitem a mesma consulta.
+
+Com o resultado:
 
 - **dados.logado** verdadeiro: mostra o formulário e esconde o aviso de login.
 - **dados.logado** falso: esconde o formulário e mostra o aviso.
-- Falha na consulta: esconde o formulário e apresenta uma mensagem.
+- Falha na consulta: esconde o formulário e o aviso e apresenta uma mensagem orientando a atualizar a página.
 
 Essas condições trabalham juntas. Estar conectado não faz o formulário aparecer quando nenhuma aula foi carregada.
 
@@ -278,17 +301,41 @@ Depois, a função lê categoria, tópico e texto do corpo da requisição.
 
 A categoria precisa ser **html**, **css** ou **javascript**.
 
-O nome do tópico é conferido com:
+O tópico precisa ser um texto e corresponder à expressão:
 
 ```js
 const nomeValido = /^[a-zA-Z0-9_-]+$/
 ```
 
+A condição verifica o tipo antes de aplicar a expressão:
+
+```js
+if (typeof topico !== "string" || !nomeValido.test(topico)) {
+```
+
 A expressão aceita letras sem acento, números, **_** e **-**.
 
-O texto passa por **trim()** e precisa ter entre 1 e 1000 caracteres. Os valores fora desses limites recebem status 400.
+Depois, o controller verifica se o comentário foi enviado como texto:
 
-Nesse trecho, o código atual chama **dados.texto.trim()** diretamente. Portanto, ele pressupõe que o campo foi enviado como texto; não existe uma verificação anterior com **typeof** para esse campo.
+```js
+if (typeof dados.texto !== "string") {
+    return res.status(400).json({ erro: "Informe um comentário válido." })
+}
+```
+
+Somente depois dessa verificação aplica:
+
+```js
+const texto = dados.texto.trim()
+```
+
+Essa ordem evita chamar **trim()** em um valor de tipo inadequado.
+
+O texto preparado precisa ter entre **1 e 1000 caracteres**. Um comentário formado somente por espaços fica vazio depois de **trim()** e é recusado.
+
+Tipo incorreto, tópico inválido ou texto fora dos limites recebem status **400**.
+
+As verificações são feitas no servidor mesmo que o formulário já limite o preenchimento no navegador.
 
 **Print das verificações da publicação no servidor:**
 
@@ -312,7 +359,13 @@ A verificação de arquivo utiliza **arquivo.isFile()**.
 
 Essa etapa evita gravar comentários para uma aula cujo arquivo não existe no momento da consulta.
 
-O código dessa publicação verifica a existência do arquivo, mas não repete a leitura dos metadados feita por **buscarConteudo**, em **controller/conteudoController.js**.
+A publicação continua verificando o arquivo diretamente com **fs.stat**. Ela não consulta o cache das aulas nem lê o cabeçalho do Markdown.
+
+A leitura e a validação dos metadados acontecem em **carregarCacheConteudos**, de **controller/conteudoController.js**, durante a inicialização do servidor.
+
+Portanto, são verificações diferentes: a abertura da aula depende de sua presença no cache, enquanto a publicação confere a existência do arquivo no momento da solicitação.
+
+Depois de alterar, remover ou renomear aulas, reinicie o servidor para manter o cache correspondente aos arquivos.
 
 **Print da verificação do arquivo da aula:**
 
@@ -501,7 +554,11 @@ Em **model/comentarioModel.js**, **excluirComentario** exige o id do comentário
 
 No mesmo model, **excluirComentarioAdmin** utiliza o id do comentário. A autorização dessa operação depende das rotas protegidas da página do admin.
 
-As rotas do admin passam por **middleware/verificarAdmin.js**, que confere a sessão e o tipo de usuário.
+As rotas do admin passam por **middleware/verificarAdmin.js**.
+
+Esse middleware exige uma sessão, consulta a conta no banco e confere seu tipo atual antes de permitir a operação.
+
+Assim, a autorização administrativa não depende somente de um tipo guardado anteriormente na sessão.
 
 Na página pública da aula, ser admin não faz a função **exibirComentarios** mostrar a lixeira em todos os comentários. O campo **podeExcluir** é calculado pela autoria.
 
@@ -553,7 +610,7 @@ As operações de publicação e exclusão devem continuar registrando o resulta
 Em **controller/comentarioController.js** e **routes/comentarioRoutes.js**, os principais resultados são:
 
 - **Publicação concluída:** status 201.
-- **Categoria, tópico, tamanho do texto ou id recusados pelas verificações:** status 400.
+- **Categoria, tópico, tipo ou tamanho do texto, ou ID recusados pelas verificações:** status **400**.
 - **Sessão ausente:** status 401.
 - **Aula não encontrada:** status 404.
 - **Comentário inexistente ou de outro autor na exclusão:** status 404.

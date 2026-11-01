@@ -14,9 +14,10 @@ Cada pasta possui uma responsabilidade:
 - **controller:** recebe as requisições, verifica os dados e organiza as operações.
 - **model:** executa as consultas e alterações no banco.
 - **config:** configura o banco de dados e o envio de e-mail.
-- **middleware:** contém verificações executadas antes das funções principais das rotas.
+- **middleware:** verifica o acesso administrativo e trata erros e sua apresentação ao navegador.
 - **validacoes:** reúne regras reutilizadas para conferir os dados dos usuários.
-- **service:** contém o serviço que monta e envia o e-mail de recuperação.
+- **service:** reúne autenticação, criptografia, preparação do cadastro, recuperação de senha e envio de e-mail.
+- **utils:** contém funções compartilhadas de normalização dos dados, paginação e gerenciamento de sessões.
 - **content:** guarda as aulas Markdown, separadas por categoria.
 - **Doc:** reúne os documentos que explicam o projeto.
 
@@ -24,42 +25,61 @@ O código utiliza funções e módulos. As funções são distribuídas conforme
 
 ## Como os arquivos compartilham funções
 
-Em **controller/userController.js**, o início do arquivo carrega os módulos necessários:
+No servidor, os arquivos utilizam **require** para carregar funções disponibilizadas por **module.exports**.
+
+Em **controller/userController.js**, por exemplo, são carregados os serviços e utilitários utilizados nas operações:
 
 ```js
-const userModel = require('../model/userModel')
-const logModel = require('../model/logModel')
-const usuarioValidacao = require("../validacoes/usuarioValidacao")
+const usuarioService = require("../service/usuarioService")
+const autenticacaoService = require("../service/autenticacaoService")
+
+const { encerrarSessao, iniciarSessao } = require("../utils/sessao")
+const { normalizarUsuario } = require("../utils/normalizarUsuario")
 ```
 
-**require** carrega o que outro arquivo disponibiliza por **module.exports**.
+Cada função continua definida no arquivo responsável por ela. O controller utiliza essas funções para organizar a operação.
 
-Em **model/userModel.js**, por exemplo, **module.exports** disponibiliza as funções de consulta e alteração dos usuários. Assim, o controller pode chamar **userModel.buscarPorId** ou **userModel.criarUsuario**.
+Os principais recursos compartilhados são:
 
-A função continua definida no model. O controller apenas utiliza essa função quando precisa acessar o banco.
+- **service/usuarioService.js:** gera o hash da senha e prepara os dados enviados ao model no cadastro.
+- **service/autenticacaoService.js:** localiza a conta, compara a senha e verifica a exigência de acesso administrativo.
+- **service/criptografiaService.js:** disponibiliza **gerarHash** e **compararHash**, utilizando bcrypt com custo 10 para a geração.
+- **service/recuperacaoService.js:** prepara os hashes do código de recuperação e da nova senha.
+- **service/emailService.js:** monta e envia o e-mail de recuperação.
+- **utils/normalizarUsuario.js:** devolve um novo objeto com nome, e-mail e avatar preparados, preservando a senha.
+- **utils/paginacao.js:** valida os parâmetros de consulta, calcula o deslocamento e monta a resposta paginada.
+- **utils/sessao.js:** cria e encerra sessões.
 
-Essa organização permite reaproveitar o mesmo código em diferentes operações. A busca de usuário por id, por exemplo, participa da consulta de sessão, do perfil e da edição feita pelo admin.
+Os models executam as consultas no banco. Os serviços de cadastro e recuperação entregam aos models os hashes já preparados.
+
+No navegador, **public/scripts/sessao-cliente.js** utiliza **export** e é carregado por **import()**. Esse módulo compartilha a consulta do estado de login entre os scripts da mesma página.
 
 ## Como o servidor é preparado
 
-Em **index.js**, a instrução inicial carrega as variáveis de configuração:
+Em **index.js**, a primeira instrução carrega as configurações:
 
 ```js
 require("dotenv").config()
 ```
 
-O dotenv disponibiliza os valores do arquivo **.env** em **process.env**. Essa chamada aparece antes dos módulos que dependem dessas informações, como a configuração de e-mail.
+O dotenv disponibiliza os valores do arquivo **.env** em **process.env**. Essa chamada aparece antes dos módulos que dependem dessas informações, incluindo as configurações do banco e do e-mail.
 
-Depois, **index.js** carrega Express, express-session, os arquivos de rotas e o controller de conteúdo.
+Depois, o arquivo carrega Express, express-session, os middlewares, a conexão com o banco, as rotas e o controller de conteúdo.
 
 A aplicação e a porta são definidas assim:
 
 ```js
 const app = express()
-const port = 8000
+const port = Number(process.env.PORT || 8000)
 ```
 
-**express()** cria a aplicação que recebe as requisições. A variável **port** determina a porta utilizada para acessar o site.
+**express()** cria a aplicação. **PORT** define a porta HTTP; quando não informada, o código utiliza **8000**.
+
+O servidor verifica se a porta é um número inteiro entre 1 e 65535. Também exige a configuração de **SESSION_SECRET**, utilizada para assinar o identificador da sessão.
+
+As configurações do banco vêm de **DB_HOST**, **DB_PORT**, **DB_USER**, **DB_PASSWORD** e **DB_NAME**. A conexão utiliza um pool, configurado em **config/database.js**.
+
+A inicialização pelo terminal é feita com **npm start**. O terminal deve permanecer aberto enquanto o sistema estiver em uso.
 
 ## Como os dados enviados são lidos
 
@@ -102,29 +122,17 @@ Os arquivos de **private/admin** não são disponibilizados por essa configuraç
 
 ## Como as rotas são separadas
 
-Em **index.js**, cada grupo de rotas recebe um início de link:
+A página inicial é entregue pelo **express.static**, que disponibiliza **public/index.html** no endereço **/**. Não existe uma rota adicional necessária para enviar esse mesmo arquivo.
 
-```js
-app.use('/usuarios', userRoutes)
-app.use('/adm', admRoutes)
-app.use('/conteudo', conteudoRoutes)
-app.use('/comentarios', comentarioRoutes)
-app.use("/recuperacao", recuperacaoRoutes)
-```
+Depois das rotas, **app.use(tratarErros)** registra o middleware global responsável pelos erros encaminhados com **next(erro)**.
 
-Esses grupos possuem as seguintes funções:
+Antes de executar **app.listen**, o servidor testa a conexão com o banco por meio de **SELECT 1**.
 
-- **/usuarios:** cadastro, login, sessão, logout e perfil.
-- **/adm:** acesso e operações da página do admin.
-- **/conteudo:** pesquisa, tópicos e leitura das aulas.
-- **/comentarios:** publicação e exclusão de comentários pelo autor.
-- **/recuperacao:** solicitação do código, verificação e definição da nova senha.
+Se a consulta falhar, registra o problema no terminal, encerra o pool e define um código de saída de erro. O servidor HTTP não é iniciado.
 
-Em **routes/userRoutes.js**, por exemplo, a rota **/cadastro** fica dentro do grupo **/usuarios**. Por isso, seu link completo é **/usuarios/cadastro**.
+Se a consulta funcionar, chama **carregarCacheConteudos()** para preparar as aulas válidas na memória. Esse cache é utilizado pelo menu de tópicos, pela abertura das aulas e pela pesquisa.
 
-Em **index.js**, a rota **/** envia a página inicial. Antes de iniciar o atendimento das requisições, o arquivo também chama **carregarCacheConteudos()** para preparar a pesquisa das aulas.
-
-Por fim, **app.listen** inicia o servidor na porta configurada.
+Somente depois dessas etapas, **app.listen** começa a atender na porta configurada.
 
 **Print do encaminhamento das rotas e da inicialização:**
 
@@ -132,27 +140,36 @@ Por fim, **app.listen** inicia o servidor na porta configurada.
 
 ## Como uma operação percorre os arquivos
 
+## Como uma operação percorre os arquivos
+
 A edição de perfil mostra como as partes do projeto trabalham juntas.
 
-Em **public/scripts/perfil.js**, **salvarPerfil(evento)** lê os campos e envia uma requisição para **/usuarios/perfil**.
+Em **public/scripts/perfil.js**, **salvarPerfil(evento)** impede o envio comum do formulário, lê os campos e envia uma requisição **PATCH /usuarios/perfil**, com os dados em JSON.
 
-Em **routes/userRoutes.js**, a rota encaminha essa requisição para **atualizarPerfil**, de **controller/userController.js**.
+Em **routes/userRoutes.js**, a rota aplica o limite de tentativas e encaminha a requisição para **atualizarPerfil**, de **controller/userController.js**.
 
-O controller verifica a sessão, os campos, a senha atual e a duplicidade dos dados. Depois, chama **atualizarPerfil**, de **model/userModel.js**, para atualizar o banco.
+O controller identifica a conta pela sessão. Utiliza **normalizarUsuario** para preparar nome, e-mail e avatar e, depois, verifica as regras em **validarDadosUsuario**.
 
-O model devolve o resultado pelo callback. O controller usa esse resultado para responder ao navegador, e o script atualiza a mensagem da página.
+A senha atual é comparada com o hash armazenado utilizando **compararHash**, do serviço de criptografia. O controller também verifica se o nome ou o e-mail pertence a outra conta.
+
+Se as verificações permitirem continuar, **model/userModel.js** executa o UPDATE com os valores enviados por parâmetros.
+
+O model entrega o resultado pelo callback. O controller atualiza os dados da sessão, registra a ação e responde ao navegador em JSON.
+
+O script mostra o resultado em um alerta. Após o sucesso, emite o evento **perfil-atualizado**, utilizado pela navegação para consultar novamente a sessão.
 
 Nesse fluxo:
 
 - O HTML contém os campos.
-- O script lê os campos e envia a requisição.
-- A rota encaminha a requisição.
-- O controller decide se a operação pode continuar.
+- O script prepara e envia a requisição.
+- A rota aplica o limite e encaminha a operação.
+- O controller organiza as verificações.
+- Os utilitários e serviços executam as tarefas compartilhadas.
 - O model executa o SQL.
 - O controller envia a resposta.
-- O script mostra o resultado.
+- O script apresenta o resultado e avisa a navegação sobre a alteração.
 
-Os detalhes dessa funcionalidade estão em **DOC_PERFIL.md**.
+Os detalhes estão em **DOC_PERFIL.md**.
 
 ## Informações recebidas pelas funções do servidor
 
@@ -164,9 +181,13 @@ Em **controller/userController.js**, **controller/admController.js** e nos demai
 - **req.session:** informações da sessão mantida pelo servidor.
 - **res:** objeto utilizado para responder ao navegador.
 
-Em **middleware/verificarAdmin.js**, também existe **next**. Essa função continua o fluxo da rota depois que a verificação de acesso é concluída.
+Middlewares e controllers também podem receber **next** como terceiro parâmetro.
 
-Se o middleware responder com erro e encerrar a execução, a função seguinte não deve ser executada.
+**next()**, sem um erro, continua o fluxo normal para a próxima função.
+
+**next(erro)** encaminha a falha ao tratamento de erros do Express. Os controllers que utilizam essa chamada precisam declarar **next** em seus parâmetros.
+
+Quando uma função envia uma resposta e encerra a operação, deve interromper sua execução para evitar outra resposta ou a continuação indevida do processamento.
 
 ## Como a sessão identifica o usuário
 
@@ -180,7 +201,7 @@ As opções utilizadas são:
 
 O navegador recebe o cookie **connect.sid**, que identifica a sessão. Os dados de **req.session.usuario** ficam no servidor.
 
-Em **controller/userController.js**, **loginUsuario** preenche esse objeto após confirmar a senha:
+Em **service/autenticacaoService.js**, **autenticar** confirma as credenciais e prepara os dados da conta para a sessão, com esta correspondência:
 
 ```js
 req.session.usuario = {
@@ -191,7 +212,15 @@ req.session.usuario = {
 }
 ```
 
-Essas informações permitem identificar quem está fazendo as próximas requisições.
+O controller recebe esses dados em **resultado.usuario** e chama **iniciarSessao**, de **utils/sessao.js**.
+
+Essa função executa **req.session.regenerate** para criar um novo identificador e uma nova sessão. Depois, atribui o usuário a **req.session.usuario** e executa **req.session.save**.
+
+O callback informa quando a sessão foi salva. O controller só continua para o registro do login e o redirecionamento após essa confirmação.
+
+Isso evita redirecionar a página antes de os dados da sessão estarem disponíveis. Se a criação ou a gravação falhar, o erro é encaminhado ao tratamento global.
+
+Para sair, **encerrarSessao** executa **req.session.destroy** e solicita a remoção do cookie **connect.sid**.
 
 A configuração atual não define um armazenamento externo para as sessões. Elas ficam na memória do servidor e deixam de estar disponíveis quando ele é reiniciado.
 
@@ -219,6 +248,35 @@ Se a conta não existir mais, a função encerra a sessão e informa que não h�
 
 ![alt text](./img/image-23.png)
 
+## Como a consulta da sessão é compartilhada no navegador
+
+Em **public/scripts/sessao-cliente.js**, a variável **consultaSessao** guarda a Promise da consulta ao servidor.
+
+A função **consultarSessao(atualizar = false)** inicia uma consulta quando ainda não existe uma guardada. As próximas chamadas aproveitam a mesma operação ou seu resultado.
+
+Isso permite que a navegação e a verificação de login dos comentários utilizem uma única requisição a **GET /usuarios/sessao** durante o carregamento da página.
+
+O módulo é carregado com:
+
+```js
+const { consultarSessao } = await import("/scripts/sessao-cliente.js")
+const dados = await consultarSessao()
+```
+
+Para buscar dados novos, utiliza-se:
+
+```js
+const dados = await consultarSessao(true)
+```
+
+A atualização forçada é necessária depois de alterações que afetem os dados apresentados na navegação.
+
+O fetch utiliza **cache: "no-store"** e solicita JSON pelo cabeçalho **Accept**. Isso controla o cache HTTP do navegador. A variável do módulo é um armazenamento separado, mantido pelo próprio JavaScript enquanto a página estiver aberta.
+
+Se uma consulta falhar, ela é removida da variável para permitir uma nova tentativa. A comparação com a consulta atual evita que uma falha antiga apague uma consulta mais recente.
+
+Recarregar a página reinicia esse estado. O compartilhamento ocorre entre os scripts da mesma página, não entre abas diferentes.
+
 ## Como o header funciona
 
 Em **public/index.html**, o header contém a marca, os botões Login e Cadastro e a estrutura do menu para telas menores.
@@ -239,32 +297,53 @@ Por isso, ao alterar um link ou controle compartilhado, é necessário atualizar
 
 ## Como o header muda depois do login
 
-Em **public/scripts/navbar-auth.js**, **verificarLogin()** consulta a sessão:
+Em **public/scripts/navbar-auth.js**, **verificarLogin(atualizar = false)** utiliza o módulo compartilhado de sessão:
 
 ```js
-const resposta = await fetch('/usuarios/sessao')
+const { consultarSessao } = await import("/scripts/sessao-cliente.js")
+const dados = await consultarSessao(atualizar)
 ```
 
-Depois, confere **resposta.ok** e lê o JSON retornado.
+Se **dados.logado** for falso durante o carregamento, mantém os controles iniciais de visitante.
 
-Se **dados.logado** for falso, a função mantém os controles iniciais.
-
-Se for verdadeiro, substitui os controles pelos links e formulários do usuário conectado:
+Se for verdadeiro, monta os controles da conta conectada nos menus normal e compacto:
 
 - **Meu Perfil:** abre **/perfil.html**.
 - **Sair:** envia **POST /usuarios/logout**.
 - Avatar: mostra o texto salvo na conta.
 
-A estrutura é inserida com **innerHTML**, mas o avatar é preenchido separadamente com **innerText**:
+Os controles repetidos utilizam classes, como **avatar-usuario** e **sair**. Os IDs **user-painel** e **menu-avatar-usuario** identificam áreas diferentes.
+
+A estrutura é inserida com **innerHTML**, mas o avatar recebido do servidor é preenchido separadamente com **innerText**:
 
 ```js
 authButtons.querySelector(".avatar").innerText = dados.usuario.avatar || ":D"
 navDrawerMenu.querySelector(".avatar").innerText = dados.usuario.avatar || ":D"
 ```
 
-O valor **:D** é usado quando não existe um avatar aproveitável.
+O valor **:D** é utilizado quando não existe um avatar aproveitável.
 
-A função atualiza a interface. Ela não realiza o login e não cria a sessão.
+O arquivo também registra um ouvinte:
+
+```js
+document.addEventListener("perfil-atualizado", () => {
+    verificarLogin(true)
+})
+```
+
+Depois de salvar uma edição, os scripts de perfil e do painel emitem:
+
+```js
+document.dispatchEvent(new Event("perfil-atualizado"))
+```
+
+Esse evento inicia uma nova consulta da sessão e atualiza os avatares. A edição já foi confirmada pelo servidor; a atualização visual é concluída de forma assíncrona.
+
+Todo o código de **navbar-auth.js** fica dentro de uma função executada imediatamente. Isso mantém **verificarLogin** em um escopo próprio, sem exigir que outros arquivos chamem essa função diretamente.
+
+O ouvinte mantém acesso à função porque foi definido dentro do mesmo escopo.
+
+A navegação apenas apresenta o estado do login. Ela não autentica a conta nem substitui as verificações de permissão do servidor.
 
 **Print da consulta de sessão pelo header:**
 
@@ -301,15 +380,21 @@ Em **public/index.html**, o footer reúne os links de navegação e o contato do
 
 Essa estrutura também é repetida em outras páginas. Ao alterar o contato ou algum link, as cópias precisam ser atualizadas.
 
-Em **public/scripts/email-to-clipboard.js**, **emailToClipboard()** copia o e-mail de contato usando **navigator.clipboard.writeText**.
+Em **public/scripts/email-to-clipboard.js**, **emailToClipboard()** tenta copiar o e-mail de contato usando:
 
-Depois, a função mostra um aviso com **alert**.
+```js
+await navigator.clipboard.writeText(email)
+```
 
-Essa operação apenas copia o texto. Ela não abre uma solicitação de recuperação e não envia mensagens.
+A função aguarda a conclusão antes de mostrar o alerta de sucesso.
 
-O código atual mostra o aviso logo depois de solicitar a cópia, sem aguardar a confirmação de que a área de transferência foi atualizada.
+Se a cópia falhar, o **catch** registra o erro no console e mostra o endereço no alerta, permitindo copiá-lo manualmente.
 
-Em **private/admin/admin.html**, o contato chama **emailToClipboard**, mas o script correspondente não está incluído nessa página. A presença do contato no footer, portanto, não garante que a função esteja disponível ali.
+A operação apenas copia o contato. Ela não envia mensagens nem inicia a recuperação de senha.
+
+A página administrativa também carrega esse script, pois seu footer utiliza a mesma função.
+
+A API de área de transferência depende do suporte e das permissões do navegador e de um contexto seguro. O endereço local **http://localhost** é aceito pelos navegadores compatíveis.
 
 **Print da função de copiar o contato:**
 
@@ -352,6 +437,12 @@ Em **public/perfil.html**, o script de perfil utiliza **defer**. Isso permite ca
 Em outras páginas, os scripts ficam ao final do HTML, depois dos elementos utilizados.
 
 Em **public/conteudo.html**, Marked e DOMPurify também precisam ser carregados antes do script que usa essas bibliotecas.
+
+O módulo **sessao-cliente.js** é carregado diretamente por **import()** dentro das funções que o utilizam. Não é necessário incluí-lo em uma tag de script separada.
+
+A comunicação de atualização do perfil utiliza o evento **perfil-atualizado**, evitando chamadas diretas a uma função global da navegação.
+
+O ouvinte desse evento precisa estar registrado antes da ação de salvamento. Nas páginas atuais, o script da navegação é carregado durante a preparação da página, antes da interação do usuário.
 
 ## Bibliotecas compartilhadas pelo navegador
 
@@ -418,7 +509,7 @@ Em **public/scripts/perfil.js**, as operações utilizam **try**, **catch** e **
 
 ### Verificação de números inteiros
 
-Em **controller/admController.js**, **Number.isSafeInteger** é usado em ids, páginas e deslocamentos.
+Em **controller/admController.js**, **Number.isSafeInteger** é utilizado na validação dos identificadores. Em **utils/paginacao.js**, também verifica a página e o deslocamento calculado.
 
 A função verifica se o valor é um número inteiro representado com segurança pelo JavaScript. Ela rejeita valores como números fracionados, **NaN**, infinito e inteiros fora da faixa segura.
 
@@ -443,11 +534,44 @@ Os principais status utilizados no projeto são:
 - **403:** operação não permitida.
 - **404:** recurso não encontrado.
 - **409:** conflito nos dados ou no estado da operação.
+- **413:** corpo da requisição acima do tamanho permitido.
 - **415:** formato enviado não aceito.
 - **429:** limite de tentativas atingido.
 - **500:** erro interno do servidor.
 
 O status indica o tipo de resultado. A mensagem enviada explica o problema específico.
+
+## Como os erros são tratados e apresentados
+
+O arquivo **middleware/tratarErros.js** define o middleware global com quatro parâmetros:
+
+```js
+function tratarErros(erro, req, res, next)
+```
+
+Ele é registrado depois das rotas, para receber as falhas encaminhadas por **next(erro)**.
+
+Se os cabeçalhos já tiverem sido enviados, o middleware encaminha o erro ao próximo tratamento, evitando iniciar outra resposta.
+
+Os tratamentos definidos são:
+
+- JSON inválido: status 400.
+- Corpo acima do tamanho permitido: status 413.
+- Outras falhas internas: status 500, com mensagem genérica.
+
+O código ou nome do erro interno é registrado no terminal. O middleware não envia o objeto completo do erro ao navegador.
+
+Callbacks de consultas precisam encaminhar suas falhas explicitamente quando utilizam esse tratamento. Uma resposta já enviada diretamente pelo controller não passa novamente por **next(erro)**.
+
+Em **middleware/alertaErros.js**, o sistema adapta a apresentação das respostas enviadas por **res.send** ou **res.json**.
+
+Quando o status é de erro e a requisição solicita HTML, o middleware envia uma página curta que mostra um alerta. Ao fechar a mensagem, o navegador retorna à página anterior ou ao início, quando não existe histórico suficiente.
+
+A mensagem é preparada com **JSON.stringify** e escapes antes de ser inserida no script.
+
+Quando a requisição aceita JSON como formato selecionado, o conteúdo continua sendo enviado normalmente. Os scripts de perfil, recuperação e administração leem essa resposta e apresentam suas próprias mensagens.
+
+Assim, os formulários comuns recebem um aviso visível, e as consultas por JavaScript mantêm respostas que podem ser processadas pelo código.
 
 ## Responsividade do header e do footer
 

@@ -36,6 +36,9 @@ Mostrar o formulário da nova senha no navegador não autoriza a alteração por
 - **model/logModel.js:** registro das etapas concluídas e do resultado do envio.
 - **index.js:** carregamento das configurações, sessão e encaminhamento das rotas.
 - **public/styles/cadastro-login.css:** responsividade dos formulários.
+- **service/recuperacaoService.js:** geração dos hashes antes da criação da recuperação e da alteração da senha.
+- **service/criptografiaService.js:** funções compartilhadas para gerar e comparar hashes.
+- **utils/sessao.js:** encerramento da sessão utilizada na recuperação e remoção do cookie.
 
 ## Como os formulários são organizados
 
@@ -58,6 +61,17 @@ formNovaSenha.addEventListener("submit", salvarNovaSenha)
 ```
 
 Cada função utiliza **preventDefault()** para impedir o envio comum do HTML. As requisições são feitas com fetch.
+
+Os scripts locais são carregados com caminhos iniciados por **/**:
+
+```html
+<script src="/scripts/nav-drawer.js"></script>
+<script src="/scripts/email-to-clipboard.js"></script>
+<script src="/scripts/navbar-auth.js"></script>
+<script src="/scripts/recuperacao.js"></script>
+```
+
+A barra inicial faz esses caminhos partirem da raiz do site, sem depender do endereço usado para acessar a página.
 
 **Print dos eventos dos formulários:**
 
@@ -223,17 +237,45 @@ Como a resposta já foi enviada, falhas posteriores no banco ou no envio não s�
 
 ## Como a recuperação é salva
 
-Em **controller/recuperacaoController.js**, depois de encontrar a conta, **solicitarRecuperacao** envia o id do usuário e o código para **criarRecuperacao**, de **model/recuperacaoModel.js**.
-
-O model gera o hash do código:
+Em **controller/recuperacaoController.js**, depois de encontrar a conta, **solicitarRecuperacao** prepara:
 
 ```js
-const codigoHash = await bcrypt.hash(recuperacao.codigo, 10)
+const recuperacao = {
+    userId: usuario.user_id,
+    codigo: codigo
+}
 ```
 
-O código original será enviado por e-mail. O banco armazena seu hash.
+Depois, chama **criarRecuperacao**, de **service/recuperacaoService.js**.
 
-A consulta utiliza:
+### Preparação no service
+
+O service utiliza **gerarHash**, de **service/criptografiaService.js**:
+
+```js
+codigoHash = await gerarHash(recuperacao.codigo)
+```
+
+Essa função utiliza o bcrypt com custo de processamento **10**.
+
+Se a geração falhar, o service devolve o erro ao callback e não solicita a gravação.
+
+Quando funciona, prepara:
+
+```js
+const dadosRecuperacao = {
+    userId: recuperacao.userId,
+    codigoHash
+}
+```
+
+Esse objeto é encaminhado para **criarRecuperacao**, de **model/recuperacaoModel.js**.
+
+O código original permanece disponível no controller para o envio por e-mail. O model recebe somente seu hash.
+
+### Gravação no banco
+
+O model executa:
 
 ```sql
 INSERT INTO tb_recuperacoes
@@ -245,13 +287,17 @@ O banco calcula a expiração como 10 minutos depois do momento da gravação.
 
 Os campos envolvidos são:
 
-- **rec_id:** id da recuperação.
+- **rec_id:** ID da recuperação, gerado automaticamente.
 - **tb_usuarios_user_id:** conta vinculada.
 - **rec_codigo:** hash do código.
 - **rec_expiracao:** prazo de validade.
-- **rec_usado:** indicação de uso, iniciada com 0 pelo banco.
+- **rec_usado:** indicação de uso, iniciada com **0** pelo banco.
 
-Como **rec_codigo** guarda o hash, seu tamanho no banco é **varchar(255)**, mesmo que o código recebido por e-mail tenha 8 caracteres.
+Como **rec_codigo** guarda o hash, sua capacidade é de **255 caracteres**, mesmo que o código recebido por e-mail tenha 8 caracteres.
+
+O model não gera o hash. Sua responsabilidade nessa etapa é executar a inserção e devolver o resultado pelo callback.
+
+Como a resposta **202** já foi enviada, uma falha nessa preparação ou gravação é registrada no terminal, sem uma segunda resposta ao navegador.
 
 **Print da gravação da recuperação:**
 
@@ -361,6 +407,16 @@ ORDER BY rec_id DESC
 LIMIT 1
 ```
 
+A consulta também calcula:
+
+```sql
+(rec_expiracao > NOW()) AS rec_valida
+```
+
+Esse campo informa se o prazo ainda está aberto conforme a data e a hora do MySQL.
+
+O model devolve o ID da recuperação, o vínculo com o usuário, o hash do código, a indicação de uso e **rec_valida**.
+
 O maior **rec_id** identifica o registro mais recente daquela conta.
 
 O callback devolve esse registro ou **undefined**, caso não exista recuperação.
@@ -375,25 +431,37 @@ Depois que outra recuperação é gravada para a mesma conta, o código anterior
 
 ## Como o uso e a expiração são conferidos
 
-Em **controller/recuperacaoController.js**, **verificarCodigo** recusa a recuperação quando ela não existe ou quando **rec_usado** é diferente de 0.
+Em **controller/recuperacaoController.js**, **verificarCodigo** recusa a recuperação quando:
 
-A expiração é convertida para um valor de tempo:
+- O registro não existe.
+- **rec_usado** é diferente de **0**.
+- **rec_valida** é diferente de **1**.
 
-```js
-const expiracao = new Date(recuperacao.rec_expiracao).getTime()
-```
-
-A função verifica se o resultado é finito e se ainda está no futuro em relação a **Date.now()**.
-
-Depois, compara o código informado com o hash:
+A condição utilizada é:
 
 ```js
-bcrypt.compare(codigo, recuperacao.rec_codigo, (erro, codigoCorreto) => {
+if (!recuperacao || recuperacao.rec_usado !== 0 || recuperacao.rec_valida !== 1) {
 ```
 
-Se o código não corresponder ao hash, a verificação é recusada.
+**rec_valida** é calculado pela consulta SQL, comparando **rec_expiracao** com **NOW()**.
 
-A expiração é conferida novamente depois da comparação, pois essa operação também consome tempo.
+O controller não converte a expiração para uma data JavaScript nem utiliza **Date.now()** nessa verificação.
+
+Depois, compara o código informado com o hash armazenado utilizando **compararHash**, de **service/criptografiaService.js**:
+
+```js
+compararHash(codigo, recuperacao.rec_codigo, (erro, codigoCorreto) => {
+```
+
+A função compartilhada utiliza **bcrypt.compare**.
+
+Se ocorrer uma falha na comparação, o controller responde com status **500**.
+
+Se o código não corresponder ao hash, responde com status **400**, utilizando a mesma mensagem de código inválido ou expirado.
+
+Quando o código corresponde, o fluxo continua para a criação da autorização na sessão.
+
+A validade será conferida novamente pelo banco no momento de alterar a senha. A aprovação desta etapa não garante que a recuperação continuará disponível até a conclusão.
 
 **Print da verificação do prazo e do código:**
 
@@ -411,14 +479,15 @@ Depois, a função guarda:
 req.session.recuperacao = {
     recId: recuperacao.rec_id,
     userId: usuario.user_id,
-    email: usuario.user_email,
-    expiracao: expiracao
+    email: usuario.user_email
 }
 ```
 
-Esses valores identificam a recuperação autorizada e seu prazo.
+Esses valores identificam a recuperação autorizada e a conta correspondente.
 
-O código original não é guardado nesse objeto.
+A sessão não guarda o código original, seu hash ou uma cópia da expiração.
+
+O prazo permanece no banco e é conferido novamente durante a atualização da senha.
 
 A função chama **req.session.save** e aguarda o resultado antes de confirmar a verificação.
 
@@ -444,7 +513,7 @@ Em **public/scripts/recuperacao.js**, **verificarCodigoInformado** recebe essa r
 
 O código ainda não é marcado como usado nessa etapa. Ele será consumido quando a alteração da senha for concluída no banco.
 
-O prazo também não é reiniciado. A autorização mantém a expiração da recuperação original.
+O prazo não é reiniciado quando o código é validado. A data de expiração original permanece no banco e será exigida novamente na atualização da senha.
 
 **Print da etapa de nova senha:**
 
@@ -479,41 +548,79 @@ O navegador não envia o id do usuário nem o id da recuperação nessa etapa. E
 
 Em **controller/recuperacaoController.js**, **redefinirSenha(req, res)** exige corpo em JSON.
 
-Se o formato não for aceito, responde com status 415.
+Se o formato não for aceito, responde com status **415**.
 
-Depois, obtém:
+Depois, lê o corpo da requisição e a autorização:
 
 ```js
+const dados = req.body || {}
+
 const recuperacao = req.session.recuperacao
 ```
 
-A função verifica se a autorização existe, se o prazo é um valor válido e se ainda não expirou.
+Se não existir autorização, responde com status **401**, orientando a solicitar e validar outro código.
 
-Se a autorização for recusada, ela é removida e a resposta recebe status 401.
+Nessa etapa, o controller não verifica uma data de expiração guardada na sessão. O prazo é conferido pelo SQL quando a atualização é solicitada.
 
 A nova senha e sua confirmação passam por **validarSenha**, de **validacoes/usuarioValidacao.js**.
 
-São as mesmas regras utilizadas no cadastro, incluindo tamanho, número, símbolo aceito, limite de bytes e igualdade da confirmação.
+São as mesmas regras utilizadas no cadastro:
 
-Os detalhes dessa validação estão em **DOC_CADASTRO_LOGIN.md**.
+- Os valores precisam ser textos.
+- A senha deve ter entre **8 e 64 caracteres**.
+- Não pode ultrapassar **72 bytes em UTF-8**.
+- Precisa conter pelo menos um número.
+- Precisa conter pelo menos um dos símbolos aceitos.
+- A confirmação deve ser igual à senha.
+
+Se a validação devolver uma mensagem, o controller responde com status **400** e não solicita a alteração.
+
+Os detalhes dessas regras estão em **DOC_CADASTRO-LOGIN.md**.
+
+Quando a validação é aceita, o controller chama **concluirRecuperacao**, de **service/recuperacaoService.js**, passando a autorização e a nova senha.
 
 **Print da autorização para redefinir a senha:**
 
 ![alt text](./img/image-143.png)
 
-## Como a alteração é preparada no model
+## Como a alteração é preparada no service e no model
 
-Em **model/recuperacaoModel.js**, **concluirRecuperacao(recuperacao, novaSenha, callback)** recebe a autorização e a senha escolhida.
+Em **service/recuperacaoService.js**, **concluirRecuperacao(recuperacao, novaSenha, callback)** recebe a autorização e a senha escolhida.
 
-A função cria o hash da nova senha:
+O service utiliza **gerarHash**, de **service/criptografiaService.js**:
 
 ```js
-const senhaHash = await bcrypt.hash(novaSenha, 10)
+senhaHash = await gerarHash(novaSenha)
 ```
 
-Depois, prepara uma consulta que atualiza a senha e marca a recuperação como usada na mesma instrução.
+Se a geração falhar, devolve o erro ao callback e não chama o model.
+
+Quando funciona, executa:
+
+```js
+recuperacaoModel.concluirRecuperacao(recuperacao, senhaHash, callback)
+```
+
+Em **model/recuperacaoModel.js**, **concluirRecuperacao(recuperacao, senhaHash, callback)** recebe o hash pronto.
+
+O model prepara uma consulta que atualiza a senha e marca a recuperação como usada na mesma instrução.
 
 A consulta relaciona **tb_usuarios** com **tb_recuperacoes** e utiliza os nomes **usuario** e **recuperacao** para identificar essas tabelas dentro do SQL.
+
+Os valores são enviados separadamente à consulta nesta ordem:
+
+```js
+conexao.query(sql, [
+    senhaHash,
+    recuperacao.userId,
+    recuperacao.email,
+    recuperacao.recId
+], callback)
+```
+
+A senha original não é encaminhada ao model para armazenamento.
+
+A geração do hash utiliza **await**, enquanto a consulta SQL continua utilizando a interface de callbacks do **mysql2**.
 
 ## Como o SQL impede o uso de uma recuperação antiga
 
@@ -562,7 +669,7 @@ Essa conferência no banco é necessária porque o estado pode mudar depois da v
 
 Em **controller/recuperacaoController.js**, **redefinirSenha** recebe o resultado pelo callback.
 
-Se ocorrer uma falha na consulta, responde com status 500.
+Se ocorrer uma falha na geração do hash ou na consulta SQL, o callback recebe o erro e o controller responde com status **500**.
 
 Se **resultado.affectedRows** for 0, as condições necessárias não foram atendidas. A função remove a autorização e responde com status 409, solicitando outro código.
 
@@ -572,7 +679,23 @@ Quando a operação funciona, registra **Senha redefinida por recuperação de e
 
 ## Como a recuperação é encerrada
 
-Em **controller/recuperacaoController.js**, depois do sucesso, **redefinirSenha** remove **req.session.recuperacao**, encerra a sessão atual e limpa o cookie **connect.sid**.
+Em **controller/recuperacaoController.js**, depois de alterar a senha, **redefinirSenha** remove a autorização:
+
+```js
+delete req.session.recuperacao
+```
+
+Em seguida, chama **encerrarSessao**, de **utils/sessao.js**:
+
+```js
+encerrarSessao(req, res, (erroSessao) => {
+```
+
+Essa função solicita a remoção da sessão no servidor e do cookie **connect.sid** no navegador.
+
+Se o encerramento retornar um erro, o controller registra a falha no terminal e ainda responde com a confirmação da alteração, pois a senha já foi atualizada no banco.
+
+Uma falha no registro do log também não desfaz a alteração realizada.
 
 A resposta orienta entrar com a nova senha.
 
@@ -650,8 +773,8 @@ Em **controller/recuperacaoController.js** e **routes/recuperacaoRoutes.js**, os
 
 - **202:** solicitação aceita para processamento.
 - **400:** e-mail, código ou nova senha recusados pelas validações.
-- **401:** autorização de recuperação ausente ou expirada.
-- **409:** recuperação indisponível no momento da atualização.
+- **401:** autorização de recuperação ausente na sessão.
+- **409:** recuperação indisponível no momento da atualização, por expiração, uso anterior, existência de uma solicitação mais recente ou outra condição exigida pelo SQL.
 - **415:** formato do corpo não aceito na redefinição.
 - **429:** limite de tentativas atingido.
 - **500:** falha interna na verificação ou na alteração.

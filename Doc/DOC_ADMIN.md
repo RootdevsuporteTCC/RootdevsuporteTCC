@@ -41,10 +41,17 @@ O funcionamento dos relatórios está detalhado em **DOC_LOGS.md**.
 - **validacoes/usuarioValidacao.js:** regras dos dados dos usuários.
 - **public/admin/admin.css:** responsividade das consultas.
 - **public/styles/cadastro-login.css:** responsividade do formulário de edição.
+- **service/autenticacaoService.js:** verificação das credenciais e da exigência de acesso administrativo.
+- **service/criptografiaService.js:** comparação da senha com o hash armazenado.
+- **utils/sessao.js:** criação e salvamento da sessão após o login.
+- **utils/normalizarUsuario.js:** preparação dos dados antes da validação da edição.
+- **utils/paginacao.js:** validação dos parâmetros e montagem das respostas paginadas.
+- **public/scripts/navbar-auth.js:** atualização dos controles da navegação.
+- **public/scripts/sessao-cliente.js:** consulta compartilhada da sessão no navegador.
 
 ## Como o login do admin é enviado
 
-Em **public/admin/loginAdm.html**, o formulário envia **POST /adm** com e-mail e senha.
+Em **public/admin/loginAdm.html**, o formulário envia **POST /adm/login** com e-mail e senha.
 
 Esse acesso utiliza e-mail. O campo não oferece a busca por nome de usuário utilizada no login comum.
 
@@ -58,25 +65,47 @@ A criação do 1º admin é explicada no **README.md**. Essa página de login n�
 
 ## Como as credenciais são verificadas
 
-Em **controller/admController.js**, **loginAdm(req, res)** lê e-mail e senha de **req.body**.
-
-A função chama **buscarPorEmail**, de **model/userModel.js**, para localizar a conta.
-
-Quando o registro é encontrado, utiliza:
+Em **controller/admController.js**, **loginAdm(req, res, next)** lê o corpo da requisição e chama:
 
 ```js
-const senhaCorreta = await bcrypt.compare(senha, user.user_pass)
+autenticacaoService.autenticar(
+    dados.email,
+    dados.senha,
+    true,
+    (erro, resultado) => {
 ```
 
-A senha informada é comparada com o hash armazenado no banco.
+A função **autenticar**, de **service/autenticacaoService.js**, também é utilizada pelo login comum.
 
-Depois, a função verifica se **user.user_tipo** é igual a **admin**.
+O terceiro argumento, **true**, indica que esse acesso exige uma conta administrativa.
 
-- Conta não encontrada ou senha incorreta: status 401.
-- Conta com tipo diferente de admin: status 403.
-- Falha na consulta ou na comparação: status 500.
+Antes de consultar o banco, o service verifica se:
 
-A função **buscarPorEmail** entrega o resultado pelo callback. É dentro desse callback que o código continua a verificação do login.
+- E-mail e senha são textos.
+- A identificação não fica vazia depois de **trim()**.
+- A senha não está vazia.
+- A senha não ultrapassa **72 bytes em UTF-8**.
+
+Dados recusados nessa etapa recebem um resultado com status **400**.
+
+Como o acesso exige admin, o service utiliza **buscarPorEmail**, de **model/userModel.js**. A identificação é enviada com os espaços das extremidades removidos.
+
+Quando encontra a conta, utiliza **compararHash**, de **service/criptografiaService.js**, para conferir a senha com o hash armazenado.
+
+Depois de confirmar a senha, verifica se **user_tipo** é igual a **admin**.
+
+Os resultados possíveis são:
+
+- Dados iniciais inválidos: status **400**.
+- Conta não encontrada ou senha incorreta: status **401**.
+- Credenciais corretas de uma conta sem permissão administrativa: status **403**.
+- Credenciais e tipo aceitos: objeto com ID, nome, tipo e avatar.
+
+A mensagem de conta não encontrada é a mesma utilizada para senha incorreta.
+
+A senha e o hash não fazem parte do objeto de sucesso.
+
+Falhas internas na consulta ou na comparação são entregues ao controller, que as encaminha por **next(erro)**.
 
 **Print da verificação de acesso do admin:**
 
@@ -84,13 +113,27 @@ A função **buscarPorEmail** entrega o resultado pelo callback. É dentro desse
 
 ## Como o acesso é concluído
 
-Ainda em **controller/admController.js**, **loginAdm** preenche **req.session.usuario** com id, nome, tipo e avatar.
+Em **controller/admController.js**, depois de receber os dados autenticados, **loginAdm** chama:
 
-Depois, registra a ação **Login realizado no acesso do admin** por **model/logModel.js**.
+```js
+iniciarSessao(req, resultado.usuario, (erroSessao) => {
+```
 
-Quando essa etapa termina, o controller redireciona para **/adm/painel**.
+A função **iniciarSessao**, de **utils/sessao.js**:
+
+1. Regenera a sessão.
+2. Atribui os dados autenticados a **req.session.usuario**.
+3. Salva a sessão antes de continuar.
+
+Se a criação ou o salvamento falhar, o controller encaminha o erro por **next(erroSessao)**.
+
+Quando a sessão é salva, registra **Login realizado no acesso do admin** por **model/logModel.js**.
+
+Depois, redireciona para **/adm/painel**.
 
 Se a gravação do log falhar, o erro é mostrado no terminal e o redirecionamento continua.
+
+O funcionamento da criação da sessão está detalhado em **DOC_GLOBAL.md**.
 
 **Print da sessão e do redirecionamento do admin:**
 
@@ -98,25 +141,32 @@ Se a gravação do log falhar, o erro é mostrado no terminal e o redirecionamen
 
 ## Como as rotas são protegidas
 
-Em **routes/admRoutes.js**, as rotas de consulta e manutenção utilizam **verificarAdmin** antes do controller.
+Em **routes/admRoutes.js**, as rotas do painel, do script protegido e das operações administrativas utilizam **verificarAdmin** antes do controller.
 
-Em **middleware/verificarAdmin.js**, a função realiza estas verificações:
+Em **middleware/verificarAdmin.js**, a função começa verificando se existe **req.session.usuario**.
 
-```js
-if (!req.session.usuario) {
-    return res.status(401).send("Você precisa fazer login.")
-}
+Sem usuário na sessão, responde com status **401**.
 
-if (req.session.usuario.tipo !== 'admin') {
-    return res.status(403).send("Acesso negado.")
-}
-```
+Quando existe sessão, utiliza seu ID para consultar a conta por **buscarPorId**, de **model/userModel.js**.
 
-Quando as condições são atendidas, **next()** permite continuar para a função da rota.
+Essa consulta ocorre em cada requisição que passa pelo middleware.
 
-Essa verificação ocorre no servidor. Não depende apenas da presença ou ausência dos botões na página.
+Se o banco apresentar uma falha, o middleware encaminha o erro por **next(erro)**.
 
-O middleware utiliza o tipo guardado na sessão. Ele não consulta o banco novamente em cada chamada.
+Se a conta não existir mais, remove **req.session.usuario** e responde com status **401**.
+
+Quando encontra a conta, atualiza os dados da sessão com ID, nome, tipo e avatar atuais.
+
+Depois, verifica o tipo retornado pelo banco:
+
+- Tipo diferente de **admin**: status **403**.
+- Tipo **admin**: **next()** permite continuar para o controller.
+
+As recusas utilizam respostas JSON com a propriedade **erro**.
+
+A autorização não depende apenas dos dados antigos da sessão ou dos botões disponíveis na página.
+
+Se uma conta perder o tipo administrativo, a próxima requisição protegida consulta essa alteração e recusa o acesso.
 
 **Print da proteção das rotas:**
 
@@ -141,7 +191,7 @@ Em **private/admin/admin.html**, o script é carregado pelo link **/adm/admin.js
 
 ## Como as áreas da página são controladas
 
-Em **private/admin/admin.js**, o objeto **form** guarda referências a:
+Em **private/admin/admin.js**, o objeto **elementosPainel** guarda referências a:
 
 - **tabelaConsulta:** área que recebe as consultas.
 - **admInicio:** opções iniciais da página.
@@ -160,6 +210,40 @@ Essas funções alteram a interface. Elas não consultam o banco nem enviam resp
 
 ![alt text](./img/image-95.png)
 
+## Como as respostas do painel são lidas
+
+Em **private/admin/admin.js**, **lerRespostaAdmin(resposta)** concentra a leitura do JSON e o tratamento das recusas de acesso.
+
+Primeiro, lê:
+
+```js
+const dados = await resposta.json()
+```
+
+Depois, verifica se o status é **401** ou **403**.
+
+Nesses casos:
+
+- Mostra um alerta com a mensagem recebida ou um texto padrão.
+- Encaminha o navegador para **/admin/loginAdm.html**.
+- Retorna **null**.
+
+As funções que utilizam esse resultado verificam se ele é nulo antes de continuar:
+
+```js
+const dados = await lerRespostaAdmin(resposta)
+
+if (!dados) {
+    return
+}
+```
+
+Nos outros status, a função devolve o JSON recebido.
+
+Isso não significa que a operação funcionou. O código que chamou a função ainda verifica **resposta.ok** para decidir entre o tratamento de sucesso e o de erro.
+
+A função é compartilhada pelas consultas, pela edição e pelas exclusões do painel.
+
 ## Como a consulta de usuários começa
 
 Em **private/admin/admin.js**, **mostrarUsuarios(pesquisa = "", pagina = 1)** recebe o termo e a página desejada.
@@ -174,7 +258,7 @@ const endereco = `/adm/usuarios?pesquisa=${encodeURIComponent(pesquisa)}&pagina=
 
 **encodeURIComponent** prepara o termo para ser inserido no link.
 
-Depois, a função envia o fetch, confere **resposta.ok** e lê o JSON.
+Depois, envia o fetch e utiliza **lerRespostaAdmin** para ler a resposta. Se a função devolver **null**, interrompe o processamento. Nos outros casos, confere **resposta.ok** antes de montar a consulta.
 
 Os valores de pesquisa e página ficam guardados em **pesquisaUsuariosAtual** e **paginaUsuariosAtual**. Eles são reutilizados ao navegar ou atualizar a consulta.
 
@@ -184,26 +268,46 @@ Os valores de pesquisa e página ficam guardados em **pesquisaUsuariosAtual** e 
 
 ## Como o controller prepara a paginação
 
-Em **controller/admController.js**, **buscarUsuarios(req, res)** recebe **req.query.pesquisa** e **req.query.pagina**.
-
-Sem página informada, utiliza 1.
-
-O limite e o deslocamento são calculados assim:
+Em **controller/admController.js**, **buscarUsuarios(req, res, next)** utiliza **lerConsulta**, de **utils/paginacao.js**:
 
 ```js
-const limite = 50
-const deslocamento = (pagina - 1) * limite
+const consulta = lerConsulta(req.query)
 ```
 
-**limite** define a quantidade máxima exibida. **deslocamento** informa quantos registros precisam ser pulados.
+A função compartilhada prepara pesquisa, página, limite e deslocamento.
 
-- Página 1: deslocamento 0.
-- Página 2: deslocamento 50.
-- Página 3: deslocamento 100.
+Quando não são informados, a pesquisa recebe texto vazio e a página recebe **1**.
 
-O controller verifica se a página é um inteiro seguro maior ou igual a 1, se o deslocamento é um inteiro seguro e se a pesquisa é um texto.
+A validação exige:
 
-Valores recusados recebem status 400.
+- Pesquisa em formato de texto.
+- Página recebida como texto formado somente por dígitos.
+- Número da página inteiro seguro e maior ou igual a **1**.
+- Deslocamento inteiro seguro.
+
+Se os parâmetros forem recusados, **lerConsulta** retorna **null** e o controller responde com status **400**.
+
+O limite atual é de **10 registros por página**.
+
+O deslocamento é calculado por:
+
+```js
+const deslocamento = (pagina - 1) * LIMITE_POR_PAGINA
+```
+
+Assim:
+
+- Página **1**: deslocamento **0**.
+- Página **2**: deslocamento **10**.
+- Página **3**: deslocamento **20**.
+
+Quando os parâmetros são válidos, o controller obtém:
+
+```js
+const { pesquisa, limite, deslocamento } = consulta
+```
+
+Essa preparação também é utilizada pelas consultas administrativas de comentários e logs.
 
 **Print da validação da paginação:**
 
@@ -239,35 +343,33 @@ O banco devolve apenas o trecho solicitado, em vez de enviar todos os usuários 
 
 ## Como o sistema identifica a próxima página
 
-Em **controller/admController.js**, **buscarUsuarios** solicita **limite + 1** registros ao model.
-
-Como o limite exibido é 50, a consulta pode devolver até 51 registros.
-
-O controller verifica:
+Em **controller/admController.js**, **buscarUsuarios** solicita um registro além do limite:
 
 ```js
-const temProxima = usuarios.length > limite
-
-if (temProxima) {
-    usuarios.pop()
-}
+userModel.buscarTodosUsuarios(pesquisa, limite + 1, deslocamento, (erro, usuarios) => {
 ```
 
-Se houver 51 registros, existe uma próxima página. **pop()** remove o registro extra antes da resposta.
+Como o limite exibido é **10**, a consulta pode devolver até **11 registros**.
 
-O JSON enviado contém:
+Quando a consulta funciona, o controller utiliza **montarPagina**, de **utils/paginacao.js**:
 
 ```js
-return res.status(200).json({
-    usuarios: usuarios,
-    pagina: pagina,
-    temProxima: temProxima
-})
+return res.json(
+    montarPagina("usuarios", usuarios, consulta)
+)
 ```
 
-O navegador recebe no máximo 50 usuários e a informação necessária para controlar o botão Próxima.
+A função compartilhada prepara:
 
-Esse modelo não calcula o total de páginas. Ele informa somente se existem mais resultados depois da página atual.
+- **usuarios:** lista limitada aos primeiros 10 registros.
+- **pagina:** número da página consultada.
+- **temProxima:** verdadeiro quando a consulta encontrou mais registros que o limite exibido.
+
+O registro adicional não é incluído na lista enviada ao navegador.
+
+Esse funcionamento não calcula o total de páginas. Ele informa se existem mais resultados depois da página atual.
+
+Se o model devolver um erro, o controller o encaminha por **next(erro)**.
 
 **Print da identificação da próxima página:**
 
@@ -333,7 +435,11 @@ Uma nova pesquisa começa na página 1 para não reutilizar uma posição de out
 
 Em **private/admin/admin.js**, **editarUsuario(id)** recebe o id escolhido e consulta **GET /adm/usuarios/:id**.
 
-Em **controller/admController.js**, **buscarUsuarioPorId(req, res)** lê o id e chama **buscarPorId**, de **model/userModel.js**.
+Em **controller/admController.js**, **buscarUsuarioPorId(req, res, next)** verifica se o parâmetro contém somente dígitos e se sua conversão resulta em um inteiro seguro maior que zero.
+
+Um ID recusado recebe status **400**.
+
+Quando o ID é aceito, chama **buscarPorId**, de **model/userModel.js**. Falhas na consulta são encaminhadas por **next(erro)** ao tratamento centralizado.
 
 O model consulta os dados sem selecionar **user_pass**.
 
@@ -400,7 +506,26 @@ Em **controller/admController.js**, **atualizarUsuario(req, res)** recebe o id p
 
 A função verifica se o id é um inteiro seguro maior que 0.
 
-Nome, e-mail e avatar passam por **validarDadosUsuario**, de **validacoes/usuarioValidacao.js**.
+Antes da validação, o controller utiliza **normalizarUsuario**, de **utils/normalizarUsuario.js**:
+
+```js
+const usuario = normalizarUsuario({
+    nome: dados.nome,
+    email: dados.email,
+    tipo: dados.tipo,
+    avatar: dados.avatar
+})
+```
+
+A função prepara nome, e-mail e avatar sem modificar o objeto original.
+
+Nome e e-mail têm os espaços das extremidades removidos quando são textos. O avatar também é ajustado e recebe **:D** quando está ausente ou vazio.
+
+O tipo é preservado para a verificação específica do controller.
+
+Depois, nome, e-mail e avatar passam por **validarDadosUsuario**, de **validacoes/usuarioValidacao.js**.
+
+A validação confere as regras sem alterar os valores.
 
 O tipo é verificado separadamente e precisa ser **usuario** ou **admin**.
 
@@ -431,9 +556,19 @@ Em **controller/admController.js**, **atualizarUsuario** registra a ação com:
 
 Depois, devolve a mensagem de sucesso.
 
-Em **private/admin/admin.js**, **salvarEdicao** chama **verificarLogin()**, de **public/scripts/navbar-auth.js**, para atualizar a navegação conforme a sessão atual.
+Em **private/admin/admin.js**, depois de receber sucesso, **salvarEdicao** dispara:
 
-Por fim, mostra a mensagem e retorna à consulta, mantendo a pesquisa e a página utilizadas.
+```js
+document.dispatchEvent(new Event("perfil-atualizado"))
+```
+
+O script **public/scripts/navbar-auth.js** recebe esse evento e solicita uma nova consulta da sessão por **consultarSessao(true)**.
+
+Isso atualiza a navegação caso a edição tenha alterado os dados da conta conectada.
+
+Não existe uma chamada direta de **salvarEdicao** para **verificarLogin()**.
+
+Por fim, o script mostra a mensagem de sucesso e retorna à consulta, mantendo a pesquisa e a página utilizadas.
 
 ## Como um usuário é excluído
 
@@ -469,7 +604,11 @@ As regras das chaves estrangeiras determinam o destino dos registros vinculados:
 
 Essas regras precisam acompanhar a estrutura do banco.
 
-Em **controller/admController.js**, se o banco retornar **ER_ROW_IS_REFERENCED_2**, a função responde com 409, indicando que existem vínculos que impedem a exclusão.
+Em **controller/admController.js**, falhas devolvidas pelo model são encaminhadas por **next(erro)** ao tratamento centralizado.
+
+Quando **affectedRows** é **0**, o controller responde com status **404**, informando que o usuário não foi encontrado.
+
+O fluxo considera as regras de exclusão definidas na estrutura atual do banco.
 
 Depois da remoção, o controller registra o id do admin e identifica a conta excluída na descrição do log.
 
@@ -481,15 +620,16 @@ Se a exclusão retirar o último registro daquela página, ela pode ficar vazia.
 
 Em **private/admin/admin.js**, **mostrarComentarios(pesquisa = "", pagina = 1)** consulta **GET /adm/comentarios**.
 
-Em **controller/admController.js**, **buscarComentarios(req, res)** utiliza o mesmo funcionamento de paginação dos usuários:
+Em **controller/admController.js**, **buscarComentarios(req, res, next)** utiliza as mesmas funções compartilhadas da consulta de usuários:
 
-- Lê pesquisa e página.
-- Define o limite de 50 registros.
-- Calcula o deslocamento.
-- Valida os parâmetros.
-- Solicita 51 registros para identificar a próxima página.
-- Remove o registro extra.
-- Devolve comentários, página e **temProxima**.
+- **lerConsulta:** valida pesquisa e página e calcula o deslocamento.
+- **montarPagina:** limita a lista e informa se existe uma próxima página.
+
+O limite exibido é de **10 comentários**. O controller solicita até **11 registros** ao model para identificar a próxima página.
+
+A resposta contém **comentarios**, **pagina** e **temProxima**.
+
+Parâmetros inválidos recebem status **400**. Falhas na consulta são encaminhadas por **next(erro)**.
 
 Em **model/comentarioModel.js**, **buscarTodosComentarios** permite pesquisar por:
 
@@ -537,7 +677,7 @@ A lógica é equivalente à consulta de usuários, mas utiliza variáveis própr
 
 Em **private/admin/admin.js**, **excluirComentarioAdmin(id)** pede confirmação e envia **DELETE /adm/comentarios/:id**.
 
-A função trata os status 401 e 403 antes de ler o JSON, pois a resposta do middleware de acesso pode ser um texto.
+A função utiliza **lerRespostaAdmin** para ler o JSON e tratar os status **401** e **403**. Se essa função devolver **null**, interrompe o processamento. Nos outros casos, verifica **resposta.ok** antes de mostrar o resultado e atualizar a consulta.
 
 Em **controller/admController.js**, **excluirComentarioAdmin(req, res)** valida o id e chama a função correspondente de **model/comentarioModel.js**.
 
@@ -595,7 +735,11 @@ Em **private/admin/admin.js**, mantenha correspondência entre as colunas criada
 
 Se uma coluna for adicionada, atualize o cabeçalho, as células, os valores preenchidos e o **colspan** da mensagem de lista vazia.
 
-Em **controller/admController.js**, alterações no limite precisam manter a consulta com o registro extra e a remoção desse registro antes da resposta.
+Em **utils/paginacao.js**, **LIMITE_POR_PAGINA** define a quantidade exibida nas consultas administrativas.
+
+Alterar esse valor afeta usuários, comentários e logs.
+
+Os controllers devem continuar solicitando **limite + 1** registros, e **montarPagina** deve continuar limitando a lista enviada ao navegador e calculando **temProxima**.
 
 Em **routes/admRoutes.js**, novas operações da página do admin precisam continuar utilizando **verificarAdmin**.
 

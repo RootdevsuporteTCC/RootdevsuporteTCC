@@ -17,6 +17,14 @@ Os caminhos começam na pasta principal do projeto, onde está **index.js**. As 
 - **model/userModel.js:** consultas e gravação dos usuários.
 - **model/logModel.js:** registro das ações realizadas.
 - **public/styles/cadastro-login.css:** responsividade dos formulários.
+- **utils/normalizarUsuario.js:** preparação de nome, e-mail e avatar antes da validação.
+- **service/usuarioService.js:** preparação dos dados do cadastro e geração do hash antes da gravação.
+- **service/criptografiaService.js:** funções compartilhadas para gerar e comparar hashes.
+- **service/autenticacaoService.js:** verificação das credenciais no login comum e no login administrativo.
+- **utils/sessao.js:** funções compartilhadas para iniciar e encerrar sessões.
+- **public/scripts/sessao-cliente.js:** compartilhamento da consulta da sessão entre os scripts da mesma página.
+- **middleware/alertaErros.js:** adaptação das respostas de erro para alertas nos envios comuns dos formulários.
+- **middleware/tratarErros.js:** tratamento centralizado das falhas encaminhadas por next.
 
 Os detalhes compartilhados de sessão, header e footer estão em **DOC_GLOBAL.md**.
 
@@ -106,24 +114,37 @@ Esse limitador pertence à rota de cadastro. A rota de login não utiliza esse m
 
 Em **controller/userController.js**, **criarUsuario(req, res)** recebe o formulário.
 
-A função começa preparando os dados:
+A função começa lendo o corpo da requisição:
 
 ```js
 const dados = req.body || {}
+```
 
-const usuario = {
+O objeto vazio evita acessar propriedades de um corpo ausente. Isso não dispensa as validações dos campos recebidos.
+
+Depois, o controller prepara os dados utilizando **normalizarUsuario**, de **utils/normalizarUsuario.js**:
+
+```js
+const usuario = normalizarUsuario({
     nome: dados.nome,
     email: dados.email,
     senha: dados.senha,
     avatar: dados.avatar,
-}
+})
 ```
 
-O objeto vazio evita acessar propriedades de um corpo ausente. Os campos ainda precisam passar pelas validações.
+A função devolve um novo objeto com os campos preparados para a validação:
 
-O objeto **usuario** reúne somente os dados utilizados na criação da conta.
+- Nome e e-mail têm os espaços do começo e do final removidos, quando são textos.
+- O avatar também passa por essa remoção de espaços.
+- Um avatar ausente ou vazio recebe **:D**.
+- A senha mantém o valor informado, sem aplicação de **trim()**.
 
-A confirmação de senha é lida separadamente:
+Valores de tipos incorretos não são convertidos automaticamente em textos. Eles permanecem disponíveis para que a validação os recuse.
+
+A normalização prepara os valores, mas não confirma se eles atendem às regras do cadastro. Essa verificação acontece em seguida, por **validarDadosUsuario** e **validarSenha**.
+
+A confirmação da senha é lida separadamente:
 
 ```js
 const confirmarSenha = dados["confirmar-senha"]
@@ -131,7 +152,7 @@ const confirmarSenha = dados["confirmar-senha"]
 
 A notação com **[]** permite acessar o nome **confirmar-senha**, que contém **-**.
 
-A confirmação é utilizada para conferir a digitação. Ela não é enviada ao model para armazenamento.
+A confirmação é utilizada para conferir a digitação. Ela não é enviada ao service nem ao model para armazenamento.
 
 **Print da preparação do cadastro:**
 
@@ -139,21 +160,13 @@ A confirmação é utilizada para conferir a digitação. Ela não é enviada ao
 
 ## Como nome, e-mail e avatar são verificados
 
-Em **validacoes/usuarioValidacao.js**, **validarDadosUsuario(usuario)** recebe o objeto preparado pelo controller.
+Em **validacoes/usuarioValidacao.js**, **validarDadosUsuario(usuario)** recebe o objeto que já passou por **normalizarUsuario**.
 
-A função começa verificando os tipos dos campos. Nome e e-mail precisam ser textos.
+A função começa verificando os tipos dos campos. Nome, e-mail e avatar precisam ser textos.
 
-Se o avatar não foi enviado, ele é tratado inicialmente como texto vazio. Um avatar enviado com outro tipo de dado é recusado.
+Depois, confere os limites e formatos de cada campo.
 
-Depois, a função aplica **trim()**:
-
-```js
-usuario.nome = usuario.nome.trim()
-usuario.email = usuario.email.trim()
-usuario.avatar = usuario.avatar.trim()
-```
-
-**trim()** remove espaços do começo e do final. A função altera diretamente as propriedades do objeto recebido.
+Essa função não aplica **trim()**, não define o avatar padrão e não altera as propriedades do objeto recebido. A preparação dos valores pertence a **utils/normalizarUsuario.js**; a validação apenas verifica as regras e devolve o resultado.
 
 ### Nome de usuário
 
@@ -187,7 +200,7 @@ Ela confere um formato básico. Não confirma que a caixa de e-mail existe ou qu
 
 Ainda em **validarDadosUsuario**, o avatar pode ter até 10 caracteres pela contagem de **length** utilizada no código.
 
-Se ficar vazio depois de **trim()**, recebe **:D**.
+O avatar ausente ou vazio já recebe **:D** durante a normalização, antes de chegar à validação.
 
 A contagem de **length** do JavaScript pode considerar alguns emojis como mais de 1 unidade. Por isso, a quantidade de símbolos visíveis pode ser menor que 10.
 
@@ -214,7 +227,7 @@ if (erroValidacao) {
 
 Quando existe uma mensagem, o controller responde com status 400 e encerra a função.
 
-Quando recebe **null**, continua a operação. O objeto **usuario** já contém os valores ajustados pela validação.
+Quando recebe **null**, continua a operação. O objeto **usuario** contém os valores preparados anteriormente pela normalização, sem alterações feitas pela validação.
 
 ## Como a senha é verificada
 
@@ -300,19 +313,58 @@ Em **controller/userController.js**, uma coincidência gera status 409. Uma falh
 
 ## Como a conta é salva
 
-Em **controller/userController.js**, **criarUsuario** chama **userModel.criarUsuario** depois de concluir as verificações.
-
-Em **model/userModel.js**, **criarUsuario(user, callback)** recebe os dados da conta e começa gerando o hash da senha:
+Em **controller/userController.js**, depois das validações e da consulta de duplicidade, **criarUsuario** chama:
 
 ```js
-const senhaHash = await bcrypt.hash(user.senha, 10)
+usuarioService.criarUsuario(usuario, (erro, resultado) => {
 ```
 
-**bcrypt.hash** transforma a senha em um hash que será armazenado no banco. O valor **10** configura o custo do processamento.
+A criação passa por **service/usuarioService.js** antes de chegar ao model.
 
-O hash não é utilizado para recuperar a senha original. No login, a senha informada é conferida com **bcrypt.compare**.
+### Geração do hash no service
 
-Depois, a função prepara o INSERT:
+Em **service/usuarioService.js**, **criarUsuario(usuario, callback)** utiliza **gerarHash**, de **service/criptografiaService.js**:
+
+```js
+let senhaHash
+
+try {
+    senhaHash = await gerarHash(usuario.senha)
+} catch (erro) {
+    return callback(erro)
+}
+```
+
+**gerarHash** utiliza o bcrypt com custo de processamento definido por **RODADAS_HASH**, atualmente com valor **10**.
+
+O hash será armazenado no lugar da senha original. No login, a senha informada será comparada com esse hash.
+
+Se a geração falhar, o service entrega o erro ao callback e não chama o model.
+
+Depois de gerar o hash, prepara:
+
+```js
+const dadosCadastro = {
+    nome: usuario.nome,
+    email: usuario.email,
+    senhaHash,
+    avatar: usuario.avatar || ":D"
+}
+```
+
+Esse objeto contém os dados necessários para a gravação. A senha original e sua confirmação não são encaminhadas ao model.
+
+O service chama:
+
+```js
+userModel.criarUsuario(dadosCadastro, callback)
+```
+
+A operação de hash utiliza **await**. A consulta do model continua utilizando o callback da conexão com o banco.
+
+### Gravação no model
+
+Em **model/userModel.js**, **criarUsuario(usuario, callback)** recebe o hash já preparado e executa:
 
 ```sql
 INSERT INTO tb_usuarios
@@ -320,22 +372,24 @@ INSERT INTO tb_usuarios
 VALUES (?, ?, ?, ?)
 ```
 
-Os valores são enviados separadamente à consulta:
+Os valores são enviados separadamente:
 
 ```js
 conexao.query(sql, [
-    user.nome,
-    user.email,
-    senhaHash,
-    (user.avatar || ":D")
+    usuario.nome,
+    usuario.email,
+    usuario.senhaHash,
+    usuario.avatar
 ], callback)
 ```
 
 A ordem da lista corresponde à ordem dos campos e dos **?**.
 
-O SQL não recebe a confirmação de senha. Ele também não recebe um tipo de usuário enviado pelo formulário. O cadastro depende do valor padrão **usuario** definido para **user_tipo** no banco.
+O model fica responsável pela consulta SQL. Ele não gera o hash e não verifica as regras do formulário.
 
-A função entrega o erro ou o resultado da gravação pelo callback.
+O cadastro também não aceita um tipo de usuário enviado pelo navegador. Como o INSERT não informa **user_tipo**, o banco utiliza o valor padrão **usuario**.
+
+O resultado ou erro da gravação retorna pelo callback ao controller, que define a resposta da requisição.
 
 **Print da gravação do usuário:**
 
@@ -343,7 +397,7 @@ A função entrega o erro ou o resultado da gravação pelo callback.
 
 ## Por que a duplicidade também é tratada no INSERT
 
-Em **controller/userController.js**, o callback de **userModel.criarUsuario** verifica o erro **ER_DUP_ENTRY**.
+Em **controller/userController.js**, o callback passado para **usuarioService.criarUsuario** verifica o erro **ER_DUP_ENTRY**, que pode retornar da gravação realizada pelo model.
 
 Mesmo que a consulta anterior não encontre uma conta, outra requisição pode cadastrar os mesmos dados antes de o INSERT terminar.
 
@@ -403,16 +457,55 @@ router.post('/login', userController.loginUsuario)
 
 ## Como a conta é localizada no login
 
-Em **controller/userController.js**, **loginUsuario(req, res)** lê:
+Em **controller/userController.js**, **loginUsuario(req, res, next)** lê o corpo da requisição e chama o serviço de autenticação:
 
 ```js
-const login = req.body.login
-const senha = req.body.senha
+const dados = req.body || {}
+
+autenticacaoService.autenticar(
+    dados.login,
+    dados.senha,
+    false,
+    (erro, resultado) => {
 ```
 
-Depois, chama **buscarPorLogin**, de **model/userModel.js**.
+A função **autenticar**, de **service/autenticacaoService.js**, é compartilhada entre o login comum e o administrativo.
 
-A consulta procura a conta pelo e-mail ou pelo nome:
+Seus parâmetros são:
+
+- **login:** identificação informada pelo usuário.
+- **senha:** senha recebida.
+- **exigirAdmin:** indica se a operação exige uma conta administrativa.
+- **callback:** recebe uma falha interna ou o resultado da autenticação.
+
+No login comum, **exigirAdmin** recebe **false**. Isso permite localizar a conta pelo nome de usuário ou pelo e-mail.
+
+### Verificação inicial dos dados
+
+Antes de consultar o banco, o service verifica se:
+
+- Login e senha são textos.
+- O login não fica vazio depois da remoção de espaços nas extremidades.
+- A senha não está vazia.
+- A senha não ultrapassa 72 bytes em UTF-8.
+
+Se os dados não atenderem a essas condições, o callback recebe um resultado com status **400** e uma mensagem de erro.
+
+A senha não passa por **trim()**.
+
+As regras completas de criação de senha, como a exigência de número e símbolo, pertencem ao cadastro e à redefinição. No login, a senha é conferida com o hash da conta existente.
+
+### Busca da conta
+
+Com **exigirAdmin** definido como **false**, o service utiliza **buscarPorLogin**, de **model/userModel.js**.
+
+O login é enviado com os espaços das extremidades removidos:
+
+```js
+buscarUsuario(login.trim(), async (erro, usuario) => {
+```
+
+A consulta procura pelo e-mail ou pelo nome:
 
 ```sql
 SELECT *
@@ -421,21 +514,54 @@ WHERE user_email = ?
 OR user_name = ?
 ```
 
-O mesmo valor de **login** é enviado para os 2 parâmetros.
+O mesmo valor é enviado para os dois parâmetros.
 
-Em **model/userModel.js**, o callback devolve o registro encontrado por **usuarios[0]**. Se a lista estiver vazia, esse valor será **undefined**.
+O model entrega **usuarios[0]** ao callback. Se a consulta não encontrar uma conta, esse valor será **undefined**.
 
-Em **controller/userController.js**:
+Quando a conta não existe, o service devolve um resultado com status **401**. Quando ocorre uma falha na consulta, entrega o erro ao callback.
 
-- Falha na consulta: status 500.
-- Conta não encontrada: status 401.
-- Conta encontrada: a função continua para a comparação da senha.
+O controller encaminha falhas internas por **next(erro)** para o tratamento centralizado.
 
 **Print da busca no login:**
 
 ![alt text](./img/image-45.png)
 
 ## Como a senha do login é comparada
+
+Em **service/autenticacaoService.js**, depois de localizar a conta, **autenticar** utiliza **compararHash**, de **service/criptografiaService.js**:
+
+```js
+senhaCorreta = await compararHash(senha, usuario.user_pass)
+```
+
+Essa função utiliza **bcrypt.compare** para conferir a senha recebida com o hash armazenado.
+
+O resultado informa se os valores correspondem. Não é necessário recuperar a senha original.
+
+Quando a senha está incorreta, o service devolve status **401**. A mensagem é a mesma utilizada quando a conta não foi encontrada:
+
+**Login ou senha incorretos.**
+
+Assim, a resposta não identifica qual dos dois dados causou a falha.
+
+Se a comparação apresentar uma falha interna, o service entrega o erro ao callback. O controller o encaminha por **next(erro)**.
+
+Quando as credenciais estão corretas, o service prepara um objeto com os dados que poderão ser utilizados na sessão:
+
+```js
+{
+    usuario: {
+        id: usuario.user_id,
+        nome: usuario.user_name,
+        tipo: usuario.user_tipo,
+        avatar: usuario.user_avatar,
+    }
+}
+```
+
+A senha e o hash não fazem parte desse resultado.
+
+O service verifica as credenciais e prepara os dados. A criação da sessão é solicitada pelo controller.
 
 Em **controller/userController.js**, **loginUsuario** executa:
 
@@ -459,24 +585,31 @@ Se ocorrer um erro durante a comparação, o **catch** registra a falha no termi
 
 ## Como a sessão é criada após o login
 
-Ainda em **controller/userController.js**, depois de confirmar a senha, **loginUsuario** preenche:
+Em **controller/userController.js**, depois de receber um resultado válido da autenticação, **loginUsuario** chama **iniciarSessao**, de **utils/sessao.js**:
 
 ```js
-req.session.usuario = {
-    id: usuario.user_id,
-    nome: usuario.user_name,
-    tipo: usuario.user_tipo,
-    avatar: usuario.user_avatar
-}
+iniciarSessao(req, resultado.usuario, (erroSessao) => {
 ```
 
-Esse objeto permite identificar o usuário nas próximas requisições.
+A função realiza três etapas:
 
-A senha e o hash não são colocados nesse objeto.
+1. Regenera a sessão com **req.session.regenerate**.
+2. Atribui os dados autenticados a **req.session.usuario**.
+3. Salva a sessão com **req.session.save**.
 
-Depois, a função registra **Login realizado** por **model/logModel.js** e redireciona para **/**.
+A regeneração cria um novo identificador de sessão antes de associar o usuário autenticado.
 
-Em **public/scripts/navbar-auth.js**, a página consulta a sessão e passa a mostrar os controles do usuário conectado.
+A gravação explícita permite aguardar a conclusão dessa operação antes de registrar o login e redirecionar o navegador.
+
+Se a regeneração falhar, o erro retorna ao controller. Se o salvamento falhar, a função remove **req.session.usuario** e também devolve o erro.
+
+O controller encaminha essas falhas por **next(erroSessao)**.
+
+Quando a sessão é salva, registra **Login realizado** por **model/logModel.js** e redireciona para **/**.
+
+Uma falha no registro do log é mostrada no terminal, mas não impede o redirecionamento depois que a sessão já foi criada.
+
+Na página carregada, **public/scripts/navbar-auth.js** consulta o estado da sessão e monta os controles do usuário conectado.
 
 **Print da confirmação da senha e da sessão:**
 
@@ -501,6 +634,16 @@ A resposta não inclui a senha nem o hash.
 
 A consulta é utilizada pelo header e pela página de conteúdo para decidir quais controles mostrar.
 
+A resposta dessa rota utiliza **Cache-Control: no-store**, para que o navegador não reutilize uma resposta HTTP antiga.
+
+No navegador, **public/scripts/sessao-cliente.js** disponibiliza **consultarSessao()**. O módulo mantém a Promise da consulta para que os scripts da mesma página possam compartilhar o resultado.
+
+Esse compartilhamento evita consultas repetidas feitas separadamente pelo header e pela página de conteúdo.
+
+Quando é necessário atualizar os dados, **consultarSessao(true)** inicia uma nova consulta. Se uma consulta falhar, o módulo permite que uma chamada posterior tente novamente.
+
+O resultado compartilhado pertence à página carregada. Ele não substitui as verificações de sessão e permissão realizadas pelo servidor.
+
 O funcionamento detalhado está em **DOC_GLOBAL.md**.
 
 ## Como o logout é solicitado
@@ -521,23 +664,39 @@ const usuario = req.session.usuario
 
 Essa referência permite registrar quem saiu depois que a sessão for encerrada.
 
-A função chama **req.session.destroy** para remover a sessão no servidor.
+Em seguida, chama a função compartilhada:
 
-Se ocorrer uma falha nessa operação, retorna status 500.
+```js
+encerrarSessao(req, res, (erroSessao) => {
+```
+
+**encerrarSessao** pertence a **utils/sessao.js** e também é utilizada em outras operações que precisam encerrar o acesso.
 
 ## Como a sessão e o cookie são removidos
 
-Em **controller/userController.js**, depois que **req.session.destroy** funciona, **logoutUsuario** executa:
+Em **utils/sessao.js**, **encerrarSessao** verifica se existe uma sessão disponível.
+
+Quando existe, utiliza **req.session.destroy** para solicitar sua remoção no servidor.
+
+No callback dessa operação, executa:
 
 ```js
 res.clearCookie("connect.sid")
 ```
 
-Isso solicita a remoção do cookie de sessão do navegador.
+Isso solicita ao navegador a remoção do cookie de sessão.
 
-Se não havia usuário conectado, a função apenas redireciona para a página inicial.
+A remoção do cookie é solicitada mesmo se **destroy** retornar um erro. O erro ainda é repassado ao controller, pois a remoção da sessão no servidor pode não ter sido concluída.
 
-Se havia, registra **Logout realizado** com o id guardado anteriormente e depois redireciona para **/**.
+Quando não existe **req.session**, a função solicita a remoção do cookie e conclui o callback sem erro.
+
+Em **logoutUsuario**, uma falha no encerramento recebe status **500**.
+
+Se o encerramento funcionar e não houver usuário para registrar, o controller redireciona para **/**.
+
+Se houver usuário, registra **Logout realizado** com o id guardado anteriormente e depois redireciona para **/**.
+
+Uma falha na gravação do log é mostrada no terminal, mas não impede o redirecionamento.
 
 O logout não exclui a conta. Ele encerra o acesso daquela sessão.
 
@@ -551,13 +710,25 @@ O logout não exclui a conta. Ele encerra o acesso daquela sessão.
 
 ## Como as mensagens aparecem
 
-Em **controller/userController.js**, cadastro e login utilizam **res.send** para responder aos erros.
+Os formulários de **public/cadastro.html** e **public/login.html** utilizam o envio comum do HTML.
 
-Como os formulários de **public/cadastro.html** e **public/login.html** fazem o envio comum do HTML, essas respostas podem abrir como uma página de texto. Elas não são inseridas automaticamente em um elemento de mensagem dentro do formulário.
+No cadastro, o controller responde aos erros com **res.send**. No login, as recusas da autenticação utilizam **res.json**, com o status e a mensagem recebidos do service.
+
+Em **middleware/alertaErros.js**, o sistema adapta respostas de erro quando a requisição aceita HTML como formato preferido.
+
+Nesses casos, a resposta é convertida em uma página HTML simples que mostra a mensagem por **alert**. Depois, o navegador retorna à página anterior ou segue para a página inicial, conforme o tratamento definido no middleware.
+
+Isso permite apresentar os erros dos formulários sem deixar o usuário em uma página exibindo apenas texto ou JSON.
+
+Quando a requisição espera JSON, a resposta continua disponível nesse formato para ser tratada pelo script que fez a consulta.
+
+Falhas internas encaminhadas por **next(erro)** são recebidas por **middleware/tratarErros.js**, que define uma resposta apropriada sem expor os detalhes internos ao usuário.
 
 Nos casos de sucesso, **res.redirect** encaminha o navegador para a página indicada.
 
 As verificações do HTML, como **required** e **minlength**, ajudam durante o preenchimento. As validações do servidor continuam necessárias, pois os dados podem ser enviados sem utilizar o formulário da página.
+
+O funcionamento dos dois middlewares está detalhado em **DOC_GLOBAL.md**.
 
 ## Responsividade do cadastro e do login
 
@@ -587,7 +758,9 @@ Ao mudar uma regra, mantenha correspondência entre:
 - O tamanho e as restrições dos campos no banco.
 - Os textos da documentação.
 
-Para adicionar um campo ao cadastro, será necessário considerar **public/cadastro.html**, **controller/userController.js**, **model/userModel.js**, a validação e a estrutura da tabela.
+Para adicionar um campo ao cadastro, será necessário considerar **public/cadastro.html**, **controller/userController.js**, **utils/normalizarUsuario.js**, **validacoes/usuarioValidacao.js**, **service/usuarioService.js**, **model/userModel.js** e a estrutura da tabela.
+
+A normalização prepara os valores, a validação verifica as regras, o service prepara os dados de gravação e o model executa a consulta SQL.
 
 O tipo **admin** não é definido pelo formulário público de cadastro. A criação do 1º admin é explicada no **README.md**.
 
@@ -597,9 +770,10 @@ Em **controller/userController.js** e **routes/userRoutes.js**, os principais re
 
 - **Cadastro válido:** cria a conta, registra o log e redireciona para o login.
 - **Dados ou senha fora das regras:** status 400.
+- **Login ou senha ausentes, com tipo incorreto ou fora das condições iniciais de autenticação:** status 400.
 - **Nome ou e-mail duplicado:** status 409.
 - **Limite de cadastro atingido:** status 429.
 - **Conta não encontrada ou senha incorreta no login:** status 401.
-- **Login válido:** cria os dados da sessão, registra o log e redireciona para a página inicial.
+- **Login válido:** regenera a sessão, associa os dados autenticados, salva a sessão, registra o log e redireciona para a página inicial.
 - **Logout concluído:** remove a sessão e o cookie, registra a saída quando há usuário e redireciona para a página inicial.
 - **Falha de consulta, gravação ou processamento:** status 500, conforme o tratamento da função.

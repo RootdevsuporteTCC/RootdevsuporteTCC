@@ -26,13 +26,13 @@ Em **public/scripts/conteudo.js**, selecionar um tópico pelo menu atualiza a au
 - **public/index.html:** contém os links das categorias na página inicial.
 - **public/conteudo.html:** contém as áreas da pesquisa, dos tópicos, da aula e dos comentários.
 - **public/scripts/conteudo.js:** recebe as ações do usuário, envia consultas com fetch e atualiza a página.
-- **index.js:** encaminha as consultas para as rotas de conteúdo e inicia o cache da pesquisa.
+- **index.js:** verifica o acesso ao banco, carrega o cache dos conteúdos e inicia o servidor.
 - **routes/conteudoRoutes.js:** define qual função atende cada consulta.
-- **controller/conteudoController.js:** lista os tópicos, lê as aulas, separa os metadados e realiza a pesquisa.
+- **controller/conteudoController.js:** carrega e valida as aulas, mantém o cache, lista os tópicos e atende às consultas de conteúdo e pesquisa.
 - **model/comentarioModel.js:** consulta os comentários e os dados de seus autores.
-- **model/logModel.js:** registra a realização de pesquisas.
 - **content/html, content/css e content/javascript:** guardam os arquivos Markdown das aulas.
 - **public/styles/conteudo.css:** contém as adaptações da página para diferentes tamanhos de tela.
+- **public/scripts/sessao-cliente.js:** compartilha a consulta da sessão entre os scripts da página.
 
 Os recursos compartilhados, como header, footer e scripts de navegação, são explicados em **DOC_GLOBAL.md**. A publicação e a exclusão de comentários são detalhadas em **DOC_COMENTARIOS.md**.
 
@@ -153,28 +153,32 @@ const dados = await resposta.json()
 
 **resposta.json()** lê o corpo da resposta e transforma o JSON recebido em um objeto. A função também confere **resposta.ok** para verificar se o servidor respondeu com sucesso.
 
-Em **controller/conteudoController.js**, **listarTopicos(req, res)** realiza estas operações:
+Em **controller/conteudoController.js**, **listarTopicos(req, res)** recebe a categoria pela rota e verifica se ela é **html**, **css** ou **javascript**.
 
-- Recebe a categoria pela rota.
-- Confere se a categoria é aceita.
-- Monta o caminho da pasta com **path.join**.
-- Lê os itens da pasta com **fs.readdir**.
-- Considera somente arquivos terminados em **.md**.
-- Remove a extensão com **path.basename**.
-- Ordena os nomes com **sort()**.
-- Envia a lista ao navegador.
+Quando a categoria é válida, consulta as aulas que já estão no cache:
 
-A opção **withFileTypes: true** permite verificar se cada item é um arquivo usando **arquivo.isFile()**.
-
-**fs.readdir** recebe um callback. Essa função é executada quando a leitura termina e recebe o possível erro e os itens encontrados.
-
-Uma resposta simplificada tem este formato:
-
-```json
-{
-    "topicos": ["Imagens", "Introducao-ao-HTML", "Links"]
-}
+```js
+const topicos = cacheConteudos
+    .filter((aula) => aula.categoria === categoria)
+    .map((aula) => aula.topico)
+    .sort()
 ```
+
+As operações têm estas funções:
+
+- **filter:** seleciona as aulas da categoria solicitada.
+- **map:** obtém somente o tópico de cada aula.
+- **sort:** organiza os tópicos em ordem alfabética.
+
+Depois, envia:
+
+```js
+return res.json({ topicos })
+```
+
+Essa operação não lê novamente a pasta de arquivos. Os tópicos vêm das aulas validadas durante o carregamento inicial do cache.
+
+Se não houver aulas válidas naquela categoria, a resposta contém uma lista vazia.
 
 **Print da listagem de tópicos no servidor:**
 
@@ -196,7 +200,7 @@ item.addEventListener("click", () => {
 
 **addEventListener** associa o clique à função indicada. Quando o usuário clica, o tópico daquele item é enviado para **carregarConteudo**.
 
-A listagem considera os nomes dos arquivos, mas não valida o cabeçalho de cada aula. Por isso, um arquivo com cabeçalho incorreto pode aparecer no menu e apresentar erro ao ser aberto.
+A listagem utiliza os tópicos das aulas presentes no cache. Como os arquivos são validados antes de entrar nessa lista, uma aula rejeitada por nome ou cabeçalho inválido não aparece no menu.
 
 **Print da montagem do menu:**
 
@@ -247,40 +251,41 @@ O tratamento utiliza:
 
 O botão de comentar permanece desabilitado se **topicoAtual** continuar vazio.
 
-## Como o servidor lê a aula
+## Como o servidor localiza a aula no cache
 
-Em **controller/conteudoController.js**, **buscarConteudo(req, res)** recebe a categoria e o tópico pela rota.
+Em **controller/conteudoController.js**, **buscarConteudo(req, res, next)** recebe a categoria e o tópico pela rota.
 
-A categoria precisa ser **html**, **css** ou **javascript**. O tópico é conferido com esta expressão:
+A categoria precisa ser **html**, **css** ou **javascript**.
+
+O tópico precisa ser um texto que corresponda à expressão:
 
 ```js
-const nomeValido = /^[a-zA-Z0-9_-]+$/
+/^[a-zA-Z0-9_-]+$/
 ```
 
 Ela aceita letras sem acento, números, **_** e **-**. Nomes com espaços ou **/** são recusados.
 
-Depois da validação, a função monta o caminho:
+Uma categoria ou um tópico inválido recebe status **400**.
+
+Depois da validação, a função procura a aula:
 
 ```js
-const caminhoArquivo = path.join(__dirname, "../content", categoria, `${topico}.md`)
+const aula = cacheConteudos.find((item) => {
+    return item.categoria === categoria && item.topico === topico
+})
 ```
 
-- **__dirname:** pasta onde está o controller.
-- **../content:** pasta das aulas em relação ao controller.
-- **categoria:** subpasta escolhida.
-- **topico:** nome que recebe a extensão **.md**.
+**find** devolve a primeira aula que corresponde à categoria e ao tópico. Quando não encontra, devolve **undefined**.
 
-**path.join** reúne essas partes no formato de caminho do sistema operacional.
+Nesse caso, o controller responde com status **404** e a mensagem **Aula não encontrada.**
 
-Ainda em **buscarConteudo**, **fs.readFile** lê o arquivo. O parâmetro **utf8** faz o conteúdo ser recebido como texto.
+Quando encontra a aula, utiliza o Markdown guardado em **aula.conteudo** e consulta os comentários no banco.
 
-No callback, **erroArquivo** informa uma possível falha e **conteudo** contém o texto lido.
+A abertura não utiliza **fs.readFile** e não interpreta novamente o cabeçalho. Essas etapas já foram realizadas na preparação do cache.
 
-- **ENOENT:** arquivo não encontrado, com resposta 404.
-- Outras falhas de leitura: resposta 500.
-- Leitura concluída: o texto é enviado para **extrairMetadados**.
+Os arquivos Markdown continuam sendo a origem das aulas, mas as requisições utilizam a cópia carregada na memória do servidor.
 
-**Print da leitura da aula:**
+**Print da localização da aula no cache:**
 
 ![alt text](./img/image-6.png)
 
@@ -314,7 +319,13 @@ const conteudo = linhas.slice(fimCabecalho + 1).join("\n")
 
 A função retorna um objeto com **categoria**, **topico** e **conteudo**. Ela não envia a resposta ao navegador diretamente.
 
-No mesmo arquivo, **buscarConteudo** compara os metadados com a categoria e o tópico solicitados. Se não corresponderem à pasta e ao arquivo, retorna 500.
+No mesmo arquivo, **carregarCacheConteudos** chama essa função durante a preparação inicial.
+
+Depois, compara a categoria do cabeçalho com a pasta e o tópico do cabeçalho com o nome do arquivo sem a extensão.
+
+Se o cabeçalho estiver incompleto ou não corresponder à organização do arquivo, a aula é ignorada e uma mensagem é registrada no terminal.
+
+Essa conferência acontece antes de a aula entrar no cache.
 
 **Print da separação dos metadados:**
 
@@ -322,7 +333,7 @@ No mesmo arquivo, **buscarConteudo** compara os metadados com a categoria e o t�
 
 ## Como os comentários acompanham a aula
 
-Em **controller/conteudoController.js**, **buscarConteudo** chama **comentarioModel.buscarPorTopico(categoria, topico, callback)** depois de validar a aula.
+Em **controller/conteudoController.js**, depois de localizar a aula no cache, **buscarConteudo** chama **comentarioModel.buscarPorTopico(categoria, topico, callback)**.
 
 Em **model/comentarioModel.js**, **buscarPorTopico** consulta **tb_comentarios** usando a categoria e o tópico.
 
@@ -345,7 +356,9 @@ return res.status(200).json({
 
 **status(200)** indica sucesso. **json** envia os dados ao navegador.
 
-Se a consulta dos comentários falhar, a requisição retorna erro. O código atual envia aula e comentários juntos, por isso não devolve normalmente a aula nessa situação.
+Os comentários são consultados no banco a cada requisição da aula. Eles não ficam armazenados no cache dos conteúdos.
+
+Se a consulta falhar, o controller encaminha o erro por **next(erro)** ao tratamento centralizado. Como a resposta reúne aula e comentários, essa requisição não devolve normalmente apenas o Markdown quando a consulta dos comentários falha.
 
 ## Como o Markdown aparece na página
 
@@ -429,23 +442,13 @@ A pesquisa considera todas as categorias, independentemente da categoria aberta 
 
 ![alt text](./img/image-11.png)
 
-## Como a pesquisa é registrada nos logs
-
-Em **controller/conteudoController.js**, **pesquisarConteudos** chama **registrarLog**, de **model/logModel.js**, depois de uma pesquisa válida e não vazia.
-
-A ação registrada é **Pesquisa de conteúdos realizada**.
-
-Se existir login, o registro recebe o id da sessão. Para visitantes, o vínculo com o usuário recebe **null**.
-
-Essa função registra a realização da pesquisa, mas não coloca o termo pesquisado na descrição do log.
-
-Se a gravação falhar, o erro aparece no terminal e os resultados ainda são enviados.
-
 ## Como o cache é preparado
 
 Em **controller/conteudoController.js**, **cacheConteudos** guarda as aulas na memória do servidor.
 
-Em **index.js**, **carregarCacheConteudos()** é chamada antes de **app.listen**.
+Cada item contém **categoria**, **topico** e **conteudo**. Essa mesma lista atende à montagem do menu, à abertura das aulas e à pesquisa.
+
+Em **index.js**, **carregarCacheConteudos()** é chamada depois que a consulta inicial **SELECT 1** confirma o acesso ao banco e antes de **app.listen** iniciar o atendimento das requisições.
 
 A função **carregarCacheConteudos**, definida em **controller/conteudoController.js**, realiza estas etapas:
 
@@ -463,21 +466,29 @@ As funções terminadas em **Sync** concluem a leitura antes de o código contin
 
 Arquivos com nome ou cabeçalho inválido são ignorados no cache e geram uma mensagem no terminal. Uma pasta ausente ou outra falha de leitura sem tratamento pode interromper a inicialização.
 
+O cache pertence ao processo atual do Node.js. Ele é reconstruído quando o servidor é iniciado novamente.
+
+Não existe monitoramento automático das alterações nos arquivos Markdown. Salvar um arquivo não atualiza imediatamente as aulas que já estão em memória.
+
 **Print do carregamento do cache:**
 
 ![alt text](./img/image-12.png)
 
-## Diferença entre listar, abrir e pesquisar
+## Como listar, abrir e pesquisar utilizam o cache
 
-Em **controller/conteudoController.js**, cada operação utiliza uma origem:
+Em **controller/conteudoController.js**, as três operações utilizam **cacheConteudos**:
 
-- **listarTopicos:** consulta os nomes dos arquivos na pasta.
-- **buscarConteudo:** lê o Markdown solicitado e consulta os comentários no banco.
-- **pesquisarConteudos:** consulta as aulas guardadas em memória.
+- **listarTopicos:** seleciona os tópicos da categoria e os ordena.
+- **buscarConteudo:** localiza a aula pela categoria e pelo tópico e consulta seus comentários no banco.
+- **pesquisarConteudos:** procura o termo na categoria, no tópico e no texto das aulas.
 
-Por isso, uma aula nova pode aparecer no menu antes de aparecer na pesquisa.
+Assim, o menu, a abertura e a pesquisa utilizam o mesmo conjunto de aulas validadas.
 
-O cache não é atualizado automaticamente. Depois de adicionar, alterar ou remover aulas, reinicie o servidor.
+Um arquivo rejeitado durante o carregamento não aparece no menu nem nos resultados da pesquisa e não pode ser aberto pelo endereço de conteúdo.
+
+Depois de adicionar, alterar, renomear ou remover uma aula, reinicie o servidor para reconstruir o cache.
+
+Recarregar somente a página do navegador não atualiza o cache do servidor.
 
 ## Como o formulário de comentário é mostrado
 
@@ -485,11 +496,24 @@ Em **public/conteudo.html**, a área externa do formulário começa escondida.
 
 Em **public/scripts/conteudo.js**, **carregarConteudo** mostra essa área depois de receber uma aula com sucesso.
 
-No mesmo script, **verificarLoginComentario()** consulta **/usuarios/sessao**:
+No mesmo script, **verificarLoginComentario()** importa a função compartilhada:
 
-- Com login, mostra o formulário.
-- Sem login, mostra o aviso para entrar na conta.
-- Em caso de falha, mantém o formulário escondido e apresenta uma mensagem.
+```js
+const { consultarSessao } = await import("/scripts/sessao-cliente.js")
+const dados = await consultarSessao()
+```
+
+O módulo consulta **/usuarios/sessao** e permite compartilhar a mesma Promise com o script da navegação.
+
+Assim, o header e os controles de comentários podem utilizar a mesma consulta na página carregada.
+
+Com o resultado:
+
+- Se houver login, mostra o formulário e esconde o aviso.
+- Se não houver login, esconde o formulário e mostra o aviso para entrar na conta.
+- Se a consulta falhar, esconde os dois controles e apresenta uma mensagem orientando a atualizar a página.
+
+Essa verificação controla a interface. A publicação e a exclusão continuam dependendo das verificações realizadas pelo servidor.
 
 A propriedade **hidden** controla a visibilidade. O valor verdadeiro esconde o elemento.
 
@@ -575,7 +599,7 @@ Com o projeto e o banco configurados:
 
 - Salve o arquivo.
 - No CMD, PowerShell ou terminal que executa o projeto, pare o servidor com **Ctrl + C**.
-- Na pasta de **index.js**, execute **node index.js**.
+- Na pasta de **index.js**, execute **npm start**.
 - Abra **http://localhost:8000/conteudo.html?categoria=html**.
 - Selecione o novo tópico.
 - Pesquise por **Formularios-HTML** para encontrar a aula no cache.
@@ -583,6 +607,8 @@ Com o projeto e o banco configurados:
 Também é possível abrir diretamente:
 
 **http://localhost:8000/conteudo.html?categoria=html&topico=Formularios-HTML**
+
+Os exemplos utilizam a porta padrão **8000**. Se **PORT** estiver configurada com outro valor no **.env**, utilize essa porta no endereço.
 
 Não é necessário inserir a aula no banco. Seus comentários serão associados à categoria e ao tópico.
 
@@ -602,7 +628,7 @@ Nos arquivos das pastas **content/html**, **content/css** e **content/javascript
 - Para renomear o arquivo, ajuste também **topico** no cabeçalho.
 - Para mover a aula, ajuste **categoria** no cabeçalho.
 - Para remover a aula, exclua o arquivo.
-- Depois dessas alterações, reinicie o servidor para atualizar a pesquisa.
+- Depois dessas alterações, reinicie o servidor para atualizar o menu, a abertura das aulas e a pesquisa.
 
 Os links precisam acompanhar mudanças no nome ou na categoria.
 
@@ -662,10 +688,11 @@ Em **public/scripts/conteudo.js** e **controller/conteudoController.js**, alguma
 - **Página sem tópico:** apresenta a mensagem inicial e mantém o formulário de comentário escondido.
 - **Categoria inválida na consulta ao servidor:** retorna 400.
 - **Tópico com caracteres não permitidos:** retorna 400.
-- **Arquivo da aula ausente:** retorna 404.
-- **Cabeçalho incompleto ou diferente da pasta e do arquivo:** a abertura da aula retorna 500.
+- **Aula ausente no cache:** a consulta de conteúdo retorna **404**.
+- **Nome ou cabeçalho inválido durante o carregamento:** o arquivo é ignorado e uma mensagem aparece no terminal. A aula não entra no menu nem na pesquisa.
 - **Falha ao consultar os comentários:** a requisição da aula retorna 500.
 - **Pesquisa sem resultados:** retorna uma lista vazia e apresenta a mensagem correspondente.
-- **Aula no menu, mas ausente na pesquisa:** pode ser necessário corrigir o cabeçalho ou reiniciar o servidor.
+- **Alteração no Markdown ainda não aparece no site:** reinicie o servidor para reconstruir o cache.
+- **Falha de leitura das pastas ou arquivos durante a preparação:** pode interromper a inicialização do servidor.
 
 Em **public/conteudo.html**, se Marked ou DOMPurify não forem carregados, a conversão pode falhar mesmo que o servidor tenha enviado o Markdown corretamente.

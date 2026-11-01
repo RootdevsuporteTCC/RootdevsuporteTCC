@@ -15,7 +15,7 @@ const { normalizarUsuario } = require("../utils/normalizarUsuario")
 // funções gerais
 
 // recebe email e senha, verifica o tipo da conta e redireciona ao painel após criar a sessão
-function loginAdm(req, res) {
+function loginAdm(req, res, next) {
     const dados = req.body || {}
 
     autenticacaoService.autenticar(
