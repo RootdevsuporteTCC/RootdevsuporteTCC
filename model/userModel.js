@@ -1,6 +1,6 @@
 const conexao = require('../config/database')
 
-// salva os dados do cadastro com a senha ja protegida
+// salva o cadastro com o hash da senha preparado pelo service
 function criarUsuario(usuario, callback) {
     const sql = `
         INSERT INTO tb_usuarios
@@ -16,7 +16,7 @@ function criarUsuario(usuario, callback) {
     ], callback)
 }
 
-// recebe o id, exclui a conta e manda o resultado pelo callback
+// exclui a conta pelo id e devolve o resultado pelo callback
 function excluirUsuario(id, callback) {
     const sql = `
         DELETE FROM tb_usuarios
@@ -32,7 +32,7 @@ function excluirUsuario(id, callback) {
     })
 }
 
-// recebe id e dados da edição do admin e manda o resultado pelo callback
+// atualiza nome email tipo e avatar na edição feita pelo admin
 function atualizarUsuario(id, usuario, callback) {
 
     const sql = `
@@ -62,7 +62,7 @@ function atualizarUsuario(id, usuario, callback) {
     )
 }
 
-// recebe id e dados do perfil, atualiza nome, email e avatar e responde pelo callback
+// atualiza nome email e avatar sem alterar a senha ou o tipo da conta
 function atualizarPerfil(id, usuario, callback) {
     const sql = `
         UPDATE tb_usuarios
@@ -80,7 +80,7 @@ function atualizarPerfil(id, usuario, callback) {
     ], callback)
 }
 
-// recebe o id e entrega pelo callback o usuário sem o campo de senha ou undefined
+// busca os dados da conta pelo id sem retornar o hash da senha
 function buscarPorId(id, callback) {
     const sql = `
         SELECT user_id, user_name, user_email, user_tipo, user_avatar
@@ -97,7 +97,7 @@ function buscarPorId(id, callback) {
     })
 }
 
-// recebe o email e entrega pelo callback o cadastro completo ou undefined
+// busca a conta pelo email incluindo o hash para autenticação
 function buscarPorEmail(email, callback) {
     
     const sql = `
@@ -114,7 +114,7 @@ function buscarPorEmail(email, callback) {
     })
 }
 
-// recebe pesquisa, limite e deslocamento e entrega a lista encontrada pelo callback
+// consulta os usuários com pesquisa limite e deslocamento sem retornar o hash
 function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
     let sql = `
         SELECT user_id, user_name, user_email, user_tipo, user_avatar
@@ -154,7 +154,7 @@ function buscarTodosUsuarios(pesquisa, limite, deslocamento, callback) {
     })
 }
 
-// recebe nome ou email e entrega pelo callback o cadastro completo ou undefined
+// busca a conta por nome ou email incluindo o hash para autenticação
 function buscarPorLogin(login, callback) {
     const sql = `
         SELECT *
@@ -172,7 +172,7 @@ function buscarPorLogin(login, callback) {
     })
 }
 
-// recebe nome, email e id ignorado e entrega pelo callback a lista de coincidencias
+// procura outra conta com o mesmo nome ou email
 function buscarUsuarioDuplicado(usuario, idIgnorado, callback) {
     // ignora a própria conta para permitir manter seu nome e email na edição
     const sql = `
@@ -190,7 +190,7 @@ function buscarUsuarioDuplicado(usuario, idIgnorado, callback) {
     ], callback)
 }
 
-// recebe o id e entrega pelo callback o registro com o hash da senha ou undefined
+// busca somente o hash da senha para conferir operações do perfil
 function buscarSenhaPorId(id, callback) {
     const sql = `
         SELECT user_pass

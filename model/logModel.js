@@ -1,6 +1,6 @@
 const conexao = require("../config/database")
 
-// recebe usuário e ação e entrega o resultado da gravação pelo callback
+// registra a ação com o id do responsável quando existe uma conta vinculada
 function registrarLog(log, callback) {
     const sql = `
         INSERT INTO tb_logs_acesso
@@ -14,7 +14,7 @@ function registrarLog(log, callback) {
     ], callback)
 }
 
-// recebe pesquisa, limite e deslocamento e entrega os logs encontrados pelo callback
+// consulta os logs com pesquisa limite e deslocamento para o painel
 function buscarTodosLogs(pesquisa, limite, deslocamento, callback) {
     // usa left join para incluir os logs que não possuem usuário vinculado
     let sql = `

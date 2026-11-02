@@ -4,12 +4,10 @@ const path = require("path")
 const comentarioModel = require("../model/comentarioModel")
 const logModel = require("../model/logModel")
 
-// recebe texto, categoria e tópico e identifica o autor pela sessão
-// valida a aula, salva pelo model, registra a ação e responde em json
+// recebe os dados do comentário e identifica o autor pela sessão
+// confere o arquivo da aula e salva o comentário antes de registrar a ação
 function salvarComentario(req, res) {
     if (!req.session.usuario) {
-
-        // status 401 - autenticação ausente ou inválida
         return res.status(401).json({ erro: "Faça login para comentar." })
     }
 
@@ -20,16 +18,12 @@ function salvarComentario(req, res) {
     const topico = dados.topico
 
     if (categoria !== "html" && categoria !== "css" && categoria !== "javascript") {
-        
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Categoria inválida." })
     }
 
-    const nomeValido = /^[a-zA-Z0-9_-]+$/ // regex que permite os caracteres "a-z", "A-Z", "0-9", "_", "-"
+    const nomeValido = /^[a-zA-Z0-9_-]+$/ // aceita letras sem acento números hífen e underline
 
     if (typeof topico !== "string" || !nomeValido.test(topico)) {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Tópico inválido." })
     }
     
@@ -40,33 +34,26 @@ function salvarComentario(req, res) {
     const texto = dados.texto.trim()
     
     if (texto.length === 0 || texto.length > 1000) {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "O comentário deve ter entre 1 e 1000 caracteres" })
     }
 
     const caminhoArquivo = path.join(__dirname, "../content", categoria, `${topico}.md`)
 
-    // verifica no servidor se o arquivo da aula existe antes de aceitar o comentário
+    // confere a existência do arquivo da aula sem consultar o cache
     fs.stat(caminhoArquivo, (erroArquivo, arquivo) => {
         if (erroArquivo) {
 
-            // o erro ENOENT da biblioteca fs significa "No such file or directory" (arquivo ou pasta não encontrado)
+            // ENOENT indica que o arquivo ou a pasta não foi encontrado
             if (erroArquivo.code === "ENOENT") {
-
-                // status 404 - recurso não encontrado
                 return res.status(404).json({ erro: "Aula não encontrada" })
             }
 
             console.log("Erro ao verificar a aula:", erroArquivo)
 
-            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar a aula." })
         }
 
         if (!arquivo.isFile()) {
-
-            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Aula não encontrada." })
         }
 
@@ -81,13 +68,10 @@ function salvarComentario(req, res) {
             if (erro) {
                 console.log("Erro ao salvar comentário:", erro)
 
-                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Não foi possível salvar o comentário." })
             }
 
             if (resultado.affectedRows !== 1) {
-
-                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "O comentário não foi salvo." })
             }
 
@@ -101,7 +85,6 @@ function salvarComentario(req, res) {
                     console.log("Erro ao registrar a publicação:", erroLog)
                 }
 
-                // status 201 - registro criado
                 return res.status(201).json({ mensagem: "Comentário salvo." })
             })
         })
@@ -109,20 +92,16 @@ function salvarComentario(req, res) {
 }
 
 // recebe o id pela rota e o autor pela sessão
-// solicita a exclusão ao model, registra a ação e responde em json
+// exclui pelo model e registra a ação antes de responder em json
 function excluirComentario(req, res) {
     if (!req.session.usuario) {
-
-        // status 401 - autenticação ausente ou inválida
         return res.status(401).json({ erro: "Faça login para excluir um comentário." })
     }
 
     const id = Number(req.params.id)
 
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
+    // exige um id inteiro positivo dentro da faixa segura do javascript
     if (!Number.isSafeInteger(id) || id <= 0) {
-        
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "ID do comentário inválido." })
     }
 
@@ -131,18 +110,15 @@ function excluirComentario(req, res) {
         userId: req.session.usuario.id
     }
 
-    // envia os dois ids para que a exclusão confira também o autor
+    // o model exige o id do comentário e o id do autor para excluir
     comentarioModel.excluirComentario(comentario, (erro, resultado) => {
         if (erro) {
             console.log("Erro ao excluir comentário:", erro)
 
-            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível excluir o comentario" })
         }
 
         if (resultado.affectedRows === 0) {
-
-            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Comentario não encontrado ou não pertence a você." })
         }
 

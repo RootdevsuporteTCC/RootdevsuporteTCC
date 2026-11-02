@@ -1,4 +1,4 @@
-// adiciona o email de contato na área de transferência do usuario e mostra um aviso na tela
+// tenta copiar o email de contato e mostra o endereço no alert se a cópia falhar
 async function emailToClipboard() {
     const email = "rootdevsuporte@gmail.com"
 

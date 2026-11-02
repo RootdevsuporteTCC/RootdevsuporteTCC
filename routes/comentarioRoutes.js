@@ -10,7 +10,7 @@ const limitarComentarios = rateLimit({
     windowMs: 1 * 60 * 1000,
     limit: 5,
     standardHeaders: "draft-8", // define o cabeçalho padronizado como "draft-8"
-    legacyHeaders: false, // esativa os cabeçalhos antigos que a biblioteca usava
+    legacyHeaders: false, // desativa os cabeçalhos antigos da biblioteca
 
     // deixa o controller recusar visitantes sem aplicar a contagem por usuário
     skip: (req) => {

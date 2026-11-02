@@ -1,11 +1,12 @@
+// mantém a função de navegação no escopo deste arquivo
 (()=> {
-    // consulta o estado do login pelo fetch e monta a navegação do usuário conectado
+    // usa a consulta compartilhada da sessão para montar os controles da conta conectada
     async function verificarLogin(atualizar = false) {
         try {
             const { consultarSessao } = await import("/scripts/sessao-cliente.js")
             const dados = await consultarSessao(atualizar)
 
-            // mantem os controles de visitante quando não existe login ativo
+            // mantém os controles iniciais de visitante quando a página abre sem login
             if (!dados.logado) {
                 return
             }
@@ -44,6 +45,7 @@
         }
     }
 
+    // busca os dados novos da sessão quando uma edição avisa que o perfil mudou
     document.addEventListener("perfil-atualizado", () => {
         verificarLogin(true)
     })

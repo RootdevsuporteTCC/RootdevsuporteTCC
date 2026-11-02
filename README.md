@@ -143,10 +143,7 @@ O terminal deve permanecer aberto. Para encerrar o servidor, pressione
 Ctrl + C. Acesse o projeto pelo endereço do servidor; abrir o HTML
 diretamente ou pelo Live Server não disponibiliza o backend.
 
-As sessões ficam na memória do servidor. Reiniciar o Node encerra os
-logins ativos.
-
-Para fechar o servidor, pressione **Ctrl + C** no terminal. O site deve ser aberto por esse link, abrir o HTML direto ou pelo Live Server não se conecta ao back-end.
+As sessões ficam na memória do servidor. Reiniciar o Node encerra os logins ativos.
 
 **Print do servidor:**
 

@@ -16,9 +16,9 @@ let paginaLogsAtual = 1
 let pesquisaLogsAtual = ""
 
 
-//funções gerais
+// funções gerais
 
-// prepara a area de consulta e esconde as opções iniciais do painel
+// prepara a área de consulta e esconde as opções iniciais do painel
 function abrirConsulta() {
     elementosPainel.botaoVoltar.classList.remove("remove")
     elementosPainel.admInicio.classList.add("remove")
@@ -27,13 +27,13 @@ function abrirConsulta() {
     elementosPainel.formEdicao.innerHTML = ""
 }
 
-// limpa as areas de consulta e edição antes de montar o formulário
+// limpa as áreas antes de montar o formulário de edição
 function abrirEdicao() {
     elementosPainel.tabelaConsulta.innerHTML = ""
     elementosPainel.formEdicao.innerHTML = ""
 }
 
-// limpa as areas abertas e mostra as opções iniciais
+// limpa as áreas abertas e mostra as opções iniciais
 function voltarInicio() {
     elementosPainel.botaoVoltar.classList.add("remove")
     elementosPainel.admInicio.classList.remove("remove")
@@ -42,6 +42,7 @@ function voltarInicio() {
     elementosPainel.formEdicao.innerHTML = ""
 }
 
+// lê o json e encaminha ao login quando o acesso ao painel é recusado
 async function lerRespostaAdmin(resposta) {
     const dados = await resposta.json()
 
@@ -49,15 +50,17 @@ async function lerRespostaAdmin(resposta) {
         alert(dados.erro || "Você não possui acesso ao painel.")
 
         window.location.assign("/admin/loginAdm.html")
+
+        // sinaliza que a função que recebeu a resposta deve parar
         return null
     }
 
     return dados
 }
 
-//funções de usuario
+// funções de usuários
 
-// le o avatar do formulário de edição e atualiza a prévia
+// lê o avatar do formulário de edição e atualiza a prévia
 function atualizarPreviewAvatarAdm() {
     const campoAvatar = document.getElementById("edit-avatar")
     const previaAvatar = document.getElementById("avatar-previa")
@@ -76,7 +79,7 @@ function mudarPaginaUsuarios(direcao) {
     mostrarUsuarios(pesquisaUsuariosAtual, novaPagina)
 }
 
-// recebe pesquisa e página, consulta os usuários pelo fetch e monta a tabela
+// consulta os usuários com pesquisa e paginação e monta a tabela
 async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
@@ -196,7 +199,7 @@ async function mostrarUsuarios(pesquisa = "", pagina = 1) {
     }
 }
 
-// recebe o id, confirma a exclusão e atualiza a consulta depois da resposta do servidor
+// confirma a exclusão da conta e atualiza a consulta após o sucesso
 async function excluirUsuario(id) {
     const confirmar = confirm("Deletar Usuário?")
 
@@ -224,7 +227,7 @@ async function excluirUsuario(id) {
     }
 }
 
-// recebe o id, consulta os dados pelo fetch e monta o formulário de edição
+// busca a conta pelo id e monta o formulário de edição
 async function editarUsuario(id) {
 
     try {
@@ -291,7 +294,6 @@ async function editarUsuario(id) {
 
         const campoAvatar = document.getElementById("edit-avatar")
 
-        // preenche o avatar depois de criar os campos do formulário
         campoAvatar.value = usuario.user_avatar || ""
 
         // conecta a prévia ao campo que acabou de ser inserido na página
@@ -308,7 +310,7 @@ async function editarUsuario(id) {
     }
 }
 
-// recebe o evento e o id, envia os campos alterados e atualiza a consulta após salvar
+// envia os dados alterados e atualiza a consulta após salvar
 async function salvarEdicao(event, id) {
     event.preventDefault()
 
@@ -328,9 +330,9 @@ async function salvarEdicao(event, id) {
         const resposta = await fetch(`/adm/usuarios/${id}`, {
             method: "PUT",
             headers: { 
-                "Content-Type": "application/json" // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify(usuarioAtualizado) // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify(usuarioAtualizado)
         })
 
         const dados = await lerRespostaAdmin(resposta)
@@ -343,7 +345,7 @@ async function salvarEdicao(event, id) {
             return
         }
 
-        // atualiza a navegação caso os dados da conta conectada tenham sido alterados
+        // avisa a navegação para consultar os dados atuais da conta conectada
         document.dispatchEvent(new Event("perfil-atualizado"))
 
         alert(dados.mensagem)
@@ -369,7 +371,7 @@ function limparPesquisa() {
     mostrarUsuarios("", 1)
 }
 
-//funções de comentario
+// funções de comentários
 
 // recebe a direção e consulta outra página de comentários mantendo a pesquisa
 function mudarPaginaComentarios(direcao) {
@@ -396,7 +398,7 @@ function limparPesquisaComentarios() {
     mostrarComentarios("", 1)
 }
 
-// recebe pesquisa e página, consulta os comentários pelo fetch e monta a tabela
+// consulta os comentários com pesquisa e paginação e monta a tabela
 async function mostrarComentarios(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
@@ -516,7 +518,7 @@ async function mostrarComentarios(pesquisa = "", pagina = 1) {
     }
 }
 
-// recebe o id, confirma a exclusão e atualiza a consulta após a resposta do servidor
+// confirma a exclusão do comentário e atualiza a consulta após o sucesso
 async function excluirComentarioAdmin(id) {
     const confirmou = confirm("Deseja excluir esse comentário?")
 
@@ -549,7 +551,7 @@ async function excluirComentarioAdmin(id) {
     }
 }
 
-//funções log
+// funções de logs
 
 // recebe a direção e consulta outra página de logs mantendo a pesquisa
 function mudarPaginaLogs(direcao) {
@@ -576,7 +578,7 @@ function limparPesquisaLogs() {
     mostrarLogs("", 1)
 }
 
-// recebe pesquisa e página, consulta os logs pelo fetch e monta a tabela
+// consulta os logs com pesquisa e paginação e monta a tabela
 async function mostrarLogs(pesquisa = "", pagina = 1) {
     abrirConsulta()
 
@@ -666,7 +668,7 @@ async function mostrarLogs(pesquisa = "", pagina = 1) {
                 const colunas = linha.querySelectorAll("td")
 
                 colunas[0].innerText = log.log_id
-                colunas[1].innerText = log.tb_usuarios_user_id || "-" // mostra uma identificação diferente para logs sem conta vinculada
+                colunas[1].innerText = log.tb_usuarios_user_id || "-" // mostra um traço quando o log não tem usuário vinculado
                 colunas[2].innerText = log.user_name || "Sem usuário vinculado"
                 colunas[3].innerText = log.log_acao
                 colunas[4].innerText = new Date(log.log_data).toLocaleString("pt-BR")

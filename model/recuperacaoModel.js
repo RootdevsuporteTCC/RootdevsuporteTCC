@@ -1,13 +1,13 @@
 const conexao = require("../config/database")
 
-
+// salva o hash do código com prazo de dez minutos
 function criarRecuperacao(recuperacao, callback) {
     const sql = `
         INSERT INTO tb_recuperacoes
             (tb_usuarios_user_id, rec_codigo, rec_expiracao)
         VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))
     `
-    // DATE_ADD(NOW(), INTERVAL 10 MINUTE) calcula um horário futuro 10 minutos depois da data e hora atuais
+    // o prazo termina dez minutos após o horário atual do banco
 
     conexao.query(sql, [
         recuperacao.userId,
@@ -15,7 +15,7 @@ function criarRecuperacao(recuperacao, callback) {
     ], callback)
 }
 
-
+// busca a última recuperação da conta e confere o prazo pelo horário do banco
 function buscarUltimaRecuperacao(userId, callback) {
     const sql = `
         SELECT
@@ -39,9 +39,10 @@ function buscarUltimaRecuperacao(userId, callback) {
     })
 }
 
+// recebe o hash da nova senha e tenta concluir a recuperação no banco
 function concluirRecuperacao(recuperacao, senhaHash, callback) {
     // altera a senha e marca o código como usado na mesma consulta
-    // exige a recuperação mais recente, ainda válida e ligada à conta e ao email informados
+    // exige a recuperação mais recente ainda válida e ligada à conta e ao email informados
     const sql = `
         UPDATE tb_usuarios AS usuario
 

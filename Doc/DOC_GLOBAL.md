@@ -140,8 +140,6 @@ Somente depois dessas etapas, **app.listen** começa a atender na porta configur
 
 ## Como uma operação percorre os arquivos
 
-## Como uma operação percorre os arquivos
-
 A edição de perfil mostra como as partes do projeto trabalham juntas.
 
 Em **public/scripts/perfil.js**, **salvarPerfil(evento)** impede o envio comum do formulário, lê os campos e envia uma requisição **PATCH /usuarios/perfil**, com os dados em JSON.

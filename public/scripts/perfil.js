@@ -7,17 +7,16 @@ const campoSenhaAtual       =    document.getElementById("senha-atual")
 const botaoSalvarPerfil     =    document.getElementById("botao-salvar-perfil")
 const botaoExcluirPerfil    =    document.getElementById("botao-excluir-perfil")
 
-// lê o campo de avatar e atualiza a prévia usando o padrão quando estiver vazio
+// atualiza a prévia do avatar e usa o padrão quando o campo está vazio
 function atualizarPreviaPerfil() {
     previaAvatarPerfil.innerText = campoAvatarPerfil.value || ":D"
 }
 
-// consulta o perfil pelo fetch e preenche o formulário com os dados recebidos
+// carrega os dados do perfil e libera o formulário após o sucesso
 async function carregarPerfil() {
     try {
         const resposta = await fetch("/usuarios/perfil")
 
-        // status 401 - autenticação ausente ou inválida
         if (resposta.status === 401) {
             window.location.replace("/login.html")
             return
@@ -47,7 +46,7 @@ async function carregarPerfil() {
     }
 }
 
-// recebe o envio do formulário e envia os dados e a senha atual para salvar o perfil
+// envia os dados do perfil com a senha atual para confirmar a alteração
 async function salvarPerfil(evento) {
     evento.preventDefault()
 
@@ -55,7 +54,7 @@ async function salvarPerfil(evento) {
         return
     }
 
-    // prepara nome, email e avatar sem remover espaços da senha
+    // remove espaços das pontas dos dados sem alterar a senha
     const usuario = {
         nome: campoNomePerfil.value.trim(),
         email: campoEmailPerfil.value.trim(),
@@ -82,12 +81,11 @@ async function salvarPerfil(evento) {
         const resposta = await fetch("/usuarios/perfil", {
             method: "PATCH",
             headers: {
-                "Content-Type": "application/json"  // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify(usuario)  // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify(usuario)
         })
 
-        // status 401 - autenticação ausente ou inválida
         if (resposta.status === 401) {
             window.location.replace("/login.html")
             return
@@ -109,7 +107,7 @@ async function salvarPerfil(evento) {
 
         window.alert(dados.mensagem || "Perfil atualizado com sucesso.")
 
-        // consulta novamente a sessão para atualizar o avatar da navegação
+        // avisa a navegação para consultar a sessão e atualizar os dados da conta
         document.dispatchEvent(new Event("perfil-atualizado"))
     } catch (erro) {
         console.log("Erro ao salvar perfil:", erro)
@@ -125,7 +123,7 @@ async function salvarPerfil(evento) {
     }
 }
 
-// le a senha atual, confirma a exclusão e envia a solicitação ao servidor
+// confirma a exclusão e envia a senha atual ao servidor
 async function excluirPerfil() {
     if (botaoExcluirPerfil.disabled || botaoSalvarPerfil.disabled) {
         return
@@ -174,14 +172,13 @@ async function excluirPerfil() {
         const resposta = await fetch("/usuarios/perfil", {
             method: "delete",
             headers: {
-                "Content-Type": "application/json" // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify({
                 senhaAtual: senhaAtual
             })
         })
 
-        // status 401 - autenticação ausente ou inválida
         if (resposta.status === 401) {
             window.location.replace("/login.html")
             return
@@ -220,7 +217,6 @@ async function excluirPerfil() {
     }
 }
 
-// associa o botão à função de exclusão do perfil
 botaoExcluirPerfil.addEventListener("click", excluirPerfil)
 
 // atualiza a prévia conforme o usuário digita o avatar
@@ -229,5 +225,4 @@ campoAvatarPerfil.addEventListener("input", atualizarPreviaPerfil)
 // busca os dados assim que o script é executado
 carregarPerfil()
 
-// associa o envio do formulário à função de salvamento
 formPerfil.addEventListener("submit", salvarPerfil)

@@ -3,12 +3,12 @@ const path = require("path")
 
 const comentarioModel = require('../model/comentarioModel')
 
-// mantém as aulas na memória para atender as pesquisas
+// guarda as aulas na memória para listar tópicos abrir conteúdos e pesquisar
 const cacheConteudos = []
 
-// recebe o markdown e retorna categoria, tópico e conteúdo ou null se o cabeçalho for inválido
+// separa o cabeçalho do texto da aula e retorna null quando ele é inválido
 function extrairMetadados(texto) {
-    const linhas = texto.split("\n") //separa o texto em linhas
+    const linhas = texto.split("\n")
 
     // verifica se o arquivo tem cabeçalho
     if (linhas[0].trim() !== "---") {
@@ -19,22 +19,18 @@ function extrairMetadados(texto) {
     let topico = ""
     let fimCabecalho = -1
 
-    // loop que começa depois da primeira linha do cabeçalho
     for (let i = 1; i < linhas.length; i++) {
         const linha = linhas[i].trim();
         
-        // se chegar no fim do cabeçalho termina o loop
         if (linha === "---") {
             fimCabecalho = i
             break
         }
 
-        // se a linha começa com "categoria:", captura os dados como a categoria da aula
         if (linha.startsWith("categoria:")) {
             categoria = linha.replace("categoria:", "").trim()
         }
 
-        // se a linha começa com "topico:", captura os dados como o tópico da aula
         if (linha.startsWith("topico:")) {
             topico = linha.replace("topico:", "").trim()
         }
@@ -54,7 +50,7 @@ function extrairMetadados(texto) {
     }
 }
 
-// le as pastas das categorias e preenche o cache com as aulas validas
+// carrega as aulas válidas no cache durante a inicialização do servidor
 function carregarCacheConteudos() {
     cacheConteudos.length = 0
 
@@ -63,7 +59,7 @@ function carregarCacheConteudos() {
     categorias.forEach((categoria) => {
         const pasta = path.join(__dirname, "../content", categoria)
 
-        // le o conteudo de um diretório de forma sincrona (espera terminar antes de continuar o codigo)
+        // conclui a leitura das pastas antes de iniciar o servidor
         const arquivos = fs.readdirSync(pasta, { withFileTypes: true })
 
         arquivos.forEach((arquivo) => {
@@ -73,14 +69,14 @@ function carregarCacheConteudos() {
 
             const topico = path.basename(arquivo.name, ".md")
 
-            //regex que permite apenas letras, numeros, hifen e underline
+            // aceita apenas letras sem acento números hífen e underline
             if (!/^[a-zA-Z0-9_-]+$/.test(topico)) {
                 console.log("Nome de tópico inválido:", arquivo.name)
                 return
             }
 
             const caminhoArquivo = path.join(pasta, arquivo.name)
-            const texto = fs.readFileSync(caminhoArquivo, "utf8") // le o conteúdo de um arquivo no padrão utf8
+            const texto = fs.readFileSync(caminhoArquivo, "utf8")
 
             const aula = extrairMetadados(texto)
 
@@ -89,7 +85,7 @@ function carregarCacheConteudos() {
                 return
             }
 
-            // se os atributos do cabeçalho forem diferentes da pasta ou arquivo, o arquivo é rejeitado
+            // ignora a aula quando o cabeçalho não corresponde à pasta e ao nome do arquivo
             if (aula.categoria !== categoria || aula.topico !== topico) {
                 console.log("Cabeçalho diferente da pasta ou arquivo:", caminhoArquivo)
                 return
@@ -100,7 +96,7 @@ function carregarCacheConteudos() {
     })
 }
 
-// recebe categoria e tópico pela rota, le a aula e devolve o markdown e os comentários em json
+// busca a aula no cache e devolve seu conteúdo junto dos comentários do banco
 function buscarConteudo(req, res, next) {
     const { categoria, topico } = req.params
 
@@ -125,6 +121,7 @@ function buscarConteudo(req, res, next) {
             return next(erro)
         }
 
+        // informa quais comentários pertencem ao usuário conectado
         comentarios.forEach((comentario) => {
             comentario.podeExcluir = Boolean(
                 req.session.usuario && Number(comentario.com_user_id) === Number(req.session.usuario.id)
@@ -138,7 +135,7 @@ function buscarConteudo(req, res, next) {
     })
 }
 
-// recebe a categoria pela rota e devolve em json os nomes dos arquivos markdown em ordem alfabética
+// lista os tópicos da categoria em ordem alfabética usando o cache
 function listarTopicos(req, res) {
     const categoria = req.params.categoria
 
@@ -154,21 +151,17 @@ function listarTopicos(req, res) {
     return res.json({ topicos })
 }
 
-// recebe a pesquisa pela url, consulta o cache e devolve as categorias e os tópicos encontrados em json
+// pesquisa no cache e devolve a categoria e o tópico de cada aula encontrada
 function pesquisarConteudos(req, res) {
     const pesquisa = req.query.pesquisa || ""
 
     if (typeof pesquisa !== "string") {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Pesquisa inválida" })
     }
 
     const termo = pesquisa.trim().toLowerCase()
 
     if (termo.length > 100) {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "A pesquisa deve ter até 100 caracteres" })
     }
 
@@ -178,7 +171,7 @@ function pesquisarConteudos(req, res) {
 
     const resultados = []
 
-    // procura o termo na categoria, no tópico e no texto de cada aula
+    // procura o termo na categoria no tópico e no texto de cada aula
     cacheConteudos.forEach((aula) => {
         const categoria = aula.categoria.toLowerCase()
         const topico = aula.topico.toLowerCase()

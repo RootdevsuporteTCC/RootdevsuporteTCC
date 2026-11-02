@@ -1,6 +1,7 @@
 const userModel = require("../model/userModel")
 const { gerarHash } = require("./criptografiaService")
 
+// gera o hash da senha antes de solicitar o cadastro ao model
 async function criarUsuario(usuario, callback) {
     let senhaHash
 
@@ -10,6 +11,7 @@ async function criarUsuario(usuario, callback) {
         return callback(erro)
     }
 
+    // prepara os dados para o model sem enviar a senha original
     const dadosCadastro = {
         nome: usuario.nome,
         email: usuario.email,

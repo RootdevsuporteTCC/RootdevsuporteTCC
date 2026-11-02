@@ -1,7 +1,7 @@
 const campoAvatar = document.getElementById("avatar")
 const previaAvatar = document.getElementById("avatar-previa")
 
-// le o campo de avatar e atualiza a prévia com o texto digitado ou ":D"
+// lê o campo de avatar e atualiza a prévia com o texto digitado ou ":D"
 function atualizarPreviaAvatar() {
     previaAvatar.innerText = campoAvatar.value || ":D"
 }

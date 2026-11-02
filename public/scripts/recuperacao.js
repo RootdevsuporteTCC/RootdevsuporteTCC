@@ -15,7 +15,7 @@ const areaRecuperacaoConcluida  =  document.getElementById("recuperacao-concluid
 // guarda o email usado na solicitação para enviar junto com o código
 let emailSolicitado = ""
 
-// recebe o envio do formulário, envia o email e mostra a etapa de código após a resposta
+// solicita o código pelo email e mostra a próxima etapa quando o pedido é aceito
 async function solicitarCodigo(evento) {
     evento.preventDefault()
 
@@ -36,9 +36,9 @@ async function solicitarCodigo(evento) {
         const resposta = await fetch("/recuperacao/solicitar", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"  // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email: email }) // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify({ email: email })
         })
 
         const dados = await resposta.json()
@@ -50,7 +50,6 @@ async function solicitarCodigo(evento) {
 
         mensagemRecuperacao.innerText = dados.mensagem
 
-        // mantém o email da solicitação para a próxima etapa
         emailSolicitado = email
 
         // troca o formulário de email pelo formulário do código
@@ -69,7 +68,7 @@ async function solicitarCodigo(evento) {
     }
 }
 
-// recebe o envio do formulário, envia email e código e mostra a nova senha após a validação
+// envia o email e o código e libera o formulário da nova senha após a validação
 async function verificarCodigoInformado(evento) {
     evento.preventDefault()
 
@@ -86,7 +85,7 @@ async function verificarCodigoInformado(evento) {
 
     const codigo = campoCodigo.value.trim().toUpperCase()
 
-    // controla se a etapa do código já foi concluída
+    // guarda se o servidor confirmou a validação do código
     let verificado = false
 
     botaoVerificarCodigo.disabled = true
@@ -100,9 +99,9 @@ async function verificarCodigoInformado(evento) {
         const resposta = await fetch("/recuperacao/verificar", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"  // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify({
                 email: emailSolicitado,
                 codigo: codigo
             })
@@ -120,7 +119,7 @@ async function verificarCodigoInformado(evento) {
 
         formCodigo.hidden = true
 
-        // limpa e mostra os campos para cadastrar a nova senha
+        // limpa e mostra os campos da nova senha
         formNovaSenha.reset()
         formNovaSenha.hidden = false
 
@@ -143,7 +142,7 @@ async function verificarCodigoInformado(evento) {
     }
 }
 
-// recebe o envio do formulário, envia senha e confirmação e mostra a conclusão após o sucesso
+// envia a nova senha com a confirmação e mostra a conclusão após o sucesso
 async function salvarNovaSenha(evento) {
     evento.preventDefault()
 
@@ -174,9 +173,9 @@ async function salvarNovaSenha(evento) {
         const resposta = await fetch("/recuperacao/redefinir", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"  // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify({
                 senha: senha,
                 confirmarSenha: confirmarSenha
             })

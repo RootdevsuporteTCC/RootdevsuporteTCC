@@ -1,4 +1,4 @@
-// seleciona as áreas usadas para mostrar aulas, tópicos, comentários e pesquisas
+// seleciona os elementos das aulas dos tópicos dos comentários e da pesquisa
 const tituloCategoria        =   document.getElementById("matter-title")
 const botaoMenu              =   document.getElementById("toggle-menu")
 const menuLateral            =   document.querySelector("aside")
@@ -23,7 +23,7 @@ let pesquisando = false
 let topicoAtual = ""
 let ocupado = false
 
-// le a categoria e o tópico enviados no endereço da página
+// lê os parâmetros enviados no link da página
 const parametros = new URLSearchParams(window.location.search)
 
 let categoria = parametros.get("categoria")
@@ -97,7 +97,7 @@ function exibirComentarios(comentarios) {
 
         const botaoExcluir = bloco.querySelector(".botao-excluir")
 
-        // mostra o icone de lixeira conforme a indicação recebida do servidor
+        // mostra a lixeira quando o servidor indica que o comentário pertence ao usuário
         botaoExcluir.hidden = !comentario.podeExcluir
 
         botaoExcluir.addEventListener("click", () => {
@@ -108,7 +108,7 @@ function exibirComentarios(comentarios) {
     });
 }
 
-// recebe o markdown, converte para html, limpa e mostra a aula
+// converte o markdown para html e mostra a aula após filtrar o resultado
 function exibirConteudo(markdown) {
     const html = marked.parse(markdown)
 
@@ -153,7 +153,7 @@ function exibirResultadosPesquisa(resultados) {
     })
 }
 
-// recebe o envio do formulário, consulta a pesquisa pelo fetch e mostra os resultados
+// envia a pesquisa ao servidor e mostra os resultados
 async function pesquisarConteudos(event) {
     event.preventDefault()
 
@@ -197,13 +197,13 @@ async function pesquisarConteudos(event) {
 }
 formPesquisa.addEventListener("submit", pesquisarConteudos)
 
-// recebe o tópico, consulta a aula e os comentários pelo fetch e atualiza a tela
+// carrega a aula escolhida junto dos comentários e atualiza a tela
 async function carregarConteudo(topico) {
     if (ocupado) {
         return
     }
 
-    // identifica a troca de aula para limpar o comentário em edição
+    // identifica a troca de aula para limpar o texto ainda não enviado
     const mudouDeTopico = topico !== topicoAtual
 
     ocupado = true
@@ -294,7 +294,7 @@ async function carregarTopicos() {
     }
 }
 
-// consulta a sessão pelo fetch e mostra o formulário ou o aviso de login
+// usa a consulta compartilhada da sessão para mostrar o formulário ou o aviso de login
 async function verificarLoginComentario() {
     try {
         const { consultarSessao } = await import("/scripts/sessao-cliente.js")
@@ -319,7 +319,7 @@ async function verificarLoginComentario() {
     }
 }
 
-// recebe o envio do formulário, envia texto e aula pro servidor e recarrega os comentários
+// envia o comentário com a categoria e o tópico e atualiza a lista após o sucesso
 async function enviarComentario(event) {
     event.preventDefault()
 
@@ -339,7 +339,7 @@ async function enviarComentario(event) {
         return
     }
 
-    // guarda a aula que o comentário enviado pertence
+    // guarda o tópico ao qual o comentário será enviado
     const topicoEnviado = topicoAtual
 
     ocupado = true
@@ -349,13 +349,12 @@ async function enviarComentario(event) {
     mensagemComentario.innerText = "Enviando..."
 
     try {
-        // envia uma requsição post
         const resposta = await fetch("/comentarios", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json" // diz que os dados estão em formato json
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ // transforma o objeto json em uma string json para ser enviado
+            body: JSON.stringify({
                 texto: texto,
                 categoria: categoria,
                 topico: topicoEnviado
@@ -367,7 +366,6 @@ async function enviarComentario(event) {
         if (!resposta.ok) {
             mensagemComentario.innerText = dados.erro
 
-            // status 401 - autenticação ausente ou inválida
             if (resposta.status === 401) {
                 formComentario.hidden = true
                 avisoLoginComentario.hidden = false
@@ -378,7 +376,7 @@ async function enviarComentario(event) {
 
         campoComentario.value = ""
 
-        // libera o carregamento da aula depois de concluir a operação
+        // libera ocupado antes de recarregar a aula porque o carregamento também verifica esse estado
         ocupado = false
         await carregarConteudo(topicoEnviado)
 
@@ -395,7 +393,7 @@ async function enviarComentario(event) {
 }
 formComentario.addEventListener("submit", enviarComentario)
 
-// recebe o id, confirma a exclusão, envia a solicitação e recarrega a aula
+// confirma a exclusão do comentário e atualiza a lista após o sucesso
 async function excluirComentario(id) {
     if (ocupado) {
         return
@@ -416,7 +414,6 @@ async function excluirComentario(id) {
     mensagemComentario.innerText = "Excluindo..."
 
     try {
-        // faz uma requisição de delete
         const resposta = await fetch(`/comentarios/${id}`, {
             method: "DELETE"
         })
@@ -426,7 +423,6 @@ async function excluirComentario(id) {
         if (!resposta.ok) {
             mensagemComentario.innerText = dados.erro
 
-            // status 401 - autenticação ausente ou inválida
             if (resposta.status === 401) {
                 formComentario.hidden = true
                 avisoLoginComentario.hidden = false
@@ -435,7 +431,7 @@ async function excluirComentario(id) {
             return
         }
 
-        // libera o carregamento da aula depois de concluir a operação
+        // libera ocupado antes de recarregar a aula porque o carregamento também verifica esse estado
         ocupado = false
         await carregarConteudo(topicoSelecionado)
 
@@ -456,7 +452,7 @@ if (window.innerWidth <= 768) {
     menuLateral.classList.add("fechado")
 }
 
-// prepara o tema, os tópicos e o estado de login ao abrir a página
+// prepara o tema os tópicos e os controles de login ao abrir a página
 atualizarTitulo()
 atualizarSeta()
 aplicarTema()

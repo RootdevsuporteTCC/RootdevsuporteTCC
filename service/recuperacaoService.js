@@ -1,6 +1,7 @@
 const recuperacaoModel = require("../model/recuperacaoModel")
 const { gerarHash } = require("./criptografiaService")
 
+// gera o hash do código antes de salvar a recuperação
 async function criarRecuperacao(recuperacao, callback) {
     let codigoHash
 
@@ -11,6 +12,7 @@ async function criarRecuperacao(recuperacao, callback) {
         return
     }
 
+    // envia ao model o id da conta e o hash sem incluir o código original
     const dadosRecuperacao = {
         userId: recuperacao.userId,
         codigoHash
@@ -19,6 +21,7 @@ async function criarRecuperacao(recuperacao, callback) {
     recuperacaoModel.criarRecuperacao(dadosRecuperacao, callback)
 }
 
+// gera o hash da nova senha antes de solicitar a conclusão ao model
 async function concluirRecuperacao(recuperacao, novaSenha, callback) {
     let senhaHash
 

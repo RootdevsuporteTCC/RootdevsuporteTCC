@@ -20,8 +20,8 @@ const limitarPorIp = rateLimit({
 const limitarPorEmail = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 3,
-    standardHeaders: "draft-8", // define o cabeçalho padronizado como "draft-8"
-    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
 
     // pula a contagem por email quando o valor não pode ser usado como identificador
     skip: (req) => {
@@ -62,7 +62,7 @@ const limitarVerificacaoPorEmail = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
     standardHeaders: "draft-8",
-    legacyHeaders: false, // desativa os cabeçalhos antigos que a biblioteca usava
+    legacyHeaders: false,
 
     // pula a contagem por email quando o valor não pode ser usado como identificador
     skip: (req) => {
@@ -77,7 +77,7 @@ const limitarVerificacaoPorEmail = rateLimit({
         return email.length === 0 || email.length > 254
     },
 
-    // padroniza o e-mail recebido para identificar o contador de tentativas
+    // padroniza o email recebido para identificar o contador de tentativas
     keyGenerator: (req) => {
         return req.body.email.trim().toLowerCase()
     },

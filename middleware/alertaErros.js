@@ -1,16 +1,20 @@
+// apresenta erros em um alert quando a requisição prefere html
 function alertaErros(req, res, next) {
+
+    // guarda o envio original mantendo sua ligação com res
     const enviarOriginal = res.send.bind(res)
 
     res.send = function (conteudo) {
         const querHtml = req.accepts(["json", "html"]) === "html"
         const respostaErro = res.statusCode >= 400
 
+        // mantém o envio original nas respostas de sucesso ou quando html não é o formato escolhido
         if (!querHtml || !respostaErro) {
             return enviarOriginal(conteudo)
         }
 
         let dados = conteudo
-        // o res.json tambem utiliza res.send internamente
+        // res.json também passa por res.send e pode entregar o json como texto
         if (typeof conteudo === "string") {
             try {
                 dados = JSON.parse(conteudo)
@@ -27,12 +31,13 @@ function alertaErros(req, res, next) {
             mensagem = dados.erro
         }
 
-        // prepara a mensagem para ser inserida no script
+        // escapa caracteres para que a mensagem seja tratada como texto dentro do script
         const mensagemSegura = JSON.stringify(mensagem)
             .replace(/</g, "\\u003c")
             .replace(/\u2028/g, "\\u2028")
             .replace(/\u2029/g, "\\u2029")
 
+        // remove os cabeçalhos do conteúdo anterior e prepara a resposta em html
         res.removeHeader("Content-Length")
         res.removeHeader("ETag")
         res.set("Cache-Control", "no-store")

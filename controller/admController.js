@@ -14,7 +14,7 @@ const { normalizarUsuario } = require("../utils/normalizarUsuario")
 //----------------------------------------------------------------------------------------------
 // funções gerais
 
-// recebe email e senha, verifica o tipo da conta e redireciona ao painel após criar a sessão
+// autentica a conta como admin e inicia a sessão antes de abrir o painel
 function loginAdm(req, res, next) {
     const dados = req.body || {}
 
@@ -66,7 +66,7 @@ function enviarAdminJs(req, res) {
 //---------------------------------------------------------------------------------------------------
 // funções de usuários
 
-// recebe pesquisa e página pela url e devolve usuários e dados da paginação em json
+// consulta os usuários com pesquisa e paginação
 function buscarUsuarios(req, res, next) {
     const consulta = lerConsulta(req.query)
 
@@ -88,17 +88,18 @@ function buscarUsuarios(req, res, next) {
     })
 }
 
+// valida o id e busca os dados da conta para abrir a edição
 function buscarUsuarioPorId(req, res, next) {
     const idRecebido = req.params.id
 
-    // aceita apenas digitos no parâmetro da rota
+    // aceita apenas dígitos no id recebido pela rota
     if (!/^\d+$/.test(idRecebido)) {
         return res.status(400).json({ erro: "ID de usuário inválido." })
     }
 
     const id = Number(idRecebido)
 
-    // o ID precisa ser um número inteiro positivo e seguro
+    // exige um id inteiro positivo dentro da faixa segura do javascript
     if (!Number.isSafeInteger(id) || id <= 0) {
         return res.status(400).json({ erro: "ID de usuário inválido." })
     }
@@ -116,21 +117,16 @@ function buscarUsuarioPorId(req, res, next) {
     })
 }
 
-// recebe o id pela rota, exclui a conta pelo model, registra a ação e responde em json
+// exclui a conta escolhida e registra a ação do admin
 function excluirUsuario(req, res, next) {
     const id = Number(req.params.id)
 
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id <= 0) {
-        
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Identificador do usuário inválido" })
     }
 
-    // impede que o administrador exclua a própria conta pela consulta administrativa
+    // impede que o admin exclua a própria conta pelo painel
     if (id === Number(req.session.usuario.id)) {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Você não pode excluir sua própria conta" })
     }
 
@@ -140,8 +136,6 @@ function excluirUsuario(req, res, next) {
         }
 
         if (resultado.affectedRows === 0) {
-
-            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Usuário não encontrado." })
         }
 
@@ -155,23 +149,19 @@ function excluirUsuario(req, res, next) {
                 console.log("Erro ao registrar a exclusão do usuário:", erroLog.code)
             }
 
-            // status 200 - requisição bem-sucedida
             return res.json({ mensagem: "Usuário excluido com sucesso"})
         })
     })
 }
 
-// recebe id e dados da edição, valida, atualiza pelo model e responde em json
+// prepara e valida os dados antes de atualizar a conta escolhida
 function atualizarUsuario(req, res) {
     const id = Number(req.params.id)
 
     // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
 
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id < 1) {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "ID de usuário inválido" })
     }
 
@@ -185,14 +175,10 @@ function atualizarUsuario(req, res) {
     const erroValidacao = usuarioValidacao.validarDadosUsuario(usuario)
 
     if (erroValidacao) {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: erroValidacao })
     }
 
     if (usuario.tipo !== "usuario" && usuario.tipo !== "admin") {
-
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Tipo de usuário inválido" })
     }
 
@@ -200,33 +186,26 @@ function atualizarUsuario(req, res) {
         if (erroBusca) {
             console.log("Erro ao verificar duplicidade:", erroBusca.code)
 
-            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível verificar os dados do usuário" })
         }
 
         if (usuarios.length > 0) {
-
-            // status 409 - conflito nos dados
             return res.status(409).json({ erro: "O nome de usuário ou e-mail já pertence a outra conta." })
         }
 
         userModel.atualizarUsuario(id, usuario, (erro, resultado) => {
             if (erro) {
+                // trata a duplicidade que pode surgir entre a consulta e a gravação
                 if (erro.code === "ER_DUP_ENTRY") {
-
-                    // status 409 - conflito nos dados
                     return res.status(409).json({ erro: "O nome de usuário ou e-mail ja pertence a outra conta." })
                 }
 
                 console.log("Erro ao atualizar usuário:", erro.code)
             
-                // status 500 - erro interno do servidor
                 return res.status(500).json({ erro: "Erro ao atualizar usuário" })
             }
 
             if (resultado.affectedRows === 0) {
-
-                // status 404 - recurso não encontrado
                 return res.status(404).json({ erro: "Usuário não encontrado." })
             }
 
@@ -240,16 +219,15 @@ function atualizarUsuario(req, res) {
                     console.log("Erro ao registrar a atualização:", erroLog.code)
                 }
 
-                // status 200 - requisição bem-sucedida
                 return res.status(200).json({ mensagem: "Usuário atualizado com sucesso" })
             })
         })
     })
 }
 
-//funções de comentários
+// funções de comentários
 
-// recebe pesquisa e página pela url e devolve comentários e dados da paginação em json
+// consulta os comentários com pesquisa e paginação
 function buscarComentarios(req, res, next) {
     const consulta = lerConsulta(req.query)
 
@@ -271,14 +249,11 @@ function buscarComentarios(req, res, next) {
     })
 }
 
-// recebe o id pela rota, exclui o comentário, registra a ação e responde em json
+// exclui o comentário escolhido e registra a ação do admin
 function excluirComentarioAdmin(req, res) {
     const id = Number(req.params.id)
 
-    // isSafeInteger() verifica se um número pode ser representado com precisão, protege contra valores decimais, NaN e valores grandes demais
     if (!Number.isSafeInteger(id) || id <= 0) {
-        
-        // status 400 - requisição inválida
         return res.status(400).json({ erro: "Indentificador do comentário inválido." })
     }
 
@@ -286,13 +261,10 @@ function excluirComentarioAdmin(req, res) {
         if (erro) {
             console.log("Erro ao excluir comentário:", erro)
 
-            // status 500 - erro interno do servidor
             return res.status(500).json({ erro: "Não foi possível excluir o comentário." })
         }
 
         if (resultado.affectedRows === 0) {
-
-            // status 404 - recurso não encontrado
             return res.status(404).json({ erro: "Comentário não encontrado" })
         }
 
@@ -311,9 +283,9 @@ function excluirComentarioAdmin(req, res) {
     })
 }
 //----------------------------------------------------------------------------------------------
-// função de log
+// funções de logs
 
-// recebe pesquisa e página pela url e devolve logs e dados da paginação em json
+// consulta os logs com pesquisa e paginação
 function buscarLogs(req, res, next) {
     const consulta = lerConsulta(req.query)
 

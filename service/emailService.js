@@ -21,7 +21,7 @@ function enviarCodigoRecuperacao(destinatario, codigo, callback) {
         Se você não solicitou a recuperação, ignore este e-mail.`
     }
 
-    // manda a mensagem pro email configurado
+    // envia ao destinatário usando a conta remetente configurada
     email.sendMail(mensagem, callback)
 }
 

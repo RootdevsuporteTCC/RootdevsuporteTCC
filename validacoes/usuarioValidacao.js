@@ -1,4 +1,4 @@
-// recebe os dados do usuário e normaliza nome, email e avatar
+// confere nome email e avatar sem alterar os dados recebidos
 // retorna uma mensagem de erro ou null quando os dados são válidos
 function validarDadosUsuario(usuario) {
     if (typeof usuario.nome !== "string" || typeof usuario.email !== "string") {
@@ -30,7 +30,7 @@ function validarDadosUsuario(usuario) {
     return null
 }
 
-// recebe a senha e sua confirmação e verifica as regras de cadastro
+// confere a senha e sua confirmação no cadastro e na recuperação
 // retorna uma mensagem de erro ou null quando a senha é válida
 function validarSenha(senha, confirmarSenha) {
     if (typeof senha !== "string" || typeof confirmarSenha !== "string") {

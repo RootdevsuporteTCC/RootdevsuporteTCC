@@ -563,26 +563,6 @@ A senha e o hash não fazem parte desse resultado.
 
 O service verifica as credenciais e prepara os dados. A criação da sessão é solicitada pelo controller.
 
-Em **controller/userController.js**, **loginUsuario** executa:
-
-```js
-const senhaCorreta = await bcrypt.compare(senha, usuario.user_pass)
-```
-
-A função recebe a senha digitada e o hash armazenado.
-
-O resultado informa se a senha corresponde ao hash. Não é necessário descriptografar o valor do banco.
-
-Se **senhaCorreta** for falso, o controller responde com status 401.
-
-A mensagem utilizada é a mesma para conta não encontrada e senha incorreta:
-
-**Nome, e-mail ou senha incorretos**
-
-Assim, a resposta não informa qual desses dados causou a falha.
-
-Se ocorrer um erro durante a comparação, o **catch** registra a falha no terminal e responde com status 500.
-
 ## Como a sessão é criada após o login
 
 Em **controller/userController.js**, depois de receber um resultado válido da autenticação, **loginUsuario** chama **iniciarSessao**, de **utils/sessao.js**:

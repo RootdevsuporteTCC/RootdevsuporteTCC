@@ -1,4 +1,4 @@
-require("dotenv").config() // carrega as variáveis do arquivo .env e sua biblioteca "dotenv" antes dos outros serviços
+require("dotenv").config() // carrega o env antes dos módulos que usam suas configurações
 
 const express = require('express')
 const path = require('path')
@@ -28,6 +28,7 @@ if (!process.env.SESSION_SECRET) {
     throw new Error("Configure SESSION_SECRET no arquivo .env")
 }
 
+// prepara os alerts antes da leitura dos dados para também apresentar erros dessa etapa
 app.use(alertaErros)
 
 // disponibiliza em req.body os dados enviados por formulários e json
@@ -44,7 +45,7 @@ app.use(session({
     saveUninitialized: false            // evita salvar sessões novas que ainda não receberam dados
 }))
 
-// encaminha cada grupo de rotas para seu arquivo de rotas
+// liga cada grupo de links ao arquivo de rotas correspondente
 app.use('/usuarios', userRoutes)
 app.use('/adm', admRoutes)
 app.use('/conteudo', conteudoRoutes)
@@ -54,11 +55,12 @@ app.use("/recuperacao", recuperacaoRoutes)
 // trata os erros encaminhados pelas rotas e middlewares
 app.use(tratarErros)
 
-// confere o acesso ao banco antes de iniciar o servidor
+// testa o acesso ao banco antes de carregar as aulas e iniciar o servidor
 conexao.query("SELECT 1", (erro) => {
     if (erro) {
         console.log("Não foi possível iniciar: falha na conexão com o banco.", erro.code)
 
+        // encerra o pool e sinaliza a falha sem iniciar o servidor http
         conexao.end(() => {
             process.exitCode = 1
         })
@@ -68,6 +70,7 @@ conexao.query("SELECT 1", (erro) => {
 
     console.log("Banco conectado com sucesso!")
 
+    // prepara o cache usado pelo menu pelas aulas e pela pesquisa
     conteudoController.carregarCacheConteudos()
 
     app.listen(port, () => {

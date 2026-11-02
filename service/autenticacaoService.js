@@ -1,6 +1,7 @@
 const userModel = require("../model/userModel")
 const { compararHash } = require("./criptografiaService")
 
+// verifica as credenciais e devolve o resultado sem criar a sessão
 function autenticar(login, senha, exigirAdmin, callback) {
     if (typeof login !== "string" || typeof senha !== "string" || !login.trim() || !senha || Buffer.byteLength(senha, "utf8") > 72) {
         callback(null, {
@@ -10,6 +11,7 @@ function autenticar(login, senha, exigirAdmin, callback) {
         return
     }
 
+    // busca por email no acesso do admin e por nome ou email no login comum
     const buscarUsuario = exigirAdmin ? userModel.buscarPorEmail : userModel.buscarPorLogin
 
     buscarUsuario(login.trim(), async (erro, usuario) => {
@@ -18,6 +20,7 @@ function autenticar(login, senha, exigirAdmin, callback) {
             return
         }
 
+        // usa a mesma mensagem para conta não encontrada e senha incorreta
         if (!usuario) {
             callback(null, {
                 status: 401,
@@ -43,6 +46,7 @@ function autenticar(login, senha, exigirAdmin, callback) {
             return
         }
 
+        // confere a permissão de admin somente depois de confirmar a senha
         if (exigirAdmin && usuario.user_tipo !== "admin") {
             callback(null, {
                 status: 403,
@@ -51,6 +55,7 @@ function autenticar(login, senha, exigirAdmin, callback) {
             return
         }
 
+        // devolve os dados da conta sem incluir o hash da senha
         callback(null, {
             usuario: {
                 id: usuario.user_id,
