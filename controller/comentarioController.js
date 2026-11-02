@@ -43,7 +43,7 @@ function salvarComentario(req, res) {
     fs.stat(caminhoArquivo, (erroArquivo, arquivo) => {
         if (erroArquivo) {
 
-            // ENOENT indica que o arquivo ou a pasta não foi encontrado
+            // o erro ENOENT indica que o arquivo ou a pasta não foi encontrado
             if (erroArquivo.code === "ENOENT") {
                 return res.status(404).json({ erro: "Aula não encontrada" })
             }

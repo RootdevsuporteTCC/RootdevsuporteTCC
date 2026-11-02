@@ -13,7 +13,7 @@ const usuarioValidacao = require("../validacoes/usuarioValidacao")
 
 // recebe o email e responde com uma mensagem genérica de solicitação
 // salva a recuperação e tenta enviar o código quando a conta existe
-    function solicitarRecuperacao(req, res) {
+function solicitarRecuperacao(req, res) {
     
     // usa um objeto vazio se req.body retornar qualquer valor "falsy"
     const dados = req.body || {}
